@@ -188,8 +188,8 @@
 
 (platform (macos)
   (defalias
-    ss (cmd "/usr/bin/open -a ScreenSaverEngine")
-    zz (cmd "/usr/bin/pmset sleepnow")
+    ss (cmd /usr/bin/open -a ScreenSaverEngine)
+    zz (cmd /usr/bin/pmset sleepnow)
     bru brup
     brd brdown
   )
@@ -206,10 +206,10 @@
 
 (platform (win winiov2 wintercept)
   (defalias
-    ss (cmd "/usr/bin/open -a ScreenSaverEngine")
-    zz (cmd "/usr/bin/pmset sleepnow")
-    bru (cmd "powershell.exe -ExecutionPolicy Bypass -Command \"C:\\Users\\romil\\scoop\\apps\\NirCmd\\2.87\\nircmd.exe changebrightness 10\"")
-    brd (cmd "powershell.exe -ExecutionPolicy Bypass -Command \"C:\\Users\\romil\\scoop\\apps\\NirCmd\\2.87\\nircmd.exe changebrightness -10\"")
+    ss (cmd powershell.exe -NoProfile -Command nircmd screensaver)
+    zz (cmd powershell.exe -NoProfile -Command nircmd standby)
+    bru (cmd powershell.exe -NoProfile -Command nircmd changebrightness +20)
+    brd (cmd powershell.exe -NoProfile -Command nircmd changebrightness -20)
   )
 )
 
