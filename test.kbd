@@ -1,7 +1,7 @@
 (defcfg
   danger-enable-cmd yes       ;; enable kanata to execute commands
   delegate-to-first-layer no  ;; transparent keys(_) on layers will delegate to the first-layer instead of the defsrc
-  process-unmapped-keys yes   ;; enable processing of keys that are not in defsrc.
+  process-unmapped-keys no    ;; enable processing of keys that are not in defsrc.
   block-unmapped-keys no      ;; disable all keys not mapped in defsrc.(process-unmapped-keys must be enabled)
   rapid-event-delay 5         ;; adds a certain delay in milliseconds to have kanata processor output keys in correct order
   concurrent-tap-hold yes     ;; have multiple tap-hold actions run concurrently, i.e. have next tap-hold start its timeout before expiry of the previous
@@ -12,18 +12,16 @@
   tap_timeout   100
   hold_timeout  200
   one_shot_timeout 300
+  tap_dance_timeout 150
   ;; shortened vars
   tt $tap_timeout
   ht $hold_timeout
   ost $one_shot_timeout
+  tdt $tap_dance_timeout
 )
 
 (deftemplate shift-fork (key when_shifted_key)
   (fork $key (multi (release-key sft) $when_shifted_key) (lsft rsft))
-)
-
-(deftemplate fn-fork (key key_fn)
-  (fork $key (unmod $key_fn) (fn))
 )
 
 ;; Aliases for keys accessible only via shifting
@@ -51,7 +49,7 @@
 
 ;; TLTR Activation
 ;; implementation 1
-#| (defchords tl_tr 500
+#|(defchords tl_tr 500
   (tl  ) (layer-while-held TL)
   (  tr) (layer-while-held TR)
   (tl tr) (layer-while-held TLTR)
@@ -61,7 +59,7 @@
   tr (chord tl_tr tr)
 )|#
 ;;implementation 2
-#| (defalias
+#|(defalias
   tl (multi nop3 (switch
     (nop4) (layer-while-held tltr) break
     () (multi (release-layer tltr) (layer-while-held tl)) break
@@ -73,14 +71,14 @@
 )|#
 ;; implementation 3
 (defvirtualkeys
-  release_layer_TLTR  (release-layer TLTR)
+  release_layer_TLTR (release-layer TLTR)
 )
 
 (defalias
- tl (multi (layer-while-held TL) (on-release tap-vkey release_layer_TLTR))
- tr (multi (layer-while-held TR) (on-release tap-vkey release_layer_TLTR))
- tltltr (multi (layer-while-held TL) (layer-while-held TLTR) (on-release tap-vkey release_layer_TLTR))
- trtltr (multi (layer-while-held TR) (layer-while-held TLTR) (on-release tap-vkey release_layer_TLTR))
+  tl     (multi (layer-while-held TL)                         (on-release press-vkey release_layer_TLTR))
+  tltltr (multi (layer-while-held TL) (layer-while-held TLTR) (on-release press-vkey release_layer_TLTR))
+  tr     (multi (layer-while-held TR)                         (on-release press-vkey release_layer_TLTR))
+  trtltr (multi (layer-while-held TR) (layer-while-held TLTR) (on-release press-vkey release_layer_TLTR))
 )
 
 (defalias
@@ -91,34 +89,36 @@
 )
 
 #| first-layer
- Custom Colemak, imet,
+ Custom Colemak with,
  1. curl mod (mod dh)
  2. wide mod (shifting right hand keys to the right by one key)
  3. angle mod (placement of z in the middle)
 |#
 (deflayer CUSTOM_COLEMAK
-  tab      q    w    f    p    b        j    l    u    y     '     ;
-  @delf    a    r    s    t    g        m    n    e    i     o     ret
-  lsft     x    c    d    v    z      @slaf  k    h   @comf @dotf  rsft
-                 @tl @tl           spc        @tr @tr
+  _     q w f p b        j     l u y     '     ;
+  @delf a r s t g        m     n e i     o     _
+  _     x c d v z        @slaf k h @comf @dotf _
+      @tl @tl       _       @tr @tr
 )
 
 (defalias
   ;; sticky modifiers
   ;; set of keys one-shot's gonna ignore
-  sPnk (one-shot-press $ost lalt)
-  sMid (one-shot-press $ost lsft)
-  sFn (one-shot-press $ost fn)
+  sPnk (one-shot-release $ost lalt)
+  sMid (one-shot-release $ost lsft)
+  sFn (one-shot-release $ost nop2)
+
   sWin (multi
-    (one-shot-press $ost lmet)
-    (one-shot-press $ost lctl)
-    (one-shot-press $ost lalt)
+    (one-shot-release $ost lmet)
+    (one-shot-release $ost lctl)
+    (one-shot-release $ost lalt)
   ) ;; window manager key (meant for window manipulation)
+
   sHyp (multi
-    (one-shot $ost lmet)
-    (one-shot $ost lctl)
-    (one-shot $ost lalt)
-    (one-shot $ost lsft)
+    (one-shot-release $ost lmet)
+    (one-shot-release $ost lctl)
+    (one-shot-release $ost lalt)
+    (one-shot-release $ost lsft)
   ) ;; hyper key (meant for application shortcuts)
 
   cw (caps-word-custom 3000
@@ -130,33 +130,39 @@
   pgdf (template-expand shift-fork pgdn end)
 )
 
+(defvirtualkeys
+  ctrl_key lctl
+  meta_key lmet
+)
+
 (platform (macos)
   (defalias
-    sPnt (one-shot-press $ost lmet)
-    sRng (one-shot-press $ost lctl)
+    sPnt (tap-dance $tdt ((one-shot-release $ost lmet) (on-press toggle-vkey meta_key)))
+    sRng (tap-dance $tdt ((one-shot-release $ost lctl) (on-press toggle-vkey ctrl_key)))
   )
 )
 
 (platform (win winiov2 wintercept linux)
   (defalias
-    sPnt (one-shot-press $ost lctl)
-    sRng (one-shot-press $ost lmet)
+    sPnt (tap-dance $tdt ((one-shot-release $ost lctl) (on-press toggle-vkey ctrl_key)))
+    sRng (one-shot-release $ost lmet)
   )
 )
 
 ;; TL (Thumb Left) layer for modifiers & navigation
 (deflayer TL
-  _ esc   @sWin XX    XX    XX      @pguf  @btb up   tab  rpt-any XX
+  _ esc   @sWin @sFn  XX    XX      @pguf  @btb up   tab  rpt XX
   _ @sPnk @sRng @sMid @sPnt XX      @pgdf  left down rght @cw     _
-  _ @sFn  XX    @sHyp XX    XX      XX     XX   bspc del  XX      _
-            @tl  @tl             _          @trtltr @trtltr
+  _ XX    XX    @sHyp XX    XX      XX     XX   bspc del  XX      _
+              XX  XX             _          @trtltr @trtltr
 )
 
 
 (defalias
   ;; symbols' forks
   ampf (template-expand shift-fork @amp @til)
-  pipf (template-expand shift-fork @pip @gra)
+  pipf (template-expand shift-fork @pip (unicode `))
+  dolf (template-expand shift-fork @dol (unicode ₹))
 
   ;; brackets' forks
   curf (template-expand shift-fork @cuo @cuc)
@@ -164,26 +170,26 @@
   sqrf (template-expand shift-fork @sbo @sbc)
 
   ;; funciton keys' fn-forks
-  1f (template-expand fn-fork @one f1)
-  2f (template-expand fn-fork @two f2)
-  3f (template-expand fn-fork @thr f3)
-  4f (template-expand fn-fork @fou f4)
-  5f (template-expand fn-fork @fiv f5)
-  6f (template-expand fn-fork @six f6)
-  7f (template-expand fn-fork @sev f7)
-  8f (template-expand fn-fork @eig f8)
-  9f (template-expand fn-fork @nin f9)
-  0f (template-expand fn-fork @zer f10)
-  astf (template-expand fn-fork @ast f11)
-  perf (template-expand fn-fork @per f12)
+  1f (fork @one f1 (nop2))
+  2f (fork @two f2 (nop2))
+  3f (fork @thr f3 (nop2))
+  4f (fork @fou f4 (nop2))
+  5f (fork @fiv f5 (nop2))
+  6f (fork @six f6 (nop2))
+  7f (fork @sev f7 (nop2))
+  8f (fork @eig f8 (nop2))
+  9f (fork @nin f9 (nop2))
+  0f (fork @zer f10 (nop2))
+  astf (fork @ast f11 (nop2))
+  perf (fork @per f12 (nop2))
 )
 
 ;; TR (Thumb Right) layer (symbols & numbers)
 (deflayer TR
-  _     @exc  @ats  @oct  @dol  @car      @perf  @7f   @8f   @9f   @plu  @equ
+  _     @exc  @ats  @oct  @dolf @car      @perf  @7f   @8f   @9f   @plu  @equ
   @delf @ampf @pipf @curf @parf @sqrf     @astf  @4f   @5f   @6f   @hpn  _
   _     XX    @ano  @anc  XX    XX        @slaf  @0f   @1f   @2f   @3f   _
-          @tltltr @tltltr              _            @tr @tr
+          @tltltr @tltltr             _              XX XX
 )
 
 (platform (macos)
@@ -197,8 +203,8 @@
 
 (platform (linux)
   (defalias
-    ss (cmd "/usr/bin/open -a ScreenSaverEngine")
-    zz (cmd "/usr/bin/pmset sleepnow")
+    ;;ss (cmd "/usr/bin/open -a ScreenSaverEngine")
+    ;;zz (cmd "/usr/bin/pmset sleepnow")
     bru brup
     brd brdown
   )
@@ -215,33 +221,13 @@
 
 (defalias
   scref (template-expand shift-fork @ss @zz)
-
   voldf (template-expand shift-fork vold mute)
   medif (template-expand shift-fork next prev)
 
-  ;; Dynamic macro
-  dms dynamic-macro-record-stop
-  dst (dynamic-macro-record-stop-truncate 4)
-  dr (dynamic-macro-record 0)
-  dp (dynamic-macro-play 0)
-
-  dmr (tap-dance 200 (@dr @dst))
-
-  ;; TODO:
-  ;; [ ] unicode
-  ;; [ ] dynamic-macro
-  ;; [ ] windows (brightness & sleep & screensaver)
-  ;; [ ] fn fork
-  ;; [ ] symbols uncomfortable(~, `)
-  ;; [ ] defoverrides
-  ;; [ ] double tapping modifiers in the TL layer locks it until double tapped again
-)
-
-(defalias
+  ;; mouse
   slw nop0
   scr nop1
 
-  ;; mouse
   mu (switch
     ((and nop0 nop1)) (mwheel-up 25 25) break
     (nop1) (mwheel-up 25 80) break
@@ -266,38 +252,41 @@
     (nop0) (movemouse-left 25 15) break
     () (movemouse-left 25 25) break
   )
+
+  ;; TODO:
+  ;; [ ] unicode
+  ;; [ ] dynamic-macro
 )
 
 (defvirtualkeys
-  emp (layer-while-held Empty)
+  def (layer-while-held Default)
 )
 
 (defalias
-  pemp (on-press press-vkey emp)
+  pdef (on-press press-vkey def)
 )
 
 ;;TLTR (Thumb Left & Thumb Right) layer (non-keyboard functions like mouse, media, etc.)
 (deflayer TLTR
   XX @scref @bru   pp     volu XX            XX XX  @mu XX  XX XX
-  XX @slw   @scr   XX     mlft mrgt          XX @ml @md @mr XX lrld
+  XX @slw   XX     @scr   mlft mrgt          XX @ml @md @mr XX lrld
   _  @brd   @medif @voldf XX   XX            XX XX  XX  XX  XX _
-          @tltltr @tltltr           @pemp      @trtltr  @trtltr
+                     XX XX           @pdef     XX XX
 )
 
 (defalias
-  remp (on-press release-vkey emp)
+  rdef (on-press release-vkey def)
 
-  nemp (switch
-    ((and lmet rmet)) @remp break
-    ((and lalt ralt)) @remp break
+  ndef (switch
+    ((and lmet rmet)) @rdef break
+    ((and lalt ralt)) @rdef break
     () spc break
   )
 )
 
-;; Empty layer for switching back to QWERTY
-(deflayer Empty
-  _ _ _ _ _ _          _ _ _ _ _ _
-  _ _ _ _ _ _          _ _ _ _ _ _
-  _ _ _ _ _ _          _ _ _ _ _ _
-     _ _        @nemp      _ _
+(deflayer Default
+  tab  q w e r t         u i o p [ ]
+  caps a s d f g         j k l ; ' ret
+  _    z x c v b         n m , . / _
+    lalt lmet     @ndef     rmet ralt
 )
