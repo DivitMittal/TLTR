@@ -18,17 +18,17 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 
 ## Can be deployed via:
 1. [Kanata](https://github.com/jtroo/kanata/)
-  - macOS
-  - Windows
-  - *nix
+    - macOS
+    - Windows
+    - *nix
 
 2. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
-  - macOS
+    - macOS
 
 ## Supported & Tested on:
-- [ ANSI US QWERTY keyboards ](https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg)
-- macOS, *nix, & Windows systems
+    - [ANSI US QWERTY keyboards](https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg)
+    - macOS, *nix, & Windows systems
 
 ---
-**Inspired by**
+**Inspired by:**
 [Seniply](https://github.com/stevep99/seniply)
