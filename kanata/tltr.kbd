@@ -152,12 +152,12 @@
 )
 (platform (win winiov2 wintercept linux)
   (defalias
-    sPnt (tap-dance $td_timeout (
+    sPnt (one-shot-release $os_timeout lmet)
+    sRng (tap-dance $td_timeout (
         (one-shot-release $os_timeout lctl)
         (on-press toggle-vkey ctrl_key)
       )
     )
-    sRng (one-shot-release $os_timeout lmet)
   )
 )
 
