@@ -281,8 +281,8 @@
 )
 
 ;; default switching
-(defvirtualkeys on_default_layer (layer-while-held Default))
-(defalias def (on-press press-vkey on_default_layer))
+(defvirtualkeys on_qwerty_layer (layer-while-held QWERTY))
+(defalias def (on-press press-vkey on_qwerty_layer))
 
 ;; TLTR (Thumb Left & Thumb Right) layer
 ;; for non-keyboard functions like mouse, media, etc.
@@ -295,14 +295,14 @@
 
 (defalias
   ndef (switch
-    ((and lmet rmet)) (on-press release-vkey on_default_layer) break
-    ((and lalt ralt)) (on-press release-vkey on_default_layer) break
+    ((and lmet rmet)) (on-press release-vkey on_qwerty_layer) break
+    ((and lalt ralt)) (on-press release-vkey on_qwerty_layer) break
     () spc break
   )
 )
 
-;; Default layer (ANSI QWERTY)
-(deflayer Default
+;;ANSI QWERTY layer
+(deflayer QWERTY
   tab  q w e r t         u i o p [ ]
   caps a s d f g         j k l ; ' ret
   _    z x c v b         n m , . / _
