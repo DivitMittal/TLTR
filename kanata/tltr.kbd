@@ -3,23 +3,9 @@
   delegate-to-first-layer yes  ;; transparent keys(_) delegate to first-layer only if layer-switch is used to activate the layer
   process-unmapped-keys no
   block-unmapped-keys no
-  rapid-event-delay 1         ;; adds a certain delay(ms) to have kanata processor output keys in correct order
+  rapid-event-delay 2         ;; adds a certain delay(ms) to have kanata processor output keys in correct order
   concurrent-tap-hold yes
   log-layer-changes no
-)
-
-;; Aliases for keys accessible only via shifting
-(defalias
-  til S-grv exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 und S-min plu S-eql
-  btb S-tab                                                                                   cuo S-[ cuc S-] pip S-\
-                                                                        ano S-comm anc S-. que S-/
-)
-
-;; Aliases for keys that are certainly to be unshifted
-(defalias
-  btk (unshift grv) one (unshift 1) two (unshift 2) thr (unshift 3) fou (unshift 4) fiv (unshift 5) six (unshift 6) sev (unshift 7) eig (unshift 8) nin (unshift 9) zer (unshift 0) hpn (unshift min) equ (unshift eql)
-                                                                                         sbo (unshift [) sbc (unshift ]) bsl (unshift \)
-                                                                                         com (unshift comm) dot (unshift .) fsl (unshift /)
 )
 
 ;; the reduced ANSI QWERTY 60% layout (39-key layout)
@@ -31,7 +17,6 @@
 )
 
 ;; TLTR Activation
-
 ;; implementation 1
 #|
 (defchords tl_tr 500
@@ -44,7 +29,6 @@
   tr (chord tl_tr tr)
 )
 |#
-
 ;;implementation 2
 #|
 (defalias
@@ -71,11 +55,18 @@
   trtltr (multi (layer-while-held TR) (layer-while-held TLTR) (on-release press-vkey release_layer_TLTR))
 )
 
+;; Aliases for keys accessible only via shifting
+(defalias
+  til S-grv exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 und S-min plu S-eql
+  btb S-tab                                                                                   cuo S-[ cuc S-] pip S-\
+                                                                        ano S-comm anc S-. que S-/
+)
+
 (defalias
   delf (fork bspc (unshift del) (lsft rsft))
-  slaf (fork @fsl @bsl (lsft rsft))
-  comf (fork @com @und (lsft rsft))
-  dotf (fork @dot @que (lsft rsft))
+  slaf (fork / (unshift \) (lsft rsft))
+  comf (fork comm @und (lsft rsft))
+  dotf (fork . @que (lsft rsft))
 )
 
 #|
@@ -124,27 +115,30 @@
 (defalias
   ;; symbols' forks
   ampf (fork @amp @til (lsft rsft))
-  pipf (fork @pip @btk (lsft rsft))
+  pipf (fork @pip (unshift grv) (lsft rsft))
   dolf (fork @dol (unicode ₹) (lsft rsft))
 
   ;; brackets' forks
   curf (fork @cuo @cuc (lsft rsft))
   parf (fork @pao @pac (lsft rsft))
-  sqrf (fork @sbo @sbc (lsft rsft))
+  sqrf (fork [ (unshift ]) (lsft rsft))
 
   ;; funciton keys' fn-forks
-  1f   (fork @one f1  (nop2))
-  2f   (fork @two f2  (nop2))
-  3f   (fork @thr f3  (nop2))
-  4f   (fork @fou f4  (nop2))
-  5f   (fork @fiv f5  (nop2))
-  6f   (fork @six f6  (nop2))
-  7f   (fork @sev f7  (nop2))
-  8f   (fork @eig f8  (nop2))
-  9f   (fork @nin f9  (nop2))
-  0f   (fork @zer f10 (nop2))
+  1f   (fork 1 f1  (nop2))
+  2f   (fork 2 f2  (nop2))
+  3f   (fork 3 f3  (nop2))
+  4f   (fork 4 f4  (nop2))
+  5f   (fork 5 f5  (nop2))
+  6f   (fork 6 f6  (nop2))
+  7f   (fork 7 f7  (nop2))
+  8f   (fork 8 f8  (nop2))
+  9f   (fork 9 f9  (nop2))
+  0f   (fork 0 f10 (nop2))
   astf (fork @ast f11 (nop2))
   perf (fork @per f12 (nop2))
+
+  hpn (unshift min)
+  equ (unshift eql)
 )
 
 ;; TR (Thumb Right) layer
