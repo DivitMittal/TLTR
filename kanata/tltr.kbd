@@ -54,14 +54,10 @@
   trtltr (multi (layer-while-held TR) (layer-while-held TLTR) (on-release press-vkey release_layer_TLTR))
 )
 
-;; Aliases for keys accessible only via shifting
 (defalias
-  til S-ˋ exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 und S-‐ plu S-₌
-  btb S-↹                                                                                   cuo S-[ cuc S-] pip S-\
-                                                                        ano S-, anc S-. que S-/
-)
-
-(defalias
+  ;; chords
+  und S-‐ que S-/
+  ;; forks
   delf (fork ⌫ (unshift ⌦) (‹⇧ ⇧›))
   slaf (fork / (unshift \) (‹⇧ ⇧›))
   comf (fork , @und (‹⇧ ⇧›))
@@ -87,20 +83,24 @@
 )
 
 (defalias
-  ;; sticky modifiers
+  ;; chords
+  btb S-↹
+  ;; sticky/one-shot modifiers
   sMet (one-shot-release $os_timeout ‹◆)
   sSft (one-shot-release $os_timeout ‹⇧)
   sCtl (one-shot-release $os_timeout ‹⌃)
   sAlt (one-shot-release $os_timeout ‹⌥)
-  sFn (one-shot-release $os_timeout nop2)
+  sFn (one-shot-release $os_timeout nop0)
   sWin (multi @sAlt @sCtl @sMet)         ;; window-manager key (meant for window manipulation)
   sHyp (multi @sAlt @sCtl @sSft @sMet)   ;; hyper key (meant for application shortcuts)
+  ;; forks
+  pguf (fork ⇞ (unshift ⤒) (‹⇧ ⇧›))
+  pgdf (fork ⇟ (unshift ⤓) (‹⇧ ⇧›))
+  ;; caps-word
   cw (caps-word-custom $cw_timeout
     (a b c d e f g h i j k l m n o p q r s t u v w x y z) ;; to be shifted
     (1 2 3 4 5 6 7 8 9 0 ▲ ▼ ◀ ▶ ⌫ ⌦ ‐ ‹⇧ ⇧›)  ;; ignore
   )
-  pguf (fork ⇞ (unshift ⤒) (‹⇧ ⇧›))
-  pgdf (fork ⇟ (unshift ⤓) (‹⇧ ⇧›))
 )
 
 ;; TL (Thumb Left) layer
@@ -113,10 +113,16 @@
 )
 
 (defalias
+  hpn (unshift ‐) equ (unshift ₌)
+  ;; chords
+  til S-ˋ exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 plu S-₌
+  cuo S-[ cuc S-] pip S-\ ano S-, anc S-.
   ;; symbols' forks
-  ampf (fork @amp @til (‹⇧ ⇧›))
-  pipf (fork @pip (unshift ˋ) (‹⇧ ⇧›))
+  excf (fork @exc (unshift ˋ) (‹⇧ ⇧›))
+  atsf (fork @ats @til (‹⇧ ⇧›))
+  octf (fork @oct @car (‹⇧ ⇧›))
   dolf (fork @dol (unicode ₹) (‹⇧ ⇧›))
+  ampf (fork @amp @pip (‹⇧ ⇧›))
 
   ;; brackets' forks
   curf (fork @cuo @cuc (‹⇧ ⇧›))
@@ -124,30 +130,27 @@
   sqrf (fork [ (unshift ]) (‹⇧ ⇧›))
 
   ;; funciton keys' fn-forks
-  1f   (fork 1 f1  (nop2))
-  2f   (fork 2 f2  (nop2))
-  3f   (fork 3 f3  (nop2))
-  4f   (fork 4 f4  (nop2))
-  5f   (fork 5 f5  (nop2))
-  6f   (fork 6 f6  (nop2))
-  7f   (fork 7 f7  (nop2))
-  8f   (fork 8 f8  (nop2))
-  9f   (fork 9 f9  (nop2))
-  0f   (fork 0 f10 (nop2))
-  astf (fork @ast f11 (nop2))
-  perf (fork @per f12 (nop2))
-
-  hpn (unshift ‐)
-  equ (unshift ₌)
+  1f   (fork 1 f1  (nop0))
+  2f   (fork 2 f2  (nop0))
+  3f   (fork 3 f3  (nop0))
+  4f   (fork 4 f4  (nop0))
+  5f   (fork 5 f5  (nop0))
+  6f   (fork 6 f6  (nop0))
+  7f   (fork 7 f7  (nop0))
+  8f   (fork 8 f8  (nop0))
+  9f   (fork 9 f9  (nop0))
+  0f   (fork 0 f10 (nop0))
+  astf (fork @ast f11 (nop0))
+  perf (fork @per f12 (nop0))
 )
 
 ;; TR (Thumb Right) layer
 ;; for symbols & numbers
 (deflayer TR
-  _  @exc  @ats  @oct  @dolf @car      @perf  @7f  @8f  @9f  @plu  @equ
-  _  @ampf @pipf @curf @parf @sqrf     @astf  @4f  @5f  @6f  @hpn  _
-  _  XX    @ano  @anc  XX    XX        @slaf  @0f  @1f  @2f  @3f   _
-       @tltltr @tltltr             _             XX XX
+  _  @excf @atsf @octf @dolf XX      @perf  @7f  @8f  @9f  @plu  @equ
+  _  @ampf @sqrf @curf @parf XX      @astf  @4f  @5f  @6f  @hpn  _
+  _  XX    @ano  @anc  XX    XX      @slaf  @0f  @1f  @2f  @3f   _
+       @tltltr @tltltr            _             XX XX
 )
 
 (defvirtualkeys
@@ -185,6 +188,7 @@
     brl (fork (cmd nircmd changebrightness -10) (cmd nircmd changebrightness -100) (‹⇧ ⇧›))
   )
 )
+
 (defalias
   scre (tap-hold 200 500 @ss @zz)
   med (switch
@@ -210,27 +214,27 @@
   ;; if natural scrolling is enabled
   (defalias
     mu (switch
-      ((and nop0 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-down $repeat_delay $scroll_move) break
-      (nop0) (movemouse-up $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-up $repeat_delay $slow_mouse_move) break
       () (movemouse-up $repeat_delay $mouse_move) break
     )
     md (switch
-      ((and nop0 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-up $repeat_delay $scroll_move) break
-      (nop0) (movemouse-down $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-down $repeat_delay $slow_mouse_move) break
       () (movemouse-down $repeat_delay $mouse_move) break
     )
     mr (switch
-      ((and nop0 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-left $repeat_delay $scroll_move) break
-      (nop0) (movemouse-right $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-right $repeat_delay $slow_mouse_move) break
       () (movemouse-right $repeat_delay $mouse_move) break
     )
     ml (switch
-      ((and nop0 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-right $repeat_delay $scroll_move) break
-      (nop0) (movemouse-left $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-left $repeat_delay $slow_mouse_move) break
       () (movemouse-left $repeat_delay $mouse_move) break
     )
   )
@@ -249,27 +253,27 @@
 (platform (linux win winiov2 wintercept)
   (defalias
     mu (switch
-      ((and nop0 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-up $repeat_delay $scroll_move) break
-      (nop0) (movemouse-up $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-up $repeat_delay $slow_mouse_move) break
       () (movemouse-up $repeat_delay $mouse_move) break
     )
     md (switch
-      ((and nop0 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-down $repeat_delay $scroll_move) break
-      (nop0) (movemouse-down $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-down $repeat_delay $slow_mouse_move) break
       () (movemouse-down $repeat_delay $mouse_move) break
     )
     mr (switch
-      ((and nop0 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-right $repeat_delay $scroll_move) break
-      (nop0) (movemouse-right $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-right $repeat_delay $slow_mouse_move) break
       () (movemouse-right $repeat_delay $mouse_move) break
     )
     ml (switch
-      ((and nop0 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
+      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
       (nop1) (mwheel-left $repeat_delay $scroll_move) break
-      (nop0) (movemouse-left $repeat_delay $slow_mouse_move) break
+      (nop2) (movemouse-left $repeat_delay $slow_mouse_move) break
       () (movemouse-left $repeat_delay $mouse_move) break
     )
   )
@@ -280,7 +284,7 @@
   on_qwerty_layer (layer-while-held QWERTY)
 )
 (defalias
-  slw nop0
+  slw nop2
   scr nop1
   def (on-press press-vkey on_qwerty_layer)
 )
