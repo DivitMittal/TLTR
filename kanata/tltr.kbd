@@ -10,10 +10,10 @@
 
 ;; the reduced ANSI QWERTY 60% layout (39-key layout)
 (defsrc
-  tab    q    w    e    r    t         u    i    o    p   [     ]    ;; 12 keys
-  caps   a    s    d    f    g         j    k    l    ;    '    ret  ;; 12 keys
-  lsft   z    x    c    v    b         n    m    ,    .    /    rsft ;; 12 keys
-              lalt lmet          spc          rmet ralt              ;; 3  keys (2 redundant keys for interoperability b/w diff. keyboards & OS)
+  ↹   q    w    e    r    t         u    i    o    p   [     ]  ;; 12 keys
+  ⇪   a    s    d    f    g         j    k    l    ;    '    ⏎  ;; 12 keys
+  ‹⇧  z    x    c    v    b         n    m    ,    .    /    ⇧› ;; 12 keys
+                ‹⌥ ‹◆          ␣          ◆› ⌥›                 ;; 3 keys (2 redundant keys for interoperability b/w diff. keyboards & OS)
 )
 
 ;; TLTR Activation
@@ -42,7 +42,6 @@
   ))
 )
 |#
-
 ;; implementation 3
 (defvirtualkeys
   release_layer_TLTR (release-layer TLTR)
@@ -57,16 +56,16 @@
 
 ;; Aliases for keys accessible only via shifting
 (defalias
-  til S-grv exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 und S-min plu S-eql
-  btb S-tab                                                                                   cuo S-[ cuc S-] pip S-\
-                                                                        ano S-comm anc S-. que S-/
+  til S-ˋ exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 und S-‐ plu S-₌
+  btb S-↹                                                                                   cuo S-[ cuc S-] pip S-\
+                                                                        ano S-, anc S-. que S-/
 )
 
 (defalias
-  delf (fork bspc (unshift del) (lsft rsft))
-  slaf (fork / (unshift \) (lsft rsft))
-  comf (fork comm @und (lsft rsft))
-  dotf (fork . @que (lsft rsft))
+  delf (fork ⌫ (unshift ⌦) (‹⇧ ⇧›))
+  slaf (fork / (unshift \) (‹⇧ ⇧›))
+  comf (fork , @und (‹⇧ ⇧›))
+  dotf (fork . @que (‹⇧ ⇧›))
 )
 
 #|
@@ -84,44 +83,45 @@
 
 (defvar
   os_timeout 300
+  cw_timeout 5000
 )
 
 (defalias
   ;; sticky modifiers
-  sMet (one-shot-release $os_timeout lmet)
-  sSft (one-shot-release $os_timeout lsft)
-  sCtl (one-shot-release $os_timeout lctl)
-  sAlt (one-shot-release $os_timeout lalt)
+  sMet (one-shot-release $os_timeout ‹◆)
+  sSft (one-shot-release $os_timeout ‹⇧)
+  sCtl (one-shot-release $os_timeout ‹⌃)
+  sAlt (one-shot-release $os_timeout ‹⌥)
   sFn (one-shot-release $os_timeout nop2)
   sWin (multi @sAlt @sCtl @sMet)         ;; window-manager key (meant for window manipulation)
   sHyp (multi @sAlt @sCtl @sSft @sMet)   ;; hyper key (meant for application shortcuts)
-  cw (caps-word-custom 3000
-    (a b c d e f g h i j k l m n o p q r s t u v w x y z)
-    (1 2 3 4 5 6 7 8 9 0 left down up rght bspc del - rsft lsft)
+  cw (caps-word-custom $cw_timeout
+    (a b c d e f g h i j k l m n o p q r s t u v w x y z) ;; to be shifted
+    (1 2 3 4 5 6 7 8 9 0 ▲ ▼ ◀ ▶ ⌫ ⌦ ‐ ‹⇧ ⇧›)  ;; ignore
   )
-  pguf (fork pgup (unshift home) (lsft rsft))
-  pgdf (fork pgdn (unshift end) (lsft rsft))
+  pguf (fork ⇞ (unshift ⤒) (‹⇧ ⇧›))
+  pgdf (fork ⇟ (unshift ⤓) (‹⇧ ⇧›))
 )
 
 ;; TL (Thumb Left) layer
 ;; for modifiers & navigation
 (deflayer TL
-  _ esc   @sWin @sFn  XX    XX      @pguf  @btb up   tab  XX  XX
-  _ @sAlt @sCtl @sSft @sMet XX      @pgdf  left down rght @cw _
-  _ XX    XX    @sHyp XX    XX      XX     XX   bspc del  XX  _
-              XX  XX             _          @trtltr @trtltr
+  _ ⎋     @sWin @sFn  XX    XX      @pguf  @btb ▲   ↹  XX  XX
+  _ @sAlt @sCtl @sSft @sMet XX      @pgdf  ◀    ▼   ▶  @cw _
+  _ XX    XX    @sHyp XX    XX      XX     XX   ⌫   ⌦  XX  _
+             XX  XX             _          @trtltr @trtltr
 )
 
 (defalias
   ;; symbols' forks
-  ampf (fork @amp @til (lsft rsft))
-  pipf (fork @pip (unshift grv) (lsft rsft))
-  dolf (fork @dol (unicode ₹) (lsft rsft))
+  ampf (fork @amp @til (‹⇧ ⇧›))
+  pipf (fork @pip (unshift ˋ) (‹⇧ ⇧›))
+  dolf (fork @dol (unicode ₹) (‹⇧ ⇧›))
 
   ;; brackets' forks
-  curf (fork @cuo @cuc (lsft rsft))
-  parf (fork @pao @pac (lsft rsft))
-  sqrf (fork [ (unshift ]) (lsft rsft))
+  curf (fork @cuo @cuc (‹⇧ ⇧›))
+  parf (fork @pao @pac (‹⇧ ⇧›))
+  sqrf (fork [ (unshift ]) (‹⇧ ⇧›))
 
   ;; funciton keys' fn-forks
   1f   (fork 1 f1  (nop2))
@@ -137,8 +137,8 @@
   astf (fork @ast f11 (nop2))
   perf (fork @per f12 (nop2))
 
-  hpn (unshift min)
-  equ (unshift eql)
+  hpn (unshift ‐)
+  equ (unshift ₌)
 )
 
 ;; TR (Thumb Right) layer
@@ -151,46 +151,46 @@
 )
 
 (defvirtualkeys
-  brightness_up_key (unshift brup)
-  brightness_down_key (unshift brdown)
+  brightness_up_key (unshift 🔆)
+  brightness_down_key (unshift 🔅)
 )
 ;; media & screen control
 (platform (macos)
   (defalias
     ss (cmd /usr/bin/open -a ScreenSaverEngine)
     zz (cmd /usr/bin/pmset sleepnow)
-    voli (fork volu (macro (cmd /usr/bin/osascript -e "set volume output volume 100") 275 (unshift volu)) (lsft rsft))
-    voll (fork vold (macro (cmd /usr/bin/osascript -e "set volume output volume 0") 275 (unshift vold)) (lsft rsft))
-    bri (fork brup (macro (on-press press-vkey brightness_up_key) 750 (on-press release-vkey brightness_up_key)) (lsft rsft))
-    brl (fork brdown (macro (on-press press-vkey brightness_down_key) 750 (on-press release-vkey brightness_down_key)) (lsft rsft))
+    voli (fork 🔊 (macro (cmd /usr/bin/osascript -e "set volume output volume 100") 275 (unshift 🔊)) (‹⇧ ⇧›))
+    voll (fork 🔉 (macro (cmd /usr/bin/osascript -e "set volume output volume 0") 275 (unshift 🔉)) (‹⇧ ⇧›))
+    bri (fork 🔆 (macro (on-press press-vkey brightness_up_key) 750 (on-press release-vkey brightness_up_key)) (‹⇧ ⇧›))
+    brl (fork 🔅 (macro (on-press press-vkey brightness_down_key) 750 (on-press release-vkey brightness_down_key)) (‹⇧ ⇧›))
   )
 )
 (platform (linux)
   (defalias
     ss (cmd /usr/bin/xscreensaver-command -activate)
     zz (cmd /usr/bin/xset dpms force off)
-    voli (fork volu (cmd /usr/bin/amixer -D pulse sset Master 100%) (lsft rsft))
-    voll (fork vold (cmd /usr/bin/amixer -D pulse sset Master 0%) (lsft rsft))
-    bri (fork brup (cmd /usr/bin/xbacklight -set 100) (lsft rsft))
-    brl (fork brdown (cmd /usr/bin/xbacklight -set 0) (lsft rsft))
+    voli (fork 🔊 (cmd /usr/bin/amixer -D pulse sset Master 100%) (‹⇧ ⇧›))
+    voll (fork 🔉 (cmd /usr/bin/amixer -D pulse sset Master 0%) (‹⇧ ⇧›))
+    bri (fork 🔆 (cmd /usr/bin/xbacklight -set 100) (‹⇧ ⇧›))
+    brl (fork 🔅 (cmd /usr/bin/xbacklight -set 0) (‹⇧ ⇧›))
   )
 )
 (platform (win winiov2 wintercept)
   (defalias
     ss (cmd nircmd screensaver)
     zz (cmd nircmd standby)
-    voli (fork volu (cmd nircmd setsysvolume 65535) (lsft rsft))
-    voll (fork vold (cmd nircmd setsysvolume 0) (lsft rsft))
-    bri (fork (cmd nircmd changebrightness +10) (cmd nircmd changebrightness +100) (lsft rsft))
-    brl (fork (cmd nircmd changebrightness -10) (cmd nircmd changebrightness -100) (lsft rsft))
+    voli (fork 🔊 (cmd nircmd setsysvolume 65535) (‹⇧ ⇧›))
+    voll (fork 🔉 (cmd nircmd setsysvolume 0) (‹⇧ ⇧›))
+    bri (fork (cmd nircmd changebrightness +10) (cmd nircmd changebrightness +100) (‹⇧ ⇧›))
+    brl (fork (cmd nircmd changebrightness -10) (cmd nircmd changebrightness -100) (‹⇧ ⇧›))
   )
 )
 (defalias
   scre (tap-hold 200 500 @ss @zz)
   med (switch
-    (rsft) (unshift next) break
-    (lsft) (unshift prev) break
-    () pp break
+    (⇧›) (unshift ▶▶) break
+    (‹⇧) (unshift ◀◀) break
+    () ▶⏸ break
   )
 )
 
@@ -294,18 +294,18 @@
                 XX XX            @def          XX XX
 )
 
-(defalias
-  ndef (switch
-    ((and lmet rmet)) (on-press release-vkey on_qwerty_layer) break
-    ((and lalt ralt)) (on-press release-vkey on_qwerty_layer) break
-    () spc break
+(defalias ndef
+  (switch
+    ((and ‹◆ ◆›)) (on-press release-vkey on_qwerty_layer) break
+    ((and ‹⌥ ⌥›)) (on-press release-vkey on_qwerty_layer) break
+    () ␣ break
   )
 )
 
 ;;ANSI QWERTY layer
 (deflayer QWERTY
-  tab  q w e r t         u i o p [ ]
-  caps a s d f g         j k l ; ' ret
-  _    z x c v b         n m , . / _
-      lalt lmet   @ndef   rmet ralt
+  ↹   q    w    e    r    t         u    i    o    p   [     ]
+  ⇪   a    s    d    f    g         j    k    l    ;    '    ⏎
+  _   z    x    c    v    b         n    m    ,    .    /    _
+              ‹⌥ ‹◆          @ndef          ◆› ⌥›
 )
