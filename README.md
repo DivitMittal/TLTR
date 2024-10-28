@@ -1,7 +1,7 @@
 <h1 align='center'> TLTR </h1>
-<h3 align='center'>
+<div align='center'>
     <img title='TLTR' src='./assets/logo.png' alt='Logo for the layout' height='250' />
-</h3>
+</div>
 
 Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it optimizes for:
   1. Minimal mouse/trackpad dependency
@@ -17,13 +17,18 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 | QWERTY                                                                                 | Backwards Compatibility        |
 
 ## Can be deployed via:
-- [Kanata](https://github.com/jtroo/kanata/)
-    - macOS
-    - Windows
-    - *nix
+1. [Kanata](https://github.com/jtroo/kanata/)
+  1. macOS
+      1. Dependencies:
+        1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-3.1.0.pkg)
+    2. Windows
+      1.Dependencies:
+        1. [nircmd](https://www.nirsoft.net/utils/nircmd.html)
+        2. [InterceptionDriver](https://github.com/oblitum/Interception)
+    3. *nix
 
-- [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
-    - macOS
+2. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
+    1. macOS
 
 ## Supported & Tested on:
 - [ANSI US QWERTY keyboards](https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg)
