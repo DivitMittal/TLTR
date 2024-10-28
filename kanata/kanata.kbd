@@ -1,14 +1,17 @@
+(include config.kbd)
+
 (defcfg
-  danger-enable-cmd yes
-  delegate-to-first-layer yes  ;; transparent keys(_) delegate to first-layer only if layer-switch is used to activate the layer
+  log-layer-changes no
+  rapid-event-delay 2         ;; adds a certain delay(ms) to have kanata processor output keys in correct order
   process-unmapped-keys no
   block-unmapped-keys no
-  rapid-event-delay 2         ;; adds a certain delay(ms) to have kanata processor output keys in correct order
+
+  danger-enable-cmd yes
+  delegate-to-first-layer yes  ;; transparent keys(_) delegate to first-layer only if layer-switch is used to activate the layer
   concurrent-tap-hold yes
-  log-layer-changes no
 )
 
-;; the reduced ANSI QWERTY 60% layout (39-key layout)
+;; the reduced ANSI QWERTY 60% layout (39-key  layout)
 (defsrc
   ↹   q    w    e    r    t         u    i    o    p   [     ]  ;; 12 keys
   ⇪   a    s    d    f    g         j    k    l    ;    '    ⏎  ;; 12 keys
@@ -198,81 +201,58 @@
   )
 )
 
-;; mouse
-(platform (macos)
-  (defvar
-    ;; in pixels
-    mouse_move 40
-    slow_mouse_move 10
-    scroll_move 02
-    slow_scroll_move 01
-    ;; in milliseconds
-    repeat_delay 25
-  )
-)
-(platform (macos)
-  ;; if natural scrolling is enabled
+(environment (kanata_rscroll "")
   (defalias
     mu (switch
-      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-down $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-up $repeat_delay $scroll_move) break
       (nop2) (movemouse-up $repeat_delay $slow_mouse_move) break
       () (movemouse-up $repeat_delay $mouse_move) break
     )
     md (switch
-      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-up $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-down $repeat_delay $scroll_move) break
       (nop2) (movemouse-down $repeat_delay $slow_mouse_move) break
       () (movemouse-down $repeat_delay $mouse_move) break
     )
     mr (switch
-      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-left $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-right $repeat_delay $scroll_move) break
       (nop2) (movemouse-right $repeat_delay $slow_mouse_move) break
       () (movemouse-right $repeat_delay $mouse_move) break
     )
     ml (switch
-      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-right $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-left $repeat_delay $scroll_move) break
       (nop2) (movemouse-left $repeat_delay $slow_mouse_move) break
       () (movemouse-left $repeat_delay $mouse_move) break
     )
   )
 )
-(platform (linux win winiov2 wintercept)
-  (defvar
-    ;; in pixels
-    mouse_move 35
-    slow_mouse_move 10
-    scroll_move 50
-    slow_scroll_move 20
-    ;; in milliseconds
-    repeat_delay 25
-  )
-)
-(platform (linux win winiov2 wintercept)
+
+(environment (kanata_rscroll 1)
   (defalias
     mu (switch
-      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-up $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-down $repeat_delay $scroll_move) break
       (nop2) (movemouse-up $repeat_delay $slow_mouse_move) break
       () (movemouse-up $repeat_delay $mouse_move) break
     )
     md (switch
-      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-down $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-up $repeat_delay $scroll_move) break
       (nop2) (movemouse-down $repeat_delay $slow_mouse_move) break
       () (movemouse-down $repeat_delay $mouse_move) break
     )
     mr (switch
-      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-right $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-left $repeat_delay $scroll_move) break
       (nop2) (movemouse-right $repeat_delay $slow_mouse_move) break
       () (movemouse-right $repeat_delay $mouse_move) break
     )
     ml (switch
-      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-left $repeat_delay $scroll_move) break
+      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
+      (nop1) (mwheel-right $repeat_delay $scroll_move) break
       (nop2) (movemouse-left $repeat_delay $slow_mouse_move) break
       () (movemouse-left $repeat_delay $mouse_move) break
     )

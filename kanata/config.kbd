@@ -1,0 +1,9 @@
+(defvar
+  ;; in pixels
+  mouse_move 35
+  slow_mouse_move 5
+  scroll_move 2
+  slow_scroll_move 1
+  ;; in milliseconds
+  repeat_delay 25
+)
