@@ -9,6 +9,7 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 3. Execution of complex keyboard shortcuts w/o cumbersome finger gymnastics.
 
 ---
+
 | Layers                                                                                 | Functionality                  |
 | ------                                                                                 | -------------                  |
 | [Colemak Mod-DH,Wide,Angle](https://github.com/ColemakMods/mod-dh?tab=readme-ov-file)  | English letters & punctuations |
@@ -16,6 +17,12 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 | TR                                                                                     | Numbers & Symbols              |
 | TLTR                                                                                   | Mouse, Media & Display control |
 | QWERTY                                                                                 | Backwards Compatibility        |
+
+<div align='center'>
+    <img title='Layers' src='./keymap-drawer/t1.svg' alt='Layers of the keyboard layout visualized'/>
+</div>
+
+---
 
 ## Can be deployed via:
 1. [Kanata](https://github.com/jtroo/kanata/)
@@ -31,9 +38,12 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 2. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
     1. macOS
 
+---
+
 ## Supported & Tested on:
 - [ANSI US QWERTY keyboards](https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg)
 - macOS, *nix, & Windows systems
 
 ---
+
 **Inspired by:** [Seniply](https://github.com/stevep99/seniply)
