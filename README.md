@@ -1,6 +1,6 @@
 <h1 align='center'> TLTR </h1>
 <div align='center'>
-    <img title='TLTR' src='./assets/logo.png' alt='Logo for the layout' height='250' />
+    <img title='TLTR' src='./assets/logo.png' alt='Logo for the layout' height='250px'/>
 </div>
 
 Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it optimizes for:
@@ -43,7 +43,5 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 ## Supported & Tested on:
 - [ANSI US QWERTY keyboards](https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg)
 - macOS, *nix, & Windows systems
-
----
 
 **Inspired by:** [Seniply](https://github.com/stevep99/seniply)
