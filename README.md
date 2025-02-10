@@ -1,4 +1,4 @@
-<h1 align='center'> TLTR </h1>
+<h1 align='center'>TLTR</h1>
 <div align='center'>
     <img title='TLTR' src='./assets/logo.png' alt='Logo for the layout' height='250px'/>
 </div>
