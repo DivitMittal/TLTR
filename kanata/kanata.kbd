@@ -19,7 +19,7 @@
                 ‹⌥ ‹◆          ␣          ◆› ⌥›                 ;; 3 keys (2 redundant keys for interoperability b/w diff. keyboards & OS)
 )
 
-;; TLTR Activation
+;;;; TLTR Activation
 ;; implementation 1
 #|
 (defchords tl_tr 500
@@ -204,28 +204,28 @@
 (environment (kanata_rscroll "")
   (defalias
     mu (switch
-      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-up $repeat_delay $scroll_move) break
-      (nop2) (movemouse-up $repeat_delay $slow_mouse_move) break
-      () (movemouse-up $repeat_delay $mouse_move) break
+      ((and nop2 nop1)) (🖱☸↑ $repeat_delay $slow_scroll_move) break
+      (nop1) (🖱☸↑ $repeat_delay $scroll_move) break
+      (nop2) (🖱↑ $repeat_delay $slow_mouse_move) break
+      () (🖱↑ $repeat_delay $mouse_move) break
     )
     md (switch
-      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-down $repeat_delay $scroll_move) break
-      (nop2) (movemouse-down $repeat_delay $slow_mouse_move) break
-      () (movemouse-down $repeat_delay $mouse_move) break
+      ((and nop2 nop1)) (🖱☸↓ $repeat_delay $slow_scroll_move) break
+      (nop1) (🖱☸↓ $repeat_delay $scroll_move) break
+      (nop2) (🖱↓ $repeat_delay $slow_mouse_move) break
+      () (🖱↓ $repeat_delay $mouse_move) break
     )
     mr (switch
-      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-right $repeat_delay $scroll_move) break
-      (nop2) (movemouse-right $repeat_delay $slow_mouse_move) break
-      () (movemouse-right $repeat_delay $mouse_move) break
+      ((and nop2 nop1)) (🖱☸→ $repeat_delay $slow_scroll_move) break
+      (nop1) (🖱☸→ $repeat_delay $scroll_move) break
+      (nop2) (🖱→ $repeat_delay $slow_mouse_move) break
+      () (🖱→ $repeat_delay $mouse_move) break
     )
     ml (switch
-      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-left $repeat_delay $scroll_move) break
-      (nop2) (movemouse-left $repeat_delay $slow_mouse_move) break
-      () (movemouse-left $repeat_delay $mouse_move) break
+      ((and nop2 nop1)) (🖱☸← $repeat_delay $slow_scroll_move) break
+      (nop1) (🖱☸← $repeat_delay $scroll_move) break
+      (nop2) (🖱← $repeat_delay $slow_mouse_move) break
+      () (🖱← $repeat_delay $mouse_move) break
     )
   )
 )
@@ -233,28 +233,28 @@
 (environment (kanata_rscroll 1)
   (defalias
     mu (switch
-      ((and nop2 nop1)) (mwheel-down $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-down $repeat_delay $scroll_move) break
-      (nop2) (movemouse-up $repeat_delay $slow_mouse_move) break
-      () (movemouse-up $repeat_delay $mouse_move) break
+      ((and nop2 nop1)) (🖱☸↓ $repeat_delay $slow_scroll_move) break
+      (nop1) (🖱☸↓ $repeat_delay $scroll_move) break
+      (nop2) (🖱↑ $repeat_delay $slow_mouse_move) break
+      () (🖱↑ $repeat_delay $mouse_move) break
     )
     md (switch
-      ((and nop2 nop1)) (mwheel-up $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-up $repeat_delay $scroll_move) break
-      (nop2) (movemouse-down $repeat_delay $slow_mouse_move) break
-      () (movemouse-down $repeat_delay $mouse_move) break
+      ((and nop2 nop1)) (🖱☸↑ $repeat_delay $slow_scroll_move) break
+      (nop1) (🖱☸↑ $repeat_delay $scroll_move) break
+      (nop2) (🖱↓ $repeat_delay $slow_mouse_move) break
+      () (🖱↓ $repeat_delay $mouse_move) break
     )
     mr (switch
-      ((and nop2 nop1)) (mwheel-left $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-left $repeat_delay $scroll_move) break
-      (nop2) (movemouse-right $repeat_delay $slow_mouse_move) break
-      () (movemouse-right $repeat_delay $mouse_move) break
+      ((and nop2 nop1)) (🖱☸← $repeat_delay $slow_scroll_move) break
+      (nop1) (🖱☸← $repeat_delay $scroll_move) break
+      (nop2) (🖱→ $repeat_delay $slow_mouse_move) break
+      () (🖱→ $repeat_delay $mouse_move) break
     )
     ml (switch
-      ((and nop2 nop1)) (mwheel-right $repeat_delay $slow_scroll_move) break
-      (nop1) (mwheel-right $repeat_delay $scroll_move) break
-      (nop2) (movemouse-left $repeat_delay $slow_mouse_move) break
-      () (movemouse-left $repeat_delay $mouse_move) break
+      ((and nop2 nop1) (🖱☸→ $repeat_delay $slow_scroll_move)) break
+      (nop1) (🖱☸→ $repeat_delay $scroll_move) break
+      (nop2) (🖱← $repeat_delay $slow_mouse_move) break
+      () (🖱← $repeat_delay $mouse_move) break
     )
   )
 )
@@ -274,15 +274,15 @@
 (deflayer TLTR
   XX @scre @bri @med  @voli XX          XX XX  @mu XX  XX lrld
   XX @slw  @scr mrgt  mlft  XX          XX @ml @md @mr XX XX
-  _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX _
-                XX XX            @def          XX XX
+  _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX @def
+                XX XX            XX          XX XX
 )
 
 (defalias ndef
   (switch
     ((and ‹◆ ◆›)) (on-press release-vkey on_qwerty_layer) break
     ((and ‹⌥ ⌥›)) (on-press release-vkey on_qwerty_layer) break
-    () ␣ break
+    () ⇧› break
   )
 )
 
@@ -290,6 +290,6 @@
 (deflayer QWERTY
   ↹   q    w    e    r    t         u    i    o    p   [     ]
   ⇪   a    s    d    f    g         j    k    l    ;    '    ⏎
-  _   z    x    c    v    b         n    m    ,    .    /    _
-              ‹⌥ ‹◆          @ndef          ◆› ⌥›
+  _   z    x    c    v    b         n    m    ,    .    /    @ndef
+             ‹⌥ ‹◆            _         ◆› ⌥›
 )
