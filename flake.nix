@@ -12,25 +12,21 @@
 
   outputs = {flake-parts, ...} @ inputs:
     flake-parts.lib.mkFlake {inherit inputs;} {
-      systems = import inputs.systems;
-      imports = [
-        inputs.treefmt-nix.flakeModule
-      ];
-      perSystem = _: {
-        treefmt = {
-          flakeCheck = false; # handled via pre-commit
+      systems = builtins.import inputs.systems;
+      imports = [inputs.treefmt-nix.flakeModule];
+      perSystem.treefmt = {
+        projectRootFile = "flake.nix";
 
-          programs = {
-            #typos.enable = true;
-            ## Nix
-            alejandra.enable = true;
-            deadnix.enable = true;
-            statix.enable = true;
-            ## JSON
-            prettier.enable = true;
-          };
+        flakeCheck = false;
 
-          projectRootFile = "flake.nix";
+        programs = {
+          #typos.enable = true;
+          ## Nix
+          alejandra.enable = true;
+          deadnix.enable = true;
+          statix.enable = true;
+          ## JSON
+          prettier.enable = true;
         };
       };
     };
