@@ -10,8 +10,10 @@
     };
   };
 
-  outputs = {flake-parts, ...} @ inputs:
-    flake-parts.lib.mkFlake {inherit inputs;} {
+  outputs = inputs: let
+    inherit (inputs.flake-parts.lib) mkFlake;
+  in
+    mkFlake {inherit inputs;} {
       systems = builtins.import inputs.systems;
       imports = [inputs.treefmt-nix.flakeModule];
       perSystem.treefmt = {
