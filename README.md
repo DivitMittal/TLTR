@@ -48,4 +48,14 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 - [ANSI US QWERTY keyboards](<https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg>)
 - macOS, \*nix, & Windows systems
 
+---
+
+## Physical implementation
+
+Current makeshift implementation on a `Standard Staggered ANSI US 60% Keyboard` until I build myself an `Orthogonal Split Keyboard`.
+
+![Keyboard Image](./assets/keyboard.jpeg)
+
+---
+
 **Inspired by:** [Seniply](https://github.com/stevep99/seniply)
