@@ -160,13 +160,16 @@
   brightness_up_key (unshift 🔆)
   brightness_down_key (unshift 🔅)
 )
+(defvar
+  osa ("/usr/bin/osascript" "-e")
+)
 ;; media & screen control
 (platform (macos)
   (defalias
     ss (cmd /usr/bin/open -a ScreenSaverEngine)
     zz (cmd /usr/bin/pmset sleepnow)
-    voli (fork 🔊 (macro (cmd /usr/bin/osascript -e "set volume output volume 100") 275 (unshift 🔊)) (‹⇧ ⇧›))
-    voll (fork 🔉 (macro (cmd /usr/bin/osascript -e "set volume output volume 0") 275 (unshift 🔉)) (‹⇧ ⇧›))
+    voli (fork 🔊 (macro (cmd $osa "set volume output volume 100") 275 (unshift 🔊)) (‹⇧ ⇧›))
+    voll (fork 🔉 (macro (cmd $osa "set volume output volume 0") 275 (unshift 🔉)) (‹⇧ ⇧›))
     bri (fork 🔆 (macro (on-press press-vkey brightness_up_key) 750 (on-press release-vkey brightness_up_key)) (‹⇧ ⇧›))
     brl (fork 🔅 (macro (on-press press-vkey brightness_down_key) 750 (on-press release-vkey brightness_down_key)) (‹⇧ ⇧›))
   )
@@ -192,12 +195,23 @@
   )
 )
 
+(platform (win winiov2 wintercept linux)
+  (defalias
+    pl pp
+  )
+)
+(platform (macos)
+  (defalias
+    pl (cmd $osa r#"tell application "Shortcuts Events" to run shortcut "Play/Pause""#)
+  )
+)
+
 (defalias
   scre (tap-hold 200 500 @ss @zz)
   med (switch
     (⇧›) (unshift ▶▶) break
     (‹⇧) (unshift ◀◀) break
-    () ▶⏸ break
+    () @pl break
   )
 )
 
