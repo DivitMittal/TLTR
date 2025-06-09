@@ -20,7 +20,7 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 | QWERTY                                                                                | Backwards Compatibility        |
 
 <div align='center'>
-    <img title='Layers' src='./keymap-drawer/t1.svg' alt='Layers of the keyboard layout visualized'/>
+    <img title='Layers' src='./assets/tltr.svg' alt='Layers of the keyboard layout visualized'/>
 </div>
 
 ---
@@ -45,7 +45,7 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
 
 ## Supported & Tested on:
 
-- [ANSI US QWERTY keyboards](<https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg>)
+- [ANSI US QWERTY](<https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg>) keyboards
 - macOS, \*nix, & Windows systems
 
 ---
