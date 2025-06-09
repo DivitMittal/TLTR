@@ -3,6 +3,14 @@
     <img title='TLTR' src='./assets/logo.png' alt='Logo for the layout' height='250px'/>
 </div>
 
+---
+
+<div align='center'>
+    <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/flake-check.yml/badge.svg" alt="nix-flake-check"/>
+</div>
+
+---
+
 Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it optimizes for:
 
 1. Minimal mouse/trackpad dependency
