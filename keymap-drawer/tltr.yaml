@@ -1,0 +1,201 @@
+layout:
+  cols_thumbs_notation: 333333+2>> 1+333333
+
+layers:
+  Custom-Colemak:
+    - [
+        { tap: "⇥", shifted: "⇤" },
+        { tap: "q", shifted: "Q" },
+        { tap: "w", shifted: "W" },
+        { tap: "f", shifted: "F" },
+        { tap: "p", shifted: "P" },
+        { tap: "b", shifted: "B" },
+
+        { tap: "j", shifted: "J" },
+        { tap: "l", shifted: "L" },
+        { tap: "u", shifted: "U" },
+        { tap: "y", shifted: "Y" },
+        { tap: "'", shifted: '"' },
+        { tap: ";", shifted: ":" },
+      ]
+    - [
+        { tap: "⌫", shifted: "⌦" },
+        { tap: "a", shifted: "A" },
+        { tap: "r", shifted: "R" },
+        { tap: "s", shifted: "S" },
+        { tap: "t", shifted: "T" },
+        { tap: "g", shifted: "G" },
+
+        { tap: "m", shifted: "M" },
+        { tap: "n", shifted: "N" },
+        { tap: "e", shifted: "E" },
+        { tap: "i", shifted: "I" },
+        { tap: "o", shifted: "O" },
+        { tap: "⏎" },
+      ]
+    - [
+        { tap: "⇧" },
+        { tap: "x", shifted: "X" },
+        { tap: "c", shifted: "C" },
+        { tap: "d", shifted: "D" },
+        { tap: "v", shifted: "V" },
+        { tap: "z", shifted: "Z" },
+
+        { tap: "/", shifted: "\\" },
+        { tap: "k", shifted: "K" },
+        { tap: "h", shifted: "H" },
+        { tap: ",", shifted: "_" },
+        { tap: ".", shifted: "?" },
+        { tap: "⇧" },
+      ]
+    - [{ tap: "ⓉⓁ" }, { tap: "␣" }, { tap: "ⓉⓇ" }]
+
+  TL:
+    - [
+        { tap: "⇥", shifted: "⇤" },
+        { tap: "⎋" },
+        { tap: "🪟 Manager", type: "sticky" },
+        { tap: "Fn", type: "sticky" },
+        null,
+        null,
+
+        { tap: "⇞", shifted: "⤒" },
+        { tap: "⇤" },
+        { tap: "↑" },
+        { tap: "⇥" },
+        null,
+        null,
+      ]
+    - [
+        { tap: "⌫", shifted: "⌦" },
+        { tap: "⌥", type: "sticky" },
+        { tap: "⌃", type: "sticky" },
+        { tap: "⇧", type: "sticky" },
+        { tap: "⌘", type: "sticky" },
+        null,
+
+        { tap: "⇟", shifted: "⤓" },
+        { tap: "←" },
+        { tap: "↓" },
+        { tap: "→" },
+        { tap: "caps-word" },
+        { tap: "⏎" },
+      ]
+    - [
+        { tap: "Shift" },
+        null,
+        null,
+        { tap: "Hypr" },
+        null,
+        null,
+
+        null,
+        null,
+        { tap: "⌫" },
+        { tap: "⌦" },
+        null,
+        { tap: "⇧" },
+      ]
+    - [{ tap: "ⓉⓁ", type: "held" }, { tap: "␣" }, { tap: "ⓉⓇ" }]
+
+  TR:
+    - [
+        { tap: "⇥", shifted: "⇤" },
+        { tap: "!", shifted: "`" },
+        { tap: "@", shifted: "~" },
+        { tap: "#", shifted: "^" },
+        { tap: "$", shifted: "₹" },
+        null,
+
+        { tap: "%" },
+        { tap: "⑦" },
+        { tap: "⑧" },
+        { tap: "⑨" },
+        { tap: "+" },
+        { tap: "=" },
+      ]
+    - [
+        { tap: "⌫", shifted: "⌦" },
+        { tap: "&", shifted: "|" },
+        { tap: "[", shifted: "]" },
+        { tap: "{", shifted: "}" },
+        { tap: "(", shifted: ")" },
+        null,
+
+        { tap: "*" },
+        { tap: "④" },
+        { tap: "⑤" },
+        { tap: "⑥" },
+        { tap: "-" },
+        { tap: "⏎" },
+      ]
+    - [
+        { tap: "⇧" },
+        null,
+        { tap: "<" },
+        { tap: ">" },
+        null,
+        null,
+
+        { tap: "/", shifted: '\' },
+        { tap: "⓪" },
+        { tap: "①" },
+        { tap: "②" },
+        { tap: "③" },
+        { tap: "⇧" },
+      ]
+    - [{ tap: "ⓉⓁ" }, { tap: "␣" }, { tap: "ⓉⓇ", type: "held" }]
+
+  TLTR:
+    - [
+        null,
+        { tap: "🖥️saver", hold: "💤" },
+        { tap: "🔆", shifted: "full ☀️" },
+        { tap: "⏯️" },
+        { tap: "🔊", shifted: "full 🔊" },
+        null,
+
+        null,
+        null,
+        { tap: "🖱️↑" },
+        null,
+        { tap: "live ⟳" },
+        null,
+      ]
+    - [
+        null,
+        { tap: "🐌" },
+        { tap: "🎯" },
+        { tap: "scroll" },
+        { tap: "🖱1" },
+        { tap: "🖱2" },
+
+        null,
+        { tap: "🖱️←" },
+        { tap: "🖱️↓" },
+        { tap: "🖱️→" },
+        null,
+        null,
+      ]
+    - [
+        null,
+        { tap: "🔅", hold: "min ☀️" },
+        null,
+        { tap: "🔉", shifted: "🔇" },
+        null,
+        null,
+
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+    - [{ tap: "ⓉⓁ", type: "held" }, { tap: "␣" }, { tap: "ⓉⓇ", type: "held" }]
+
+draw_config:
+  key_h: 60
+  key_w: 60
+  dark_mode: "auto"
+  draw_key_slides: true
