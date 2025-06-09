@@ -215,6 +215,7 @@
   )
 )
 
+
 (environment (KANATA_RSCROLL "")
   (defalias
     mu (switch
@@ -287,16 +288,16 @@
 ;; for non-keyboard functions like mouse, media, etc.
 (deflayer TLTR
   XX @scre @bri @med  @voli XX          XX XX  @mu XX  XX lrld
-  XX @slw  @scr mrgt  mlft  XX          XX @ml @md @mr XX XX
-  _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX @def
-                XX XX            XX          XX XX
+  XX @slw  XX   @scr  🖰1   🖰2         XX @ml @md @mr XX XX
+  _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX _
+                XX XX            @def          XX XX
 )
 
 (defalias ndef
   (switch
     ((and ‹◆ ◆›)) (on-press release-vkey on_qwerty_layer) break
     ((and ‹⌥ ⌥›)) (on-press release-vkey on_qwerty_layer) break
-    () ⇧› break
+    () ␣ break
   )
 )
 
@@ -304,6 +305,6 @@
 (deflayer QWERTY
   ↹   q    w    e    r    t         u    i    o    p   [     ]
   ⇪   a    s    d    f    g         j    k    l    ;    '    ⏎
-  _   z    x    c    v    b         n    m    ,    .    /    @ndef
-              ‹⌥ ‹◆            _         ◆› ⌥›
+  _   z    x    c    v    b         n    m    ,    .    /    _
+              ‹⌥ ‹◆          @ndef          ◆› ⌥›
 )
