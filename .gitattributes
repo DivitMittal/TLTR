@@ -1,2 +1,3 @@
 ./* linguist-detectable
 ./* -linguist-vendored
+*.kbd linguist-language=lisp
