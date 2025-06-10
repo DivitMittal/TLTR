@@ -151,7 +151,7 @@ layers:
         null,
         { tap: "🖥️saver", hold: "💤" },
         { tap: "🔆", shifted: "full ☀️" },
-        { tap: "⏯️" },
+        { tap: "⏯️", shifted: "l:⏮️r:⏭️" },
         { tap: "🔊", shifted: "full 🔊" },
         null,
 

@@ -711,6 +711,7 @@ path.combo { stroke: #7f7f7f; }
 <g transform="translate(210, 30)" class="key keypos-3">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⏯️</text>
+<text x="0" y="-26" class="key shifted"><tspan style="font-size: 88%">l:⏮️r:⏭️</tspan></text>
 </g>
 <g transform="translate(270, 30)" class="key keypos-4">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
