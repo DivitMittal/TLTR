@@ -1,9 +1,12 @@
 (defvar
-  ;; in pixels
-  mouse_move 45
-  slow_mouse_move 7
-  scroll_move 5
-  slow_scroll_move 1
-  ;; in milliseconds
-  repeat_delay 25
+  ;; mouse
+  mouse_move 55 ;; in pixels
+  slow_mouse_move 10
+  precise_mouse_move 3
+  ;; scroll
+  scroll_move 7
+  slow_scroll_move 3
+  precise_scroll_move 1
+
+  repeat_delay 25 ;; in milliseconds
 )

@@ -1,5 +1,3 @@
-(include config.kbd)
-
 (defcfg
   log-layer-changes no
   rapid-event-delay 2         ;; adds a certain delay(ms) to have kanata processor output keys in correct order
@@ -10,6 +8,8 @@
   delegate-to-first-layer yes  ;; transparent keys(_) delegate to first-layer only if layer-switch is used to activate the layer
   concurrent-tap-hold yes
 )
+
+(include config.kbd)
 
 ;; the reduced ANSI QWERTY 60% layout (39-key  layout)
 (defsrc
@@ -219,32 +219,49 @@
   )
 )
 
+(defvar
+  rd $repeat_delay
+  m $mouse_move
+  s $scroll_move
+  sm $slow_mouse_move
+  pm $precise_mouse_move
+  ss $slow_scroll_move
+  ps $precise_scroll_move
+)
 
 (environment (KANATA_RSCROLL "")
   (defalias
     mu (switch
-      ((and nop2 nop1)) (🖱☸↑ $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸↑ $repeat_delay $scroll_move) break
-      (nop2) (🖱↑ $repeat_delay $slow_mouse_move) break
-      () (🖱↑ $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3)) (🖱☸↑ $rd $ps) break
+      ((and nop1 nop3)) (🖱☸↑ $rd $ss) break
+      ((and nop1 nop2)) (🖱↑ $rd $pm) break
+      (nop1) (🖱↑ $rd $sm) break
+      (nop3) (🖱☸↑ $rd $s) break
+      () (🖱↑ $rd $m) break
     )
     md (switch
-      ((and nop2 nop1)) (🖱☸↓ $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸↓ $repeat_delay $scroll_move) break
-      (nop2) (🖱↓ $repeat_delay $slow_mouse_move) break
-      () (🖱↓ $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3)) (🖱☸↓ $rd $ps) break
+      ((and nop1 nop3)) (🖱☸↓ $rd $ss) break
+      ((and nop1 nop2)) (🖱↓ $rd $pm) break
+      (nop1) (🖱↓ $rd $sm) break
+      (nop3) (🖱☸↓ $rd $s) break
+      () (🖱↓ $rd $m) break
     )
     mr (switch
-      ((and nop2 nop1)) (🖱☸→ $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸→ $repeat_delay $scroll_move) break
-      (nop2) (🖱→ $repeat_delay $slow_mouse_move) break
-      () (🖱→ $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3) ) (🖱☸→ $rd $ps) break
+      ((and nop1 nop3)) (🖱☸→ $rd $ss) break
+      ((and nop1 nop2)) (🖱→ $rd $pm) break
+      (nop1) (🖱→ $rd $sm) break
+      (nop3) (🖱☸→ $rd $s) break
+      () (🖱→ $rd $m) break
     )
     ml (switch
-      ((and nop2 nop1)) (🖱☸← $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸← $repeat_delay $scroll_move) break
-      (nop2) (🖱← $repeat_delay $slow_mouse_move) break
-      () (🖱← $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3)) (🖱☸← $rd $ps) break
+      ((and nop1 nop3)) (🖱☸← $rd $ss) break
+      ((and nop1 nop2)) (🖱← $rd $pm) break
+      (nop1) (🖱← $rd $sm) break
+      (nop3) (🖱☸← $rd $s) break
+      () (🖱← $rd $m) break
     )
   )
 )
@@ -252,28 +269,36 @@
 (environment (KANATA_RSCROLL "1")
   (defalias
     mu (switch
-      ((and nop2 nop1)) (🖱☸↓ $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸↓ $repeat_delay $scroll_move) break
-      (nop2) (🖱↑ $repeat_delay $slow_mouse_move) break
-      () (🖱↑ $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3)) (🖱☸↓ $rd $ps) break
+      ((and nop1 nop3)) (🖱☸↓ $rd $ss) break
+      ((and nop1 nop2)) (🖱↑ $rd $pm) break
+      (nop1) (🖱↑ $rd $sm) break
+      (nop3) (🖱☸↓ $rd $s) break
+      () (🖱↑ $rd $m) break
     )
     md (switch
-      ((and nop2 nop1)) (🖱☸↑ $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸↑ $repeat_delay $scroll_move) break
-      (nop2) (🖱↓ $repeat_delay $slow_mouse_move) break
-      () (🖱↓ $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3)) (🖱☸↑ $rd $ps) break
+      ((and nop1 nop3)) (🖱☸↑ $rd $ss) break
+      ((and nop1 nop2)) (🖱↓ $rd $pm) break
+      (nop1) (🖱↓ $rd $sm) break
+      (nop3) (🖱☸↑ $rd $s) break
+      () (🖱↓ $rd $m) break
     )
     mr (switch
-      ((and nop2 nop1)) (🖱☸← $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸← $repeat_delay $scroll_move) break
-      (nop2) (🖱→ $repeat_delay $slow_mouse_move) break
-      () (🖱→ $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3) ) (🖱☸← $rd $ps) break
+      ((and nop1 nop3)) (🖱☸← $rd $ss) break
+      ((and nop1 nop2)) (🖱→ $rd $pm) break
+      (nop1) (🖱→ $rd $sm) break
+      (nop3) (🖱☸← $rd $s) break
+      () (🖱→ $rd $m) break
     )
     ml (switch
-      ((and nop2 nop1)) (🖱☸→ $repeat_delay $slow_scroll_move) break
-      (nop1) (🖱☸→ $repeat_delay $scroll_move) break
-      (nop2) (🖱← $repeat_delay $slow_mouse_move) break
-      () (🖱← $repeat_delay $mouse_move) break
+      ((and nop1 nop2 nop3)) (🖱☸→ $rd $ps) break
+      ((and nop1 nop3)) (🖱☸→ $rd $ss) break
+      ((and nop1 nop2)) (🖱← $rd $pm) break
+      (nop1) (🖱← $rd $sm) break
+      (nop3) (🖱☸→ $rd $s) break
+      () (🖱← $rd $m) break
     )
   )
 )
@@ -283,8 +308,9 @@
   on_qwerty_layer (layer-while-held QWERTY)
 )
 (defalias
-  slw nop2
-  scr nop1
+  slw nop1
+  pre nop2
+  scr nop3
   def (on-press press-vkey on_qwerty_layer)
 )
 
@@ -292,7 +318,7 @@
 ;; for non-keyboard functions like mouse, media, etc.
 (deflayer TLTR
   XX @scre @bri @med  @voli XX          XX XX  @mu XX  XX lrld
-  XX @slw  XX   @scr  🖰1   🖰2         XX @ml @md @mr XX XX
+  XX @slw  @pre @scr  🖰1   🖰2         XX @ml @md @mr XX XX
   _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX _
                 XX XX            @def          XX XX
 )
