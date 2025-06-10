@@ -11,7 +11,7 @@
 
 ---
 
-Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it optimizes for:
+A bespoke cross-platform multi-layer keyboard layout for programmers, i.e., it optimizes for:
 
 1. Minimal mouse/trackpad dependency
 2. Convenient numbers & symbols access
@@ -40,13 +40,15 @@ Cross-platform multi-layer keyboard layout tailored for programmers, i.e., it op
    1. macOS
       - Dependencies:
         1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-3.1.0.pkg)
+        2. [Shortcuts](https://www.wikipedia.com/en/articles/Shortcuts_(Apple))
    2. Windows
       - Dependencies:
         1. [nircmd](https://www.nirsoft.net/utils/nircmd.html)
         2. [InterceptionDriver](https://github.com/oblitum/Interception)
    3. \*nix
 
-2. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
+1. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
+
    1. macOS
 
 ---
