@@ -82,7 +82,7 @@ layers:
         { tap: "⏎" },
       ]
     - [
-        { tap: "Shift" },
+        { tap: "⇧" },
         null,
         null,
         { tap: "Hypr" },
@@ -164,9 +164,9 @@ layers:
       ]
     - [
         null,
-        { tap: "🐌" },
-        { tap: "🎯" },
-        { tap: "scroll" },
+        { tap: "🖱️🐌" },
+        { tap: "🖱️🎯" },
+        { tap: "🖱️🛞" },
         { tap: "🖱1" },
         { tap: "🖱2" },
 
