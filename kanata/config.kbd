@@ -1,10 +1,10 @@
 (defvar
   ;; mouse
-  mouse_move 55 ;; in pixels
+  mouse_move 60 ;; in pixels
   slow_mouse_move 10
   precise_mouse_move 3
   ;; scroll
-  scroll_move 7
+  scroll_move 5
   slow_scroll_move 3
   precise_scroll_move 1
 

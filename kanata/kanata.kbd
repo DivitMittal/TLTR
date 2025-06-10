@@ -318,7 +318,7 @@
 ;; for non-keyboard functions like mouse, media, etc.
 (deflayer TLTR
   XX @scre @bri @med  @voli XX          XX XX  @mu XX  XX lrld
-  XX @slw  @pre @scr  🖰1   🖰2         XX @ml @md @mr XX XX
+  XX @pre  @slw @scr  🖰1   🖰2         XX @ml @md @mr XX XX
   _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX _
                 XX XX            @def          XX XX
 )
