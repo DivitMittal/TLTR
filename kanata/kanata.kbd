@@ -198,19 +198,23 @@
 (platform (win winiov2 wintercept linux)
   (defalias
     pl pp
+    fo (unshift ▶▶)
+    ba (unshift ◀◀)
   )
 )
 (platform (macos)
   (defalias
     pl (cmd $osa r#"tell application "Shortcuts Events" to run shortcut "Play/Pause""#)
+    fo (cmd $osa r#"tell application "Shortcuts Events" to run shortcut "Forward""#)
+    ba (cmd $osa r#"tell application "Shortcuts Events" to run shortcut "Back""#)
   )
 )
 
 (defalias
   scre (tap-hold 200 500 @ss @zz)
   med (switch
-    (⇧›) (unshift ▶▶) break
-    (‹⇧) (unshift ◀◀) break
+    (⇧›) @fo break
+    (‹⇧) @ba break
     () @pl break
   )
 )
