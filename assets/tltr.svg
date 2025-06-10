@@ -1,4 +1,4 @@
-<svg width="870" height="1240" viewBox="0 0 870 1240" class="keymap" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="870" height="1282" viewBox="0 0 870 1282" class="keymap" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <style>/* inherit to force styles through use tags */
 svg path {
     fill: inherit;
@@ -317,19 +317,28 @@ path.combo { stroke: #7f7f7f; }
 </g>
 <g transform="translate(330, 210)" class="key keypos-36">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
-<text x="0" y="0" class="key tap">ⓉⓁ</text>
-</g>
+<a href="#TL">
+<text x="0" y="0" class="key tap layer-activator">TL</text>
+</a></g>
 <g transform="translate(390, 210)" class="key keypos-37">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">␣</text>
 </g>
 <g transform="translate(480, 210)" class="key keypos-38">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
-<text x="0" y="0" class="key tap">ⓉⓇ</text>
+<a href="#TR">
+<text x="0" y="0" class="key tap layer-activator">TR</text>
+</a></g>
+<g class="combo combopos-0">
+<path d="M405,241 h-69 a6.0,6.0 0 0 1 -6.0,-6.0 v-5" class="combo"/>
+<path d="M405,241 h69 a6.0,6.0 0 0 0 6.0,-6.0 v-5" class="combo"/>
+<rect rx="6" ry="6" x="391" y="228" width="28" height="26" class="combo"/>
+<a href="#TLTR">
+<text x="405" y="241" class="combo tap layer-activator">TLTR</text>
+</a></g>
 </g>
 </g>
-</g>
-<g transform="translate(30, 296)" class="layer-TL">
+<g transform="translate(30, 310)" class="layer-TL">
 <text x="0" y="28" class="label" id="TL">TL:</text>
 <g transform="translate(0, 56)">
 <g transform="translate(30, 30)" class="key keypos-0">
@@ -474,19 +483,28 @@ path.combo { stroke: #7f7f7f; }
 </g>
 <g transform="translate(330, 210)" class="key held keypos-36">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key held"/>
-<text x="0" y="0" class="key held tap">ⓉⓁ</text>
-</g>
+<a href="#TL">
+<text x="0" y="0" class="key held tap layer-activator">TL</text>
+</a></g>
 <g transform="translate(390, 210)" class="key keypos-37">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">␣</text>
 </g>
 <g transform="translate(480, 210)" class="key keypos-38">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
-<text x="0" y="0" class="key tap">ⓉⓇ</text>
+<a href="#TR">
+<text x="0" y="0" class="key tap layer-activator">TR</text>
+</a></g>
+<g class="combo combopos-0">
+<path d="M405,241 h-69 a6.0,6.0 0 0 1 -6.0,-6.0 v-5" class="combo"/>
+<path d="M405,241 h69 a6.0,6.0 0 0 0 6.0,-6.0 v-5" class="combo"/>
+<rect rx="6" ry="6" x="391" y="228" width="28" height="26" class="combo"/>
+<a href="#TLTR">
+<text x="405" y="241" class="combo tap layer-activator">TLTR</text>
+</a></g>
 </g>
 </g>
-</g>
-<g transform="translate(30, 592)" class="layer-TR">
+<g transform="translate(30, 620)" class="layer-TR">
 <text x="0" y="28" class="label" id="TR">TR:</text>
 <g transform="translate(0, 56)">
 <g transform="translate(30, 30)" class="key keypos-0">
@@ -520,18 +538,22 @@ path.combo { stroke: #7f7f7f; }
 <g transform="translate(480, 30)" class="key keypos-6">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">%</text>
+<text x="-26" y="0" class="key left">F12</text>
 </g>
 <g transform="translate(540, 30)" class="key keypos-7">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⑦</text>
+<text x="-26" y="0" class="key left">F7</text>
 </g>
 <g transform="translate(600, 30)" class="key keypos-8">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⑧</text>
+<text x="-26" y="0" class="key left">F8</text>
 </g>
 <g transform="translate(660, 30)" class="key keypos-9">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⑨</text>
+<text x="-26" y="0" class="key left">F9</text>
 </g>
 <g transform="translate(720, 30)" class="key keypos-10">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
@@ -572,18 +594,22 @@ path.combo { stroke: #7f7f7f; }
 <g transform="translate(480, 90)" class="key keypos-18">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">*</text>
+<text x="-26" y="0" class="key left">F11</text>
 </g>
 <g transform="translate(540, 90)" class="key keypos-19">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">④</text>
+<text x="-26" y="0" class="key left">F4</text>
 </g>
 <g transform="translate(600, 90)" class="key keypos-20">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⑤</text>
+<text x="-26" y="0" class="key left">F5</text>
 </g>
 <g transform="translate(660, 90)" class="key keypos-21">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⑥</text>
+<text x="-26" y="0" class="key left">F6</text>
 </g>
 <g transform="translate(720, 90)" class="key keypos-22">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
@@ -622,18 +648,22 @@ path.combo { stroke: #7f7f7f; }
 <g transform="translate(540, 150)" class="key keypos-31">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⓪</text>
+<text x="-26" y="0" class="key left">F10</text>
 </g>
 <g transform="translate(600, 150)" class="key keypos-32">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">①</text>
+<text x="-26" y="0" class="key left">F1</text>
 </g>
 <g transform="translate(660, 150)" class="key keypos-33">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">②</text>
+<text x="-26" y="0" class="key left">F2</text>
 </g>
 <g transform="translate(720, 150)" class="key keypos-34">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">③</text>
+<text x="-26" y="0" class="key left">F3</text>
 </g>
 <g transform="translate(780, 150)" class="key keypos-35">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
@@ -641,19 +671,28 @@ path.combo { stroke: #7f7f7f; }
 </g>
 <g transform="translate(330, 210)" class="key keypos-36">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
-<text x="0" y="0" class="key tap">ⓉⓁ</text>
-</g>
+<a href="#TL">
+<text x="0" y="0" class="key tap layer-activator">TL</text>
+</a></g>
 <g transform="translate(390, 210)" class="key keypos-37">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">␣</text>
 </g>
 <g transform="translate(480, 210)" class="key held keypos-38">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key held"/>
-<text x="0" y="0" class="key held tap">ⓉⓇ</text>
+<a href="#TR">
+<text x="0" y="0" class="key held tap layer-activator">TR</text>
+</a></g>
+<g class="combo combopos-0">
+<path d="M405,241 h-69 a6.0,6.0 0 0 1 -6.0,-6.0 v-5" class="combo"/>
+<path d="M405,241 h69 a6.0,6.0 0 0 0 6.0,-6.0 v-5" class="combo"/>
+<rect rx="6" ry="6" x="391" y="228" width="28" height="26" class="combo"/>
+<a href="#TLTR">
+<text x="405" y="241" class="combo tap layer-activator">TLTR</text>
+</a></g>
 </g>
 </g>
-</g>
-<g transform="translate(30, 888)" class="layer-TLTR">
+<g transform="translate(30, 930)" class="layer-TLTR">
 <text x="0" y="28" class="label" id="TLTR">TLTR:</text>
 <g transform="translate(0, 56)">
 <g transform="translate(30, 30)" class="key keypos-0">
@@ -789,16 +828,18 @@ path.combo { stroke: #7f7f7f; }
 </g>
 <g transform="translate(330, 210)" class="key held keypos-36">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key held"/>
-<text x="0" y="0" class="key held tap">ⓉⓁ</text>
-</g>
+<a href="#TL">
+<text x="0" y="0" class="key held tap layer-activator">TL</text>
+</a></g>
 <g transform="translate(390, 210)" class="key keypos-37">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">␣</text>
 </g>
 <g transform="translate(480, 210)" class="key held keypos-38">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key held"/>
-<text x="0" y="0" class="key held tap">ⓉⓇ</text>
-</g>
+<a href="#TR">
+<text x="0" y="0" class="key held tap layer-activator">TR</text>
+</a></g>
 </g>
 </g>
 </svg>

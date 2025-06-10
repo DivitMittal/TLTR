@@ -48,7 +48,7 @@ layers:
         { tap: ".", shifted: "?" },
         { tap: "⇧" },
       ]
-    - [{ tap: "ⓉⓁ" }, { tap: "␣" }, { tap: "ⓉⓇ" }]
+    - [{ tap: "TL" }, { tap: "␣" }, { tap: "TR" }]
 
   TL:
     - [
@@ -96,7 +96,7 @@ layers:
         null,
         { tap: "⇧" },
       ]
-    - [{ tap: "ⓉⓁ", type: "held" }, { tap: "␣" }, { tap: "ⓉⓇ" }]
+    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "TR" }]
 
   TR:
     - [
@@ -107,10 +107,10 @@ layers:
         { tap: "$", shifted: "₹" },
         null,
 
-        { tap: "%" },
-        { tap: "⑦" },
-        { tap: "⑧" },
-        { tap: "⑨" },
+        { tap: "%", left: "F12" },
+        { tap: "⑦", left: "F7" },
+        { tap: "⑧", left: "F8" },
+        { tap: "⑨", left: "F9" },
         { tap: "+" },
         { tap: "=" },
       ]
@@ -122,10 +122,10 @@ layers:
         { tap: "(", shifted: ")" },
         null,
 
-        { tap: "*" },
-        { tap: "④" },
-        { tap: "⑤" },
-        { tap: "⑥" },
+        { tap: "*", left: "F11" },
+        { tap: "④", left: "F4" },
+        { tap: "⑤", left: "F5" },
+        { tap: "⑥", left: "F6" },
         { tap: "-" },
         { tap: "⏎" },
       ]
@@ -138,13 +138,13 @@ layers:
         null,
 
         { tap: "/", shifted: '\' },
-        { tap: "⓪" },
-        { tap: "①" },
-        { tap: "②" },
-        { tap: "③" },
+        { tap: "⓪", left: "F10" },
+        { tap: "①", left: "F1" },
+        { tap: "②", left: "F2" },
+        { tap: "③", left: "F3" },
         { tap: "⇧" },
       ]
-    - [{ tap: "ⓉⓁ" }, { tap: "␣" }, { tap: "ⓉⓇ", type: "held" }]
+    - [{ tap: "TL" }, { tap: "␣" }, { tap: "TR", type: "held" }]
 
   TLTR:
     - [
@@ -160,7 +160,7 @@ layers:
         { tap: "🖱️↑" },
         null,
         null,
-      { tap: "live ⟳" },
+        { tap: "live ⟳" },
       ]
     - [
         null,
@@ -192,7 +192,15 @@ layers:
         null,
         null,
       ]
-    - [{ tap: "ⓉⓁ", type: "held" }, { tap: "␣" }, { tap: "ⓉⓇ", type: "held" }]
+    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "TR", type: "held" }]
+
+combos:
+  - {
+      key_positions: [36, 38],
+      key: "TLTR",
+      align: "bottom",
+      layers: [TL, TR, Custom-Colemak],
+    }
 
 draw_config:
   key_h: 60
