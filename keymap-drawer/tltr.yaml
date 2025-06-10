@@ -159,8 +159,8 @@ layers:
         null,
         { tap: "🖱️↑" },
         null,
-        { tap: "live ⟳" },
         null,
+      { tap: "live ⟳" },
       ]
     - [
         null,
