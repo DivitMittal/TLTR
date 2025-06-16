@@ -62,9 +62,13 @@ A bespoke cross-platform multi-layer keyboard layout for programmers, i.e., it o
 
 ## Physical implementation
 
-Current makeshift implementation on a `Standard Staggered ANSI US 60% Keyboard` until I build myself an `Orthogonal Split Keyboard`.
+### Standard Staggered ANSI US 60% Keyboard
 
-![Keyboard Image](./assets/keyboard.jpeg)
+![ANSI US Keyboard Image](./assets/ansi_us_keyboard.jpeg)
+
+ ### Ergo-Split Keyboard
+
+![Split Keyboard Image](./assets/split_keyboard.jpeg)
 
 ---
 
