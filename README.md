@@ -16,16 +16,17 @@ A bespoke cross-platform multi-layer keyboard layout for programmers, i.e., it o
 1. Minimal mouse/trackpad dependency
 2. Convenient numbers & symbols access
 3. Execution of complex keyboard shortcuts w/o cumbersome finger gymnastics.
+4. Interoperability b/w [ANSI US](https://commons.wikimedia.org/wiki/File:ANSI_Keyboard_Layout_Diagram_with_Form_Factor.svg) & other ergo-split keyboard configurations, viz., [corne](https://github.com/foostan/crkbd/), [cantor](https://github.com/diepala/cantor), [ferris](https://github.com/pierrechevalier83/ferris), etc..
 
 ---
 
-| Layers                                                                                | Functionality                  |
-| ------------------------------------------------------------------------------------- | ------------------------------ |
-| [Colemak Mod-DH,Wide,Angle](https://github.com/ColemakMods/mod-dh?tab=readme-ov-file) | English letters & punctuations |
-| TL                                                                                    | Navigation & Modifiers keys    |
-| TR                                                                                    | Numbers & Symbols              |
-| TLTR                                                                                  | Mouse, Media & Display control |
-| QWERTY                                                                                | Backwards Compatibility        |
+| Layers                                                                                        | Functionality                  |
+| --------------------------------------------------------------------------------------------- | ------------------------------ |
+| [Colemak Mod-DH(Curl), Wide, Angle](https://github.com/ColemakMods/mod-dh?tab=readme-ov-file) | English                        |
+| TL                                                                                            | Navigation & Modifiers keys    |
+| TR                                                                                            | Numbers & Symbols              |
+| TLTR                                                                                          | Mouse, Media & Display control |
+| QWERTY                                                                                        | Backwards Compatibility        |
 
 <div align='center'>
     <img title='Layers' src='./assets/tltr.svg' alt='Layers of the keyboard layout visualized'/>
@@ -53,20 +54,13 @@ A bespoke cross-platform multi-layer keyboard layout for programmers, i.e., it o
 
 ---
 
-## Supported & Tested on:
-
-- [ANSI US QWERTY](<https://en.m.wikipedia.org/wiki/File:ANSI_US_QWERTY_(Windows).svg>) keyboards
-- macOS, \*nix, & Windows systems
-
----
-
 ## Physical implementation
 
-### Standard Staggered ANSI US 60% Keyboard
+### Standard row-staggered [ANSI US](https://commons.wikimedia.org/wiki/File:ANSI_Keyboard_Layout_Diagram_with_Form_Factor.svg) 60% keyboard
 
 ![ANSI US Keyboard Image](./assets/ansi_us_keyboard.jpeg)
 
- ### Ergo-Split Keyboard
+### Column-staggered ergo-split keyboard, i.e., [Cantor](https://github.com/diepala/cantor)([Piantor](https://github.com/beekeeb/piantor)) 3x6_2
 
 ![Split Keyboard Image](./assets/split_keyboard.jpeg)
 
