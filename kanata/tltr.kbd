@@ -9,7 +9,7 @@
   concurrent-tap-hold yes
 )
 
-(include config.kbd)
+(include tltr_config.kbd)
 
 ;;;; TLTR Activation
 ;; implementation 1
