@@ -36,11 +36,6 @@
             fetch-depth = 1;
           };
         }
-        inputs.actions-nix.lib.steps.DeterminateSystemsNixInstallerAction
-        {
-          name = "Magic Nix Cache(Use Github Actions Cache)";
-          uses = "DeterminateSystems/magic-nix-cache-action@main";
-        }
       ];
     in {
       ".github/workflows/flake-check.yml" = {
@@ -50,11 +45,43 @@
           steps =
             common-actions
             ++ [
+              inputs.actions-nix.lib.steps.DeterminateSystemsNixInstallerAction
+              {
+                name = "Magic Nix Cache(Use Github Actions Cache)";
+                uses = "DeterminateSystems/magic-nix-cache-action@main";
+              }
               {
                 name = "Run nix flake check";
                 run = "nix flake check --impure --all-systems --no-build";
               }
             ];
+        };
+      };
+      ".github/workflows/keymap-drawer.yml" = {
+        on = {
+          push = {
+            branches = ["master"];
+            paths = ["keymap-drawer/**"];
+          };
+        };
+        jobs.keymap-drawer = {
+          steps = common-actions ++ [
+            {
+              name = "Install uv with caching";
+              uses = "astral-sh/setup-uv@main";
+              "with" = {
+                cache = "true";
+              };
+            }
+            {
+              name = "Install keymap-drawer";
+              run = "uv tool install keymap-drawer";
+            }
+            {
+              name = "Run keymap-drawer";
+              run = "keymap draw ./keymap-drawer/tltr.yml 1> assets/tltr.svg";
+            }
+          ];
         };
       };
     };
