@@ -12,7 +12,7 @@ layout:
 layers:
   Custom-Colemak:
     - [
-        { tap: "cw" },
+        { tap: "caps-word" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },
@@ -60,7 +60,7 @@ layers:
     - [
         null,
         { tap: "⎋" },
-        { tap: "🪟 Manager", type: "sticky" },
+        { tap: "🪟 Man", type: "sticky" },
         { tap: "Fn", type: "sticky" },
         null,
         null,
@@ -84,7 +84,7 @@ layers:
         { tap: "←" },
         { tap: "↓" },
         { tap: "→" },
-        { tap: "caps-word" },
+        null,
         { tap: "⏎" },
       ]
     - [
