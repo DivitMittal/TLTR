@@ -47,7 +47,7 @@
             ++ [
               inputs.actions-nix.lib.steps.DeterminateSystemsNixInstallerAction
               {
-                name = "Magic Nix Cache(Use Github Actions Cache)";
+                name = "Magic Nix Cache(Use GitHub Actions Cache)";
                 uses = "DeterminateSystems/magic-nix-cache-action@main";
               }
               {
@@ -86,6 +86,19 @@
               {
                 name = "Run keymap-drawer";
                 run = "keymap draw ./keymap-drawer/tltr.yml 1> assets/tltr.svg";
+              }
+              {
+                name = "Push to repo";
+                run  = ''
+                  git config --global user.name "GitHub Actions Bot"
+                  git config --global user.email bot@github.com
+                  git add .
+                  git commit -m "chore: update keymap-drawer assets"
+                  git push origin master
+                '';
+                env = {
+                  GITHUB_TOKEN = "\${{ secrets.GITHUB_TOKEN }}";
+                };
               }
             ];
         };
