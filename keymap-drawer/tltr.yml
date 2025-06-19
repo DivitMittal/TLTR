@@ -4,7 +4,7 @@ layout:
 layers:
   Custom-Colemak:
     - [
-        { tap: "⇥", shifted: "⇤" },
+        { tap: "cw" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },
@@ -34,25 +34,24 @@ layers:
         { tap: "⏎" },
       ]
     - [
-        { tap: "⇧" },
+        { tap: "z", shifted: "Z" },
         { tap: "x", shifted: "X" },
         { tap: "c", shifted: "C" },
         { tap: "d", shifted: "D" },
         { tap: "v", shifted: "V" },
         { tap: "z", shifted: "Z" },
 
-        { tap: "/", shifted: "\\" },
         { tap: "k", shifted: "K" },
         { tap: "h", shifted: "H" },
         { tap: ",", shifted: "_" },
         { tap: ".", shifted: "?" },
-        { tap: "⇧" },
+        { tap: "/", shifted: "\\" },
       ]
-    - [{ tap: "TL" }, { tap: "␣" }, { tap: "TR" }]
+    - [{ tap: "TL" }, { tap: "⇧" }, { tap: "␣" }, { tap: "TR" }]
 
   TL:
     - [
-        { tap: "⇥", shifted: "⇤" },
+        null,
         { tap: "⎋" },
         { tap: "🪟 Manager", type: "sticky" },
         { tap: "Fn", type: "sticky" },
@@ -82,25 +81,23 @@ layers:
         { tap: "⏎" },
       ]
     - [
-        { tap: "⇧" },
+        null,
         null,
         null,
         { tap: "Hypr" },
         null,
-        null,
 
-        null,
         null,
         { tap: "⌫" },
         { tap: "⌦" },
         null,
-        { tap: "⇧" },
+        null,
       ]
-    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "TR" }]
+    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "⇧" }, { tap: "TR" }]
 
   TR:
     - [
-        { tap: "⇥", shifted: "⇤" },
+        null,
         { tap: "!", shifted: "`" },
         { tap: "@", shifted: "~" },
         { tap: "#", shifted: "^" },
@@ -130,21 +127,19 @@ layers:
         { tap: "⏎" },
       ]
     - [
-        { tap: "⇧" },
+        null,
         null,
         { tap: "<" },
         { tap: ">" },
         null,
-        null,
 
-        { tap: "/", shifted: '\' },
         { tap: "⓪", left: "F10" },
         { tap: "①", left: "F1" },
         { tap: "②", left: "F2" },
         { tap: "③", left: "F3" },
-        { tap: "⇧" },
+        { tap: "/", shifted: '\' },
       ]
-    - [{ tap: "TL" }, { tap: "␣" }, { tap: "TR", type: "held" }]
+    - [{ tap: "TL" }, { tap: "␣" }, { tap: "⇧" }, { tap: "TR", type: "held" }]
 
   TLTR:
     - [
@@ -180,9 +175,8 @@ layers:
     - [
         null,
         { tap: "🔅", hold: "min ☀️" },
-        null,
-        { tap: "🔉", shifted: "🔇" },
-        null,
+        { tap: "", hold: }
+        { tap: "🔉", hold: "🔇" },
         null,
 
         null,
@@ -190,9 +184,8 @@ layers:
         null,
         null,
         null,
-        null,
       ]
-    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "TR", type: "held" }]
+    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "⇧" }, { tap: "TR", type: "held" }]
 
 combos:
   - {

@@ -1,3 +1,4 @@
+;; these are the defaults, change them to suit your needs
 (defvar
   ;; mouse
   mouse_move 60 ;; in pixels
