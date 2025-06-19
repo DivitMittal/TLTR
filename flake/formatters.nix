@@ -2,6 +2,11 @@
   imports = [inputs.treefmt-nix.flakeModule];
   perSystem.treefmt = {
     projectRootFile = "flake.nix";
+    settings.global = {
+      excludes = [
+        ".github/*"
+      ];
+    };
 
     flakeCheck = false;
 
