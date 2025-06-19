@@ -7,6 +7,7 @@
 
 <div align='center'>
     <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/flake-check.yml/badge.svg" alt="nix-flake-check"/>
+    <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/keymap-drawer.yml/badge.svg" alt="gen-keymap-drawing"/>
 </div>
 
 ---

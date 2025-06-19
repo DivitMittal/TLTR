@@ -76,7 +76,7 @@
                 name = "Install uv with caching";
                 uses = "astral-sh/setup-uv@main";
                 "with" = {
-                  cache = "true";
+                  enable-cache = "true";
                 };
               }
               {

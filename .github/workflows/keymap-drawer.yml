@@ -11,7 +11,7 @@ jobs:
     - name: Install uv with caching
       uses: astral-sh/setup-uv@main
       with:
-        cache: 'true'
+        enable-cache: 'true'
     - name: Install keymap-drawer
       run: uv tool install keymap-drawer
     - name: Run keymap-drawer
