@@ -65,23 +65,25 @@
           };
         };
         jobs.keymap-drawer = {
-          steps = common-actions ++ [
-            {
-              name = "Install uv with caching";
-              uses = "astral-sh/setup-uv@main";
-              "with" = {
-                cache = "true";
-              };
-            }
-            {
-              name = "Install keymap-drawer";
-              run = "uv tool install keymap-drawer";
-            }
-            {
-              name = "Run keymap-drawer";
-              run = "keymap draw ./keymap-drawer/tltr.yml 1> assets/tltr.svg";
-            }
-          ];
+          steps =
+            common-actions
+            ++ [
+              {
+                name = "Install uv with caching";
+                uses = "astral-sh/setup-uv@main";
+                "with" = {
+                  cache = "true";
+                };
+              }
+              {
+                name = "Install keymap-drawer";
+                run = "uv tool install keymap-drawer";
+              }
+              {
+                name = "Run keymap-drawer";
+                run = "keymap draw ./keymap-drawer/tltr.yml 1> assets/tltr.svg";
+              }
+            ];
         };
       };
     };

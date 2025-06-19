@@ -5,24 +5,24 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@main
-      with:
-        fetch-depth: 1
-    - uses: DeterminateSystems/nix-installer-action@v17
-    - name: Magic Nix Cache(Use Github Actions Cache)
-      uses: DeterminateSystems/magic-nix-cache-action@main
-    - name: Run nix flake check
-      run: nix flake check --impure --all-systems --no-build
+      - name: Checkout repo
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 1
+      - uses: DeterminateSystems/nix-installer-action@v17
+      - name: Magic Nix Cache(Use Github Actions Cache)
+        uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Run nix flake check
+        run: nix flake check --impure --all-systems --no-build
     timeout-minutes: 30
-'on':
+"on":
   pull_request:
     branches:
-    - master
+      - master
   push:
     branches:
-    - master
+      - master
     paths-ignore:
-    - '**/*.md'
-    - .github/**
+      - "**/*.md"
+      - .github/**
   workflow_dispatch: {}
