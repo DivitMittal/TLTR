@@ -8,5 +8,13 @@
   slow_scroll_move 3
   precise_scroll_move 1
 
-  repeat_delay 25 ;; in milliseconds
+  repeat_delay 20 ;; in milliseconds
+)
+
+;; alter only the last row in accordance with the keyboard configuration
+(defsrc
+  ↹  q   w   e   r    t         u   i   o   p   [    ] ;; 12 keys
+  ⇪  a   s   d   f    g         j    k   l   ;   '   ⏎ ;; 12 keys
+   ‹⇧  z   x   c    v            m    ,    .   /  ⇧›   ;; 10 keys
+               ‹◆ ␣               ◆› ⌥›                ;; 4 keys
 )
