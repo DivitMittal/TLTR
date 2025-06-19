@@ -11,7 +11,7 @@
 
 ---
 
-A bespoke cross-platform multi-layer keyboard layout for programmers, i.e., it optimizes for:
+A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e., it optimizes for:
 
 1. Minimal mouse/trackpad dependency
 2. Convenient numbers & symbols access
@@ -26,7 +26,6 @@ A bespoke cross-platform multi-layer keyboard layout for programmers, i.e., it o
 | TL                                                                                            | Navigation & Modifiers keys    |
 | TR                                                                                            | Numbers & Symbols              |
 | TLTR                                                                                          | Mouse, Media & Display control |
-| QWERTY                                                                                        | Backwards Compatibility        |
 
 <div align='center'>
     <img title='Layers' src='./assets/tltr.svg' alt='Layers of the keyboard layout visualized'/>
@@ -60,7 +59,7 @@ A bespoke cross-platform multi-layer keyboard layout for programmers, i.e., it o
 
 ![ANSI US Keyboard Image](./assets/ansi_us_keyboard.jpeg)
 
-### Column-staggered ergo-split keyboard, i.e., [Cantor](https://github.com/diepala/cantor)([Piantor](https://github.com/beekeeb/piantor)) 3x6_2
+### Column-staggered ergo-split keyboard, i.e., [Cantor](https://github.com/diepala/cantor)([Piantor](https://github.com/beekeeb/piantor))
 
 ![Split Keyboard Image](./assets/split_keyboard.jpeg)
 

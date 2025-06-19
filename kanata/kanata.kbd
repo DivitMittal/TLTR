@@ -321,15 +321,10 @@
   )
 )
 
-;; default switching
-(defvirtualkeys
-  on_qwerty_layer (layer-while-held QWERTY)
-)
 (defalias
   slw nop1
   pre nop2
   scr nop3
-  def (on-press press-vkey on_qwerty_layer)
 )
 
 ;; TLTR (Thumb Left & Thumb Right) layer
@@ -339,20 +334,4 @@
   XX @pre  @slw @scr  🖰1   🖰2         XX @m◅ @m▽ @m▻ XX XX
   _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX _
                 XX XX            @def          XX XX
-)
-
-(defalias ndef
-  (switch
-    ((and ‹◆ ◆›)) (on-press release-vkey on_qwerty_layer) break
-    ((and ‹⌥ ⌥›)) (on-press release-vkey on_qwerty_layer) break
-    () ␣ break
-  )
-)
-
-;; ANSI US QWERTY layer
-(deflayer QWERTY
-  ↹   q    w    e    r    t         u    i    o    p   [     ]
-  ⇪   a    s    d    f    g         j    k    l    ;    '    ⏎
-  _   z    x    c    v    b         n    m    ,    .    /    _
-              ‹⌥ ‹◆          @ndef          ◆› ⌥›
 )
