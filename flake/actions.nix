@@ -24,6 +24,10 @@
         };
         workflow_dispatch = {};
       };
+      permissions = {
+        contents = "write";
+        id-token = "write";
+      };
       common-actions = [
         {
           name = "Checkout repo";
@@ -33,11 +37,16 @@
           };
         }
         inputs.actions-nix.lib.steps.DeterminateSystemsNixInstallerAction
+        {
+          name = "Magic Nix Cache(Use Github Actions Cache)";
+          uses = "DeterminateSystems/magic-nix-cache-action@main";
+        }
       ];
     in {
       ".github/workflows/flake-check.yml" = {
         inherit on;
         jobs.checking-flake = {
+          inherit permissions;
           steps =
             common-actions
             ++ [

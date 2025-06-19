@@ -1,5 +1,8 @@
 jobs:
   checking-flake:
+    permissions:
+      contents: write
+      id-token: write
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
@@ -7,6 +10,8 @@ jobs:
       with:
         fetch-depth: 1
     - uses: DeterminateSystems/nix-installer-action@v17
+    - name: Magic Nix Cache(Use Github Actions Cache)
+      uses: DeterminateSystems/magic-nix-cache-action@main
     - name: Run nix flake check
       run: nix flake check --impure --all-systems --no-build
     timeout-minutes: 30
