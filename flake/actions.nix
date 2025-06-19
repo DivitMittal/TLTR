@@ -63,8 +63,12 @@
             branches = ["master"];
             paths = ["keymap-drawer/**"];
           };
+          workflow_dispatch = {};
         };
         jobs.keymap-drawer = {
+          permissions = {
+            contents = "write";
+          };
           steps =
             common-actions
             ++ [

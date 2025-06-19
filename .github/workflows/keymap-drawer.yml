@@ -1,23 +1,26 @@
 jobs:
   keymap-drawer:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@main
-        with:
-          fetch-depth: 1
-      - name: Install uv with caching
-        uses: astral-sh/setup-uv@main
-        with:
-          cache: "true"
-      - name: Install keymap-drawer
-        run: uv tool install keymap-drawer
-      - name: Run keymap-drawer
-        run: keymap draw ./keymap-drawer/tltr.yml 1> assets/tltr.svg
+    - name: Checkout repo
+      uses: actions/checkout@main
+      with:
+        fetch-depth: 1
+    - name: Install uv with caching
+      uses: astral-sh/setup-uv@main
+      with:
+        cache: 'true'
+    - name: Install keymap-drawer
+      run: uv tool install keymap-drawer
+    - name: Run keymap-drawer
+      run: keymap draw ./keymap-drawer/tltr.yml 1> assets/tltr.svg
     timeout-minutes: 30
-"on":
+'on':
   push:
     branches:
-      - master
+    - master
     paths:
-      - keymap-drawer/**
+    - keymap-drawer/**
+  workflow_dispatch: {}
