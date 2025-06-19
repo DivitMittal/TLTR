@@ -47,7 +47,6 @@ layers:
         { tap: "c", shifted: "C" },
         { tap: "d", shifted: "D" },
         { tap: "v", shifted: "V" },
-        { tap: "z", shifted: "Z" },
 
         { tap: "k", shifted: "K" },
         { tap: "h", shifted: "H" },
@@ -101,7 +100,7 @@ layers:
         null,
         null,
       ]
-    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "⇧" }, { tap: "TR" }]
+    - [{ tap: "TL", type: "held" },  { tap: "⇧" }, { tap: "␣" },{ tap: "TR" }]
 
   TR:
     - [
@@ -147,15 +146,15 @@ layers:
         { tap: "③", left: "F3" },
         { tap: "/", shifted: '\' },
       ]
-    - [{ tap: "TL" }, { tap: "␣" }, { tap: "⇧" }, { tap: "TR", type: "held" }]
+    - [{ tap: "TL" }, { tap: "⇧" },{ tap: "␣" }, { tap: "TR", type: "held" }]
 
   TLTR:
     - [
         null,
         { tap: "🖥️saver", hold: "💤" },
-        { tap: "🔆", shifted: "full ☀️" },
-        { tap: "⏯️", shifted: "l:⏮️r:⏭️" },
-        { tap: "🔊", shifted: "full 🔊" },
+        { tap: "🔆", hold: "full ☀️" },
+        { tap: "⏯️", hold: "⏭️" },
+        { tap: "🔊", hold: "full 🔊" },
         null,
 
         null,
@@ -183,7 +182,7 @@ layers:
     - [
         null,
         { tap: "🔅", hold: "min ☀️" },
-        { tap: "", hold: }
+        { tap: "⏮️" },
         { tap: "🔉", hold: "🔇" },
         null,
 
@@ -193,14 +192,14 @@ layers:
         null,
         null,
       ]
-    - [{ tap: "TL", type: "held" }, { tap: "␣" }, { tap: "⇧" }, { tap: "TR", type: "held" }]
+    - [{ tap: "TL", type: "held" }, { tap: "⇧" }, { tap: "␣" }, { tap: "TR", type: "held" }]
 
 combos:
   - {
-      key_positions: [36, 38],
+      key_positions: [34, 37],
       key: "TLTR",
       align: "bottom",
-      layers: [TL, TR, Custom-Colemak],
+      layers: [Custom-Colemak],
     }
 
 draw_config:
