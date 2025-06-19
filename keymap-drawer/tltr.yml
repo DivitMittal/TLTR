@@ -7,7 +7,7 @@ layout:
   #   thumbs: 2
   #   drop_pinky: true
   qmk_info_json: ./qmk/keyboard.json
-  layout_name: LAYOUT_split_3x6or5_2
+  layout_name: LAYOUT_split_2x6_1x5_2
 
 layers:
   Custom-Colemak:
