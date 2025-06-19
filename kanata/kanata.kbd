@@ -11,14 +11,6 @@
 
 (include config.kbd)
 
-;; the reduced ANSI QWERTY 60% layout (39-key  layout)
-(defsrc
-  ↹   q    w    e    r    t         u    i    o    p   [     ]  ;; 12 keys
-  ⇪   a    s    d    f    g         j    k    l    ;    '    ⏎  ;; 12 keys
-  ‹⇧  z    x    c    v    b         n    m    ,    .    /    ⇧› ;; 12 keys
-                ‹⌥ ‹◆          ␣          ◆› ⌥›                 ;; 3 keys (2 redundant keys for interoperability b/w diff. keyboards & OS)
-)
-
 ;;;; TLTR Activation
 ;; implementation 1
 #|
@@ -49,7 +41,6 @@
 (defvirtualkeys
   release_layer_TLTR (release-layer TLTR)
 )
-
 (defalias
   tl     (multi (layer-while-held TL)                         (on-release press-vkey release_layer_TLTR))
   tltltr (multi (layer-while-held TL) (layer-while-held TLTR) (on-release press-vkey release_layer_TLTR))
@@ -57,32 +48,37 @@
   trtltr (multi (layer-while-held TR) (layer-while-held TLTR) (on-release press-vkey release_layer_TLTR))
 )
 
+(defvar
+  cw_timeout 5000
+  os_timeout 300
+)
 (defalias
-  ;; chords
+  ;; ANSI US keycodes shifted
   und S-‐ que S-/
   ;; forks
-  delf (fork ⌫ (unshift ⌦) (‹⇧ ⇧›))
-  slaf (fork / (unshift \) (‹⇧ ⇧›))
-  comf (fork , @und (‹⇧ ⇧›))
-  dotf (fork . @que (‹⇧ ⇧›))
+  delf (fork ⌫ (unshift ⌦) (‹⇧))
+  slaf (fork / (unshift \) (‹⇧))
+  comf (fork , @und (‹⇧))
+  dotf (fork . @que (‹⇧))
+  ;; caps-word
+  cw (caps-word-custom $cw_timeout
+    (a b c d e f g h i j k l m n o p q r s t u v w x y z) ;; to be shifted
+    (1 2 3 4 5 6 7 8 9 0 ▲ ▼ ◀ ▶ ⌫ ⌦ ‐ ‹⇧ ⇧›)  ;; ignore
+  )
+  ;; sticky
+  sSft (one-shot-release $os_timeout ‹⇧)
 )
-
 #|
  Custom Colemak with,
- 1. curl mod (mod dh)
- 2. wide mod (shifting right hand keys to the right by one key)
- 3. angle mod (placement of z in the middle)
+ 1. curl mod (Mod-DH)
+ 2. wide mod (sliding right hand keys to the right by one key)
+ 3. angle mod (sliding keys to left & right on the bottom-most row with z being on lshft & / on rshft)
 |#
 (deflayer CUSTOM_COLEMAK
-  _     q  w  f  p  b          j    l  u    y      '    ;
-  @delf a  r  s  t  g          m    n  e    i      o    _
-  _     x  c  d  v  z        @slaf  k  h  @comf  @dotf  _
-          @tl @tl       _       @tr @tr
-)
-
-(defvar
-  os_timeout 300
-  cw_timeout 5000
+  @cw   q  w  f  p  b      j   l  u     y    '     ;
+  @delf a  r  s  t  g      m  n  e     i     o    _
+       z  x  c  d  v        k  h @comf @dotf @slaf
+           @tl @sSft          spc  @tr
 )
 
 (defalias
@@ -90,49 +86,41 @@
   btb S-↹
   ;; sticky/one-shot modifiers
   sMet (one-shot-release $os_timeout ‹◆)
-  sSft (one-shot-release $os_timeout ‹⇧)
   sCtl (one-shot-release $os_timeout ‹⌃)
   sAlt (one-shot-release $os_timeout ‹⌥)
   sFn (one-shot-release $os_timeout nop0)
   sWin (multi @sAlt @sCtl @sMet)         ;; window-manager key
   sHyp (multi @sAlt @sCtl @sSft @sMet)   ;; hyper key
   ;; forks
-  pguf (fork ⇞ (unshift ⤒) (‹⇧ ⇧›))
-  pgdf (fork ⇟ (unshift ⤓) (‹⇧ ⇧›))
-  ;; caps-word
-  cw (caps-word-custom $cw_timeout
-    (a b c d e f g h i j k l m n o p q r s t u v w x y z) ;; to be shifted
-    (1 2 3 4 5 6 7 8 9 0 ▲ ▼ ◀ ▶ ⌫ ⌦ ‐ ‹⇧ ⇧›)  ;; ignore
-  )
+  pguf (fork ⇞ (unshift ⤒) (‹⇧))
+  pgdf (fork ⇟ (unshift ⤓) (‹⇧))
 )
 
 ;; TL (Thumb Left) layer
 ;; for modifiers & navigation
 (deflayer TL
-  _ ⎋     @sWin @sFn  XX    XX      @pguf  @btb ▲   ↹  XX  XX
-  _ @sAlt @sCtl @sSft @sMet XX      @pgdf  ◀    ▼   ▶  @cw _
-  _ XX    XX    @sHyp XX    XX      XX     XX   ⌫   ⌦  XX  _
-             XX  XX             _          @trtltr @trtltr
+  XX  ⎋   @sWin  @sFn   XX   XX       @pguf   @btb  ▲   ↹   XX  XX
+  _  @sAlt  @sCtl @sSft @sMet XX     @pgdf   ◀     ▼   ▶   XX   _
+    XX    XX     XX    @sHyp XX        XX     ⌫     ⌦   XX  _
+                XX  _                       _ @trtltr
 )
 
 (defalias
   hpn (unshift ‐) equ (unshift ₌)
-  ;; chords
+  ;; ANSI US keycodes shifted
   til S-ˋ exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 plu S-₌
   cuo S-[ cuc S-] pip S-\ ano S-, anc S-.
   ;; symbols' forks
-  excf (fork @exc (unshift ˋ) (‹⇧ ⇧›))
-  atsf (fork @ats @til (‹⇧ ⇧›))
-  octf (fork @oct @car (‹⇧ ⇧›))
-  dolf (fork @dol (unicode ₹) (‹⇧ ⇧›))
-  ampf (fork @amp @pip (‹⇧ ⇧›))
-
+  excf (fork @exc (unshift ˋ) (‹⇧))
+  atsf (fork @ats @til (‹⇧))
+  octf (fork @oct @car (‹⇧))
+  dolf (fork @dol (unicode ₹) (‹⇧))
+  ampf (fork @amp @pip (‹⇧))
   ;; brackets' forks
-  curf (fork @cuo @cuc (‹⇧ ⇧›))
-  parf (fork @pao @pac (‹⇧ ⇧›))
-  sqrf (fork [ (unshift ]) (‹⇧ ⇧›))
-
-  ;; funciton keys' fn-forks
+  curf (fork @cuo @cuc (‹⇧))
+  parf (fork @pao @pac (‹⇧))
+  sqrf (fork [ (unshift ]) (‹⇧))
+  ;; function keys' fn-forks
   1f   (fork 1 f1  (nop0))
   2f   (fork 2 f2  (nop0))
   3f   (fork 3 f3  (nop0))
@@ -150,56 +138,85 @@
 ;; TR (Thumb Right) layer
 ;; for symbols & numbers
 (deflayer TR
-  _  @excf @atsf @octf @dolf XX      @perf  @7f  @8f  @9f  @plu  @equ
-  _  @ampf @sqrf @curf @parf XX      @astf  @4f  @5f  @6f  @hpn  _
-  _  XX    @ano  @anc  XX    XX      @slaf  @0f  @1f  @2f  @3f   _
-       @tltltr @tltltr            _             XX XX
+  XX @excf @atsf @octf @dolf XX      @perf  @7f  @8f  @9f  @plu  @equ
+  _   @ampf @sqrf @curf @parf XX    @astf  @4f  @5f  @6f  @hpn   _
+     XX    XX    @ano  @anc  XX       @0f   @1f  @2f  @3f  @slaf
+              @tltltr _                      _ XX
 )
 
-(defvirtualkeys
-  brightness_up_key (unshift 🔆)
-  brightness_down_key (unshift 🔅)
-)
+;; screen control
 (defvar
-  osa ("/usr/bin/osascript" "-e")
+  thto 150
 )
-;; media & screen control
+(platform (macos)
+  (defvar
+    open ("/usr/bin/open" "-a")
+  )
+)
 (platform (macos)
   (defalias
-    ss (cmd /usr/bin/open -a ScreenSaverEngine)
+    ss (cmd $open ScreenSaverEngine)
     zz (cmd /usr/bin/pmset sleepnow)
-    voli (fork 🔊 (macro (cmd $osa "set volume output volume 100") 275 (unshift 🔊)) (‹⇧ ⇧›))
-    voll (fork 🔉 (macro (cmd $osa "set volume output volume 0") 275 (unshift 🔉)) (‹⇧ ⇧›))
-    bri (fork 🔆 (macro (on-press press-vkey brightness_up_key) 750 (on-press release-vkey brightness_up_key)) (‹⇧ ⇧›))
-    brl (fork 🔅 (macro (on-press press-vkey brightness_down_key) 750 (on-press release-vkey brightness_down_key)) (‹⇧ ⇧›))
   )
 )
 (platform (linux)
   (defalias
     ss (cmd /usr/bin/xscreensaver-command -activate)
     zz (cmd /usr/bin/xset dpms force off)
-    voli (fork 🔊 (cmd /usr/bin/amixer -D pulse sset Master 100%) (‹⇧ ⇧›))
-    voll (fork 🔉 (cmd /usr/bin/amixer -D pulse sset Master 0%) (‹⇧ ⇧›))
-    bri (fork 🔆 (cmd /usr/bin/xbacklight -set 100) (‹⇧ ⇧›))
-    brl (fork 🔅 (cmd /usr/bin/xbacklight -set 0) (‹⇧ ⇧›))
   )
 )
 (platform (win winiov2 wintercept)
   (defalias
     ss (cmd nircmd screensaver)
     zz (cmd nircmd standby)
-    voli (fork 🔊 (cmd nircmd setsysvolume 65535) (‹⇧ ⇧›))
-    voll (fork 🔉 (cmd nircmd setsysvolume 0) (‹⇧ ⇧›))
-    bri (fork (cmd nircmd changebrightness +10) (cmd nircmd changebrightness +100) (‹⇧ ⇧›))
-    brl (fork (cmd nircmd changebrightness -10) (cmd nircmd changebrightness -100) (‹⇧ ⇧›))
   )
 )
 (defalias
-  scre (tap-hold 200 200 @ss @zz)
+  scre (tap-hold $thto $thto @ss @zz)
+)
+
+;; brightness control
+(defvirtualkeys
+  brightness_up_key (unshift 🔆)
+  brightness_down_key (unshift 🔅)
+)
+(defalias
+  bri (tap-hold $thto $thto 🔆 (macro (on-press press-vkey brightness_up_key) 750 (on-press release-vkey brightness_up_key)))
+  brl (tap-hold $thto $thto 🔅 (macro (on-press press-vkey brightness_down_key) 750 (on-press release-vkey brightness_down_key)))
+)
+
+;; media control
+(platform (macos)
+  (defvar
+    osa ("/usr/bin/osascript" "-e")
+  )
+)
+(platform (macos)
+  (defalias
+    voli (tap-hold $thto $thto 🔊 (macro (cmd $osa "set volume output volume 100") 275 (unshift 🔊)))
+    voll (tap-hold $thto $thto 🔉 (macro (cmd $osa "set volume output volume 0") 275 (unshift 🔉)))
+  )
+)
+(platform (linux)
+  (defvar
+    amixerMaster ("/usr/bin/amixer" "-D" "pulse" "sset" "Master")
+  )
+)
+(platform (linux)
+  (defalias
+    voli (tap-hold $thto $thto 🔊 (cmd amixerMaster 100%))
+    voll (tap-hold $thto $thto 🔉 (cmd amixerMaster 0%))
+  )
+)
+(platform (win winiov2 wintercept)
+  (defalias
+    voli (tap-hold $thto $thto 🔊 (cmd nircmd setsysvolume 65535))
+    voll (tap-hold $thto $thto 🔉 (cmd nircmd setsysvolume 0))
+  )
 )
 (platform (win winiov2 wintercept linux)
   (defalias
-    pl pp
+    pl (unshift pp)
     fo (unshift ▶▶)
     ba (unshift ◀◀)
   )
@@ -212,13 +229,10 @@
   )
 )
 (defalias
-  med (switch
-    (⇧›) @fo break
-    (‹⇧) @ba break
-    () @pl break
-  )
+  med (tap-hold $thto $thto @pl @fo)
 )
 
+;; mouse & scroll control
 (defvar
   rd $repeat_delay
   ;; mouse
@@ -230,7 +244,6 @@
   ss $slow_scroll_move
   ps $precise_scroll_move
 )
-
 (environment (KANATA_RSCROLL "")
   (defalias
     ;; precise scroll
@@ -287,6 +300,11 @@
   ml (🖱← $rd $mo)
 )
 (defalias
+  slw nop1
+  pre nop2
+  scr nop3
+)
+(defalias
   m△ (switch
     ((and nop1 nop2 nop3)) @sup break
     ((and nop1 nop3)) @sus break
@@ -321,17 +339,11 @@
   )
 )
 
-(defalias
-  slw nop1
-  pre nop2
-  scr nop3
-)
-
 ;; TLTR (Thumb Left & Thumb Right) layer
-;; for non-keyboard functions like mouse, media, etc.
+;; for non-keyboard functions like mouse, media, screen etc.
 (deflayer TLTR
-  XX @scre @bri @med  @voli XX          XX XX  @m△ XX  XX lrld
-  XX @pre  @slw @scr  🖰1   🖰2         XX @m◅ @m▽ @m▻ XX XX
-  _  @brl  XX   @voll XX    XX          XX XX  XX  XX  XX _
-                XX XX            @def          XX XX
+  XX @scre @bri @med  @voli XX         XX XX  @m△ XX  XX  lrld
+  XX  @pre  @slw @scr   🖰1  🖰2      XX @m◅ @m▽ @m▻ XX   XX
+     XX    @brl @ba   @voll  XX         XX XX  XX  XX  XX
+                     XX _                    _ XX
 )
