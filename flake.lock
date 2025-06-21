@@ -879,6 +879,26 @@
         "type": "github"
       }
     },
+    "devshell_2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1741473158,
+        "narHash": "sha256-kWNaq6wQUbUMlPgw8Y+9/9wP0F8SHkjy24/mN3UAppg=",
+        "owner": "numtide",
+        "repo": "devshell",
+        "rev": "7c9e793ebe66bcba8292989a68c0419b737a22a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "devshell",
+        "type": "github"
+      }
+    },
     "doomemacs": {
       "flake": false,
       "locked": {
@@ -2784,6 +2804,7 @@
       "inputs": {
         "OS-nixCfg": "OS-nixCfg",
         "actions-nix": "actions-nix",
+        "devshell": "devshell_2",
         "flake-parts": "flake-parts_4",
         "nixpkgs": "nixpkgs",
         "pre-commit-hooks": "pre-commit-hooks",

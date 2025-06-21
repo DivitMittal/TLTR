@@ -29,6 +29,10 @@
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     OS-nixCfg = {
       url = "github:DivitMittal/OS-nixCfg";
       inputs = {
