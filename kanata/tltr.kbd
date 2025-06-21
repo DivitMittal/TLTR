@@ -146,7 +146,7 @@
 
 ;; screen control
 (defvar
-  thto 150
+  thto 250
 )
 (platform (macos)
   (defvar
