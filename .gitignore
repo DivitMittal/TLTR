@@ -4,4 +4,4 @@
 ## nix builds & direnv
 .direnv
 result
-result-
+result-*
