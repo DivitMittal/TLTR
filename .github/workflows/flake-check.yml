@@ -19,10 +19,17 @@ jobs:
   pull_request:
     branches:
     - master
+    paths:
+    - flake.nix
+    - flake.lock
+    - assets/**
+    - flake/**
   push:
     branches:
     - master
-    paths-ignore:
-    - '**/*.md'
-    - .github/**
+    paths:
+    - flake.nix
+    - flake.lock
+    - assets/**
+    - flake/**
   workflow_dispatch: {}

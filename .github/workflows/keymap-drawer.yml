@@ -32,6 +32,11 @@ jobs:
         '
     timeout-minutes: 30
 'on':
+  pull_request:
+    branches:
+    - master
+    paths:
+    - keymap-drawer/**
   push:
     branches:
     - master

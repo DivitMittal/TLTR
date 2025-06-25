@@ -11,17 +11,17 @@
     };
 
     workflows = let
-      on = {
+      on = rec {
         push = {
           branches = ["master"];
-          paths-ignore = [
-            "**/*.md"
-            ".github/**"
+          paths = [
+            "flake.nix"
+            "flake.lock"
+            "assets/**"
+            "flake/**"
           ];
         };
-        pull_request = {
-          branches = ["master"];
-        };
+        pull_request = push;
         workflow_dispatch = {};
       };
       permissions = {
@@ -58,11 +58,12 @@
         };
       };
       ".github/workflows/keymap-drawer.yml" = {
-        on = {
+        on = rec {
           push = {
             branches = ["master"];
             paths = ["keymap-drawer/**"];
           };
+          pull_request = push;
           workflow_dispatch = {};
         };
         jobs.keymap-drawer = {
@@ -89,7 +90,7 @@
               }
               {
                 name = "Push to repo";
-                run  = ''
+                run = ''
                   git config --global user.name "GitHub Actions Bot"
                   git config --global user.email bot@github.com
                   git add .
