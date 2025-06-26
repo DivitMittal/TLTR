@@ -50,7 +50,6 @@
 
 (defvar
   cw_timeout 3000
-  os_timeout 300
 )
 (defalias
   ;; ANSI US keycodes shifted
@@ -65,8 +64,6 @@
     (a b c d e f g h i j k l m n o p q r s t u v w x y z) ;; to be shifted
     (1 2 3 4 5 6 7 8 9 0 ▲ ▼ ◀ ▶ ⌫ ⌦ ‐ ‹⇧ ⇧›)  ;; ignore
   )
-  ;; sticky
-  sSft (one-shot-release $os_timeout ‹⇧)
 )
 #|
  Custom Colemak with,
@@ -78,16 +75,20 @@
   @cw   q  w  f  p  b      j   l  u     y    '     ;
   @delf a  r  s  t  g      m  n  e     i     o    _
        z  x  c  d  v        k  h @comf @dotf @slaf
-           @tl @sSft          spc  @tr
+           @tl ‹⇧            spc  @tr
 )
 
+(defvar
+  os_timeout 300
+)
 (defalias
   ;; chords
   btb S-↹
   ;; sticky/one-shot modifiers
-  sMet (one-shot-release $os_timeout ‹◆)
-  sCtl (one-shot-release $os_timeout ‹⌃)
   sAlt (one-shot-release $os_timeout ‹⌥)
+  sCtl (one-shot-release $os_timeout ‹⌃)
+  sSft (one-shot-release $os_timeout ‹⇧)
+  sMet (one-shot-release $os_timeout ‹◆)
   sFn (one-shot-release $os_timeout nop0)
   sWin (multi @sAlt @sCtl @sMet)         ;; window-manager key
   sHyp (multi @sAlt @sCtl @sSft @sMet)   ;; hyper key
