@@ -4,10 +4,34 @@
     inherit (inputs.flake-parts.lib) mkFlake;
     specialArgs.customLib = inputs.OS-nixCfg.lib;
   in
-    mkFlake {inherit inputs specialArgs;} {
+    mkFlake {inherit inputs specialArgs;} ({
+      inputs,
+      lib,
+      ...
+    }: {
       systems = builtins.import inputs.systems;
+      perSystem = {system, ...}: {
+        _module.args.pkgs = builtins.import inputs.nixpkgs {
+          inherit system;
+          config = let
+            inherit (lib) mkDefault;
+          in {
+            allowUnfree = mkDefault true;
+            allowBroken = mkDefault false;
+            allowUnsupportedSystem = mkDefault false;
+            checkMeta = mkDefault false;
+            warnUndeclaredOptions = mkDefault true;
+          };
+          overlays = lib.attrsets.attrValues {
+            inherit
+              (inputs.OS-nixCfg.overlays)
+              default
+              ;
+          };
+        };
+      };
       imports = [./flake];
-    };
+    });
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";

@@ -8,10 +8,8 @@
   perSystem = {pkgs, ...}: {
     devshells.default = {
       packages = lib.attrsets.attrValues {
-        inherit
-          (pkgs)
-          qmk
-          ;
+        inherit (pkgs.customPypi) keymap-drawer;
+        inherit (pkgs) qmk;
       };
     };
   };
