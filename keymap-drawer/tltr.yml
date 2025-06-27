@@ -100,7 +100,7 @@ layers:
         null,
         null,
       ]
-    - [{ tap: "TL", type: "held" },  { tap: "⇧" }, { tap: "␣" },{ tap: "TR" }]
+    - [{ tap: "TL", type: "held" }, { tap: "⇧" }, { tap: "␣" }, { tap: "TR" }]
 
   TR:
     - [
@@ -146,7 +146,7 @@ layers:
         { tap: "③", left: "F3" },
         { tap: "/", shifted: '\' },
       ]
-    - [{ tap: "TL" }, { tap: "⇧" },{ tap: "␣" }, { tap: "TR", type: "held" }]
+    - [{ tap: "TL" }, { tap: "⇧" }, { tap: "␣" }, { tap: "TR", type: "held" }]
 
   TLTR:
     - [
@@ -192,7 +192,12 @@ layers:
         null,
         null,
       ]
-    - [{ tap: "TL", type: "held" }, { tap: "⇧" }, { tap: "␣" }, { tap: "TR", type: "held" }]
+    - [
+        { tap: "TL", type: "held" },
+        { tap: "⇧" },
+        { tap: "␣" },
+        { tap: "TR", type: "held" },
+      ]
 
 combos:
   - {
