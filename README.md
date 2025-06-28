@@ -56,10 +56,6 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
 
 ## Physical implementation
 
-### Standard row-staggered [ANSI US](https://commons.wikimedia.org/wiki/File:ANSI_Keyboard_Layout_Diagram_with_Form_Factor.svg) 60% keyboard
-
-![ANSI US Keyboard Image](./assets/ansi_us_keyboard.jpeg)
-
 ### Column-staggered ergo-split keyboard, i.e., [Cantor](https://github.com/diepala/cantor)([Piantor](https://github.com/beekeeb/piantor))
 
 ![Split Keyboard Image](./assets/split_keyboard.jpeg)
