@@ -56,7 +56,7 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
 
 ## Physical implementation
 
-### Column-staggered ergo-split keyboard, i.e., [Cantor](https://github.com/diepala/cantor)([Piantor](https://github.com/beekeeb/piantor))
+### Column-staggered ergo-split keyboard, i.e., [Cantor](https://github.com/diepala/cantor)([Piantor](https://github.com/beekeeb/piantor) specifically) with Cherry MX1A Red Switches
 
 ![Split Keyboard Image](./assets/split_keyboard.jpeg)
 
