@@ -6,15 +6,14 @@
 
   danger-enable-cmd yes
   delegate-to-first-layer yes  ;; transparent keys(_) delegate to first-layer only if layer-switch is used to activate the layer
-  concurrent-tap-hold yes
+  concurrent-tap-hold no
 )
 
 (include tltr_config.kbd)
 
 ;;;; TLTR Activation
 ;; implementation 1
-#|
-(defchords tl_tr 500
+#| (defchords tl_tr 500
   (tl  ) (layer-while-held TL)
   (  tr) (layer-while-held TR)
   (tl tr) (layer-while-held TLTR)
@@ -22,11 +21,9 @@
 (defalias
   tl (chord tl_tr tl)
   tr (chord tl_tr tr)
-)
-|#
+) |#
 ;;implementation 2
-#|
-(defalias
+#| (defalias
   tl (multi nop3 (switch
     (nop4) (layer-while-held TLTR) break
     () (multi (release-layer TLTR) (layer-while-held TL)) break
@@ -35,8 +32,7 @@
     (nop3) (layer-while-held TLTR) break
     () (multi (release-layer TLTR) (layer-while-held TR)) break
   ))
-)
-|#
+) |#
 ;; implementation 3
 (defvirtualkeys
   release_layer_TLTR (release-layer TLTR)
@@ -147,7 +143,7 @@
 
 ;; screen control
 (defvar
-  thto 250
+  thto 200
 )
 (platform (macos)
   (defvar
@@ -177,14 +173,14 @@
 )
 
 ;; brightness control
-(defvirtualkeys
+#| (defvirtualkeys
   brightness_up_key (unshift 🔆)
   brightness_down_key (unshift 🔅)
 )
 (defalias
   bri (tap-hold $thto $thto 🔆 (macro (on-press press-vkey brightness_up_key) 750 (on-press release-vkey brightness_up_key)))
   brl (tap-hold $thto $thto 🔅 (macro (on-press press-vkey brightness_down_key) 750 (on-press release-vkey brightness_down_key)))
-)
+) |#
 
 ;; media control
 (platform (macos)
@@ -192,7 +188,7 @@
     osa ("/usr/bin/osascript" "-e")
   )
 )
-(platform (macos)
+#| (platform (macos)
   (defalias
     voli (tap-hold $thto $thto 🔊 (macro (cmd $osa "set volume output volume 100") 275 (unshift 🔊)))
     voll (tap-hold $thto $thto 🔉 (macro (cmd $osa "set volume output volume 0") 275 (unshift 🔉)))
@@ -214,7 +210,7 @@
     voli (tap-hold $thto $thto 🔊 (cmd nircmd setsysvolume 65535))
     voll (tap-hold $thto $thto 🔉 (cmd nircmd setsysvolume 0))
   )
-)
+) |#
 (platform (win winiov2 wintercept linux)
   (defalias
     pl (unshift pp)
@@ -343,8 +339,9 @@
 ;; TLTR (Thumb Left & Thumb Right) layer
 ;; for non-keyboard functions like mouse, media, screen etc.
 (deflayer TLTR
-  XX @scre @bri @med  @voli XX         XX XX  @m△ XX  XX  lrld
-  XX  @pre  @slw @scr   🖰1  🖰2      XX @m◅ @m▽ @m▻ XX   XX
-     XX    @brl @ba   @voll  XX         XX XX  XX  XX  XX
-                     XX _                    _ XX
+  XX @scre 🔆  @med  🔊  XX          XX XX  @m△ XX  XX  lrld
+  XX  @pre @slw @scr  🖰1 🖰2       XX @m◅ @m▽ @m▻ XX   XX
+     XX   🔅   @ba   🔉  XX          XX XX  XX  XX  XX
+                XX _                    _ XX
 )
+

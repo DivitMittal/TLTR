@@ -152,9 +152,9 @@ layers:
     - [
         null,
         { tap: "🖥️saver", hold: "💤" },
-        { tap: "🔆", hold: "full ☀️" },
+        { tap: "🔆" },
         { tap: "⏯️", hold: "⏭️" },
-        { tap: "🔊", hold: "full 🔊" },
+        { tap: "🔊" },
         null,
 
         null,
@@ -181,9 +181,9 @@ layers:
       ]
     - [
         null,
-        { tap: "🔅", hold: "min ☀️" },
+        { tap: "🔅" },
         { tap: "⏮️" },
-        { tap: "🔉", hold: "🔇" },
+        { tap: "🔉" },
         null,
 
         null,
