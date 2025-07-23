@@ -41,17 +41,17 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     actions-nix = {
       url = "github:nialov/actions.nix";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-parts.follows = "flake-parts";
-        pre-commit-hooks.follows = "pre-commit-hooks";
+        git-hooks.follows = "git-hooks";
       };
-    };
-    pre-commit-hooks = {
-      url = "github:cachix/git-hooks.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     devshell = {
       url = "github:numtide/devshell";
@@ -65,7 +65,7 @@
         flake-parts.follows = "flake-parts";
         treefmt-nix.follows = "treefmt-nix";
         actions-nix.follows = "actions-nix";
-        pre-commit-hooks.follows = "pre-commit-hooks";
+        git-hooks.follows = "git-hooks";
       };
     };
   };
