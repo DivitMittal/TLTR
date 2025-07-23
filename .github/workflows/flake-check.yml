@@ -22,7 +22,6 @@ jobs:
     paths:
     - flake.nix
     - flake.lock
-    - assets/**
     - flake/**
   push:
     branches:
@@ -30,6 +29,5 @@ jobs:
     paths:
     - flake.nix
     - flake.lock
-    - assets/**
     - flake/**
   workflow_dispatch: {}

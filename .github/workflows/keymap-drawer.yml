@@ -19,17 +19,12 @@ jobs:
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       name: Push to repo
-      run: 'git config --global user.name "GitHub Actions Bot"
-
+      run: |-
+        git config --global user.name "GitHub Actions Bot"
         git config --global user.email bot@github.com
-
         git add .
-
         git commit -m "chore: update keymap-drawer assets"
-
         git push origin master
-
-        '
     timeout-minutes: 30
 'on':
   pull_request:
