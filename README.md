@@ -6,8 +6,15 @@
 ---
 
 <div align='center'>
-    <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/flake-check.yml/badge.svg" alt="nix-flake-check"/>
-    <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/keymap-drawer.yml/badge.svg" alt="gen-keymap-drawing"/>
+    <a href="https://github.com/DivitMittal/TLTR/actions/workflows/flake-check.yml">
+        <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/flake-check.yml/badge.svg" alt="nix-flake-check"/>
+    </a>
+    <a href="https://github.com/DivitMittal/TLTR/actions/workflows/keymap-drawer.yml">
+        <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/keymap-drawer.yml/badge.svg" alt="gen-keymap-drawing"/>
+    </a>
+    <a href="https://github.com/DivitMittal/TLTR/actions/workflows/flake-lock-update.yml">
+        <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/flake-lock-update.yml/badge.svg" alt="update-flake-lock"/>
+    </a>
 </div>
 
 ---
