@@ -1,6 +1,7 @@
 {
   common-permissions,
   common-actions,
+  inputs,
   ...
 }: {
   flake.actions-nix.workflows.".github/workflows/flake-lock-update.yml" = {
@@ -22,6 +23,7 @@
       steps =
         common-actions
         ++ [
+          inputs.actions-nix.lib.steps.DeterminateSystemsNixInstallerAction
           {
             name = "Update flake.lock";
             uses = "DeterminateSystems/update-flake-lock@main";

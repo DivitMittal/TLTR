@@ -11,6 +11,7 @@ jobs:
       uses: actions/checkout@main
       with:
         fetch-depth: 1
+    - uses: DeterminateSystems/nix-installer-action@v17
     - name: Update flake.lock
       uses: DeterminateSystems/update-flake-lock@main
     timeout-minutes: 30
