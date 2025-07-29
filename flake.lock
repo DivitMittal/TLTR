@@ -67,11 +67,11 @@
         "yazi-plugins": "yazi-plugins"
       },
       "locked": {
-        "lastModified": 1753689386,
-        "narHash": "sha256-WrB4kz2276uzqu0EgZWQCV49r0HUd8LW9Kr3COQ9RL8=",
+        "lastModified": 1753815795,
+        "narHash": "sha256-LZYgluLWnvVsxg1bEq5xTc69oRolCGb3uT/6jzbIB14=",
         "owner": "DivitMittal",
         "repo": "OS-nixCfg",
-        "rev": "d2bae5c201bdc33ff9829853a12ce05f32e23c50",
+        "rev": "98c363cf4234084911d8df47250e24999abb0627",
         "type": "github"
       },
       "original": {
@@ -1102,11 +1102,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1753722563,
-        "narHash": "sha256-FK8iq76wlacriq3u0kFCehsRYTAqjA9nfprpiSWRWIc=",
+        "lastModified": 1753750875,
+        "narHash": "sha256-J1P0aQymehe8AHsID9wwoMjbaYrIB2eH5HftoXhF9xk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "648f70160c03151bc2121d179291337ad6bc564b",
+        "rev": "871381d997e4a063f25a3994ce8a9ac595246610",
         "type": "github"
       },
       "original": {
