@@ -67,11 +67,11 @@
         "yazi-plugins": "yazi-plugins"
       },
       "locked": {
-        "lastModified": 1753815795,
-        "narHash": "sha256-LZYgluLWnvVsxg1bEq5xTc69oRolCGb3uT/6jzbIB14=",
+        "lastModified": 1753817774,
+        "narHash": "sha256-GPBQKNqGHtYzua48mMiW8gIfoFkYhhhrwEm15mOQbK4=",
         "owner": "DivitMittal",
         "repo": "OS-nixCfg",
-        "rev": "98c363cf4234084911d8df47250e24999abb0627",
+        "rev": "ccd25d4b61401f4f80c6809ac16858f6c46d48b5",
         "type": "github"
       },
       "original": {
