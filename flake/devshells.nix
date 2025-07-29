@@ -26,7 +26,7 @@
             nixd
             alejandra
             ## qmk cli
-            qmk
+            #qmk
             ;
           inherit (pkgs.customPypi) keymap-drawer;
         };
