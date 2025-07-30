@@ -26,9 +26,11 @@
             nixd
             alejandra
             ## qmk cli
-            #qmk
+            qmk
             ;
-          inherit (pkgs.customPypi) keymap-drawer;
+          keymap-drawer = pkgs.writeShellScriptBin "keymap" ''
+            exec ${pkgs.uv}/bin/uv tool run --from keymap-drawer keymap "$@"
+          '';
         };
       };
     };

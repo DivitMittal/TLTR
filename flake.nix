@@ -1,35 +1,11 @@
 {
-  description = "TLTR flake";
+  description = "TLTR's flake";
   outputs = inputs: let
     inherit (inputs.flake-parts.lib) mkFlake;
     specialArgs.customLib = inputs.OS-nixCfg.lib;
   in
-    mkFlake {inherit inputs specialArgs;} ({
-      inputs,
-      lib,
-      ...
-    }: {
+    mkFlake {inherit inputs specialArgs;} ({inputs, ...}: {
       systems = builtins.import inputs.systems;
-      perSystem = {system, ...}: {
-        _module.args.pkgs = builtins.import inputs.nixpkgs {
-          inherit system;
-          config = let
-            inherit (lib) mkDefault;
-          in {
-            allowUnfree = mkDefault true;
-            allowBroken = mkDefault false;
-            allowUnsupportedSystem = mkDefault false;
-            checkMeta = mkDefault false;
-            warnUndeclaredOptions = mkDefault true;
-          };
-          overlays = lib.attrsets.attrValues {
-            inherit
-              (inputs.OS-nixCfg.overlays)
-              default
-              ;
-          };
-        };
-      };
       imports = [./flake];
     });
 
@@ -59,14 +35,7 @@
     };
     OS-nixCfg = {
       url = "github:DivitMittal/OS-nixCfg";
-      inputs = {
-        systems.follows = "systems";
-        nixpkgs.follows = "nixpkgs";
-        flake-parts.follows = "flake-parts";
-        treefmt-nix.follows = "treefmt-nix";
-        actions-nix.follows = "actions-nix";
-        git-hooks.follows = "git-hooks";
-      };
+      flake = false;
     };
   };
 }
