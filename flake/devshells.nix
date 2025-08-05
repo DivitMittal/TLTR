@@ -26,7 +26,7 @@
             nixd
             alejandra
             ## qmk cli
-            qmk
+            #qmk
             ;
           keymap-drawer = pkgs.writeScriptBin "keymap" ''
             exec ${pkgs.uv}/bin/uv tool run --from keymap-drawer keymap "$@"
