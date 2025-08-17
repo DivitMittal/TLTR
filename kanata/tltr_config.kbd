@@ -5,8 +5,8 @@
   slow_mouse_move 10
   precise_mouse_move 3
   ;; scroll
-  scroll_move 5
-  slow_scroll_move 3
+  scroll_move 6
+  slow_scroll_move 2
   precise_scroll_move 1
 
   repeat_delay 20 ;; in milliseconds
