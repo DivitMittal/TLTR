@@ -11,7 +11,7 @@
         "--context",
         "ide-assistant",
         "--project",
-        "/Users/div/Projects/TLTR"
+        "~/Projects/TLTR"
       ],
       "env": {}
     }

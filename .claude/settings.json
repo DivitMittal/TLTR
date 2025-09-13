@@ -2,11 +2,7 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": ["serena"],
   "permissions": {
-    "allow": [
-      "mcp__filesystem__list_directory",
-      "mcp__filesystem__read_text_file",
-      "mcp__filesystem__edit_file"
-    ],
+    "allow": [],
     "deny": [],
     "ask": []
   }
