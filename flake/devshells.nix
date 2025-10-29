@@ -26,8 +26,10 @@
             ## Nix
             nixd
             alejandra
+            ## C/C++
+            clang-tools
             ## qmk cli
-            qmk
+            #qmk
             ;
           keymap-drawer = pkgs.writeScriptBin "keymap" ''
             exec ${pkgs.uv}/bin/uv tool run --from keymap-drawer keymap "$@"
