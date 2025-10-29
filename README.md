@@ -44,7 +44,6 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
 ## Can be deployed via:
 
 1. [Kanata](https://github.com/jtroo/kanata/)
-
    1. macOS
       - Dependencies:
         1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-3.1.0.pkg)
@@ -56,7 +55,6 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
    3. \*nix
 
 1. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
-
    1. macOS
 
 ---
