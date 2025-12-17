@@ -4,9 +4,11 @@
   "tags": ["split", "column-staggered", "ortho"],
   "features": {
     "bootmagic": true,
+    "caps_word": true,
     "extrakey": true,
     "mousekey": true,
-    "nkro": true
+    "nkro": true,
+    "unicode": true
   },
   "bootloader": "rp2040",
   "processor": "RP2040",

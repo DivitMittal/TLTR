@@ -3,6 +3,14 @@
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
 
+// Unicode setup - set default input mode
+void keyboard_post_init_user(void) {
+  // Set default Unicode input mode (can be changed with KC_UMODE)
+  // Start with Linux mode (most universal)
+  // Cycle order: Linux → macOS → WinCompose → Linux
+  set_unicode_input_mode(UNICODE_MODE_LINUX);
+}
+
 // Caps Word configuration (matches Kanata: 3000ms timeout)
 bool caps_word_press_user(uint16_t keycode) {
   switch (keycode) {
@@ -79,6 +87,12 @@ enum custom_keycodes {
   KC_OS_HYP, // sHyp: Alt+Ctrl+Shift+Meta (hyper)
   KC_OS_FN,  // sFn: Function modifier
 
+  // Individual modifiers with tap-hold behavior (tap=oneshot, hold=regular)
+  KC_MOD_ALT,   // Alt modifier (tap for oneshot, hold for regular)
+  KC_MOD_CTRL,  // Ctrl modifier (tap for oneshot, hold for regular)
+  KC_MOD_SHIFT, // Shift modifier (tap for oneshot, hold for regular)
+  KC_MOD_META,  // Meta/GUI modifier (tap for oneshot, hold for regular)
+
   // Mouse control modifiers (matches Kanata nop1/nop2/nop3)
   KC_MSLW, // Mouse slow modifier (nop1)
   KC_MPRE, // Mouse precise modifier (nop2)
@@ -93,6 +107,9 @@ enum custom_keycodes {
   // Media/Screen controls
   KC_SCRE, // Screen saver/sleep control (tap-hold)
   KC_MEDC, // Media control (play/forward tap-hold)
+
+  // Unicode mode switching
+  KC_UMODE, // Cycle through Unicode input modes
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -100,13 +117,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * COLEMAK MOD-DH + WIDE + ANGLE (38-key TLTR layout)
      * Matches Kanata CUSTOM_COLEMAK layer
      *
-     * ┌─────┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬─────┐
-     * │ CW  │ Q │ W │ F │ P │ B │       │ J │ L │ U │ Y │ ' │  ;  │
-     * ├─────┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼─────┤
-     * │DELF │ A │ R │ S │ T │ G │       │ M │ N │ E │ I │ O │  _  │
-     * └─────┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼─────┘
+     * ┌─────┬───┬───┬───┬───┬───┐       ┌───┬───┬───  ┬── ─┬───┬─────┐
+     * │ CW  │ Q │ W │ F │ P │ B │       │ J │ L │ U  │ Y  │ '  │  ;  │
+     * ├─────┼───┼───┼───┼───┼───┤       ├───┼───┼─── ┼─── ┼─── ┼─────┤
+     * │DELF │ A │ R │ S │ T │ G │       │ M │ N │ E  │ I  │ O  │ ENT │
+     * └─────┼───┼───┼───┼───┼───┤       ├───┼───┼─── ┼── ─┼─── ┼─────┘
      *       │ Z │ X │ C │ D │ V │       │ K │ H │,/_ │./? │//\ │
-     *       └───┴───┴───┼───┼───┤       ├───┼───┼───┴───┴───┘
+     *       └───┴───┴───┼───┼───┤       ├───┼───┼─── ┴─── ┴─── ┘
      *                   │TL │LSF│       │SPC│ TR│
      *                   └───┴───┘       └───┴───┘
      */
@@ -116,39 +133,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_G, KC_Z, KC_X, KC_C, KC_D, KC_V, KC_TL_KEY, OSM(MOD_LSFT),
         // Right side
         KC_J, KC_L, KC_U, KC_Y, KC_QUOT, KC_SCLN, KC_M, KC_N, KC_E, KC_I, KC_O,
-        KC_UNDS, KC_K, KC_H, KC_COMF, KC_DOTF, KC_SLAF, KC_SPC, KC_TR_KEY),
+        KC_ENT, KC_K, KC_H, KC_COMF, KC_DOTF, KC_SLAF, KC_SPC, KC_TR_KEY),
 
     /*
-     * TL Layer - Modifiers & Navigation
-     * Matches Kanata TL layer
+     * TL Layer - Modifiers & Navigation (Matches Kanata TL layer)
      *
-     * Key mappings:
-     * - Esc, sWin, sFn in top left
-     * - One-shot modifiers (Alt, Ctrl, Shift, Meta) on home row
-     * - Navigation keys (arrows, tab, page up/down) on right
-     * - sHyp (Hyper) in bottom left
+     * Left Hand:           Right Hand:
+     * --  Esc sWin sFn     PgU/H S-Tab Up   Tab
+     * --  Alt Ctrl Shft    PgD/E Left  Down Rght
+     * --  --  --   sHyp    --    Bspc  Del  --
+     *          TL   LSf          Spc   TR
      */
     [_TL] = LAYOUT_split_2x6_1x5_2(
         // Left side
-        KC_NO, KC_ESC, KC_OS_WIN, KC_OS_FN, KC_NO, KC_NO, KC_TRNS,
-        OSM(MOD_LALT), OSM(MOD_LCTL), OSM(MOD_LSFT), OSM(MOD_LGUI), KC_NO,
-        KC_NO, KC_NO, KC_NO, KC_OS_HYP, KC_NO, KC_TRNS, KC_TRNS,
+        KC_NO, KC_ESC, KC_OS_WIN, KC_OS_FN, KC_NO, KC_NO, KC_TRNS, KC_MOD_ALT,
+        KC_MOD_CTRL, KC_MOD_SHIFT, KC_MOD_META, KC_NO, KC_NO, KC_NO, KC_NO,
+        KC_OS_HYP, KC_NO, KC_TRNS, KC_TRNS,
         // Right side
         KC_PGUF, S(KC_TAB), KC_UP, KC_TAB, KC_NO, KC_NO, KC_PGDF, KC_LEFT,
         KC_DOWN, KC_RGHT, KC_NO, KC_TRNS, KC_NO, KC_BSPC, KC_DEL, KC_NO,
         KC_TRNS, KC_TRNS, KC_TRTLTR_KEY),
 
     /*
-     * TR Layer - Numbers & Symbols
-     * Matches Kanata TR layer
+     * TR Layer - Numbers & Symbols (Matches Kanata TR layer)
      *
-     * Layout:
-     * - Symbol forks in top left (!@#$)
-     * - Function keys with number forks (7f-0f, *, %) on right top
-     * - Bracket forks (&, [], {}, ()) on left home
-     * - Number forks (4f-6f) on right home
-     * - Angle brackets on left bottom
-     * - Number forks (0f-3f) on right bottom
+     * Left Hand:           Right Hand:
+     * --  !/` @/~ #/^ $/₹  %/F12 7/F7 8/F8 9/F9 +  =
+     * --  &/| [/] {/} (/)  star  4/F4 5/F5 6/F6 -  --
+     * --  --  <   >   --   0/F10 1/F1 2/F2 3/F3 / \
+     *         TL   LSf           Spc  TR
      */
     [_TR] = LAYOUT_split_2x6_1x5_2(
         // Left side
@@ -161,15 +174,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS),
 
     /*
-     * TLTR Layer - Mouse, Media & Display Controls
-     * Matches Kanata TLTR layer
+     * TLTR Layer - Mouse, Media & Display Controls (Matches Kanata TLTR layer)
      *
-     * Features:
-     * - Screen/brightness/media controls on left
-     * - Mouse mode modifiers (precise, slow, scroll) on left home
-     * - Mouse buttons on left home
-     * - Directional mouse/scroll on right (with mode switching)
-     * - QK_BOOT for reflashing firmware
+     * Left Hand:             Right Hand:
+     * -- Scrn Bri+ Med Vol+  --   --   M↑  -- UMod Boot
+     * -- MPre MSlo MScr Btn1  --   M←   M↓  M→ --   --
+     * -- Bri- MPrv Vol- --    --   --   --  -- --
+     *            TL   LSf           Spc  TR
      */
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
         // Left side
@@ -177,7 +188,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_MSLW, KC_MSCR, MS_BTN1, MS_BTN2, KC_NO, KC_BRID, KC_MPRV, KC_VOLD,
         KC_NO, KC_TRNS, KC_TRNS,
         // Right side
-        KC_NO, KC_NO, KC_MUP, KC_NO, KC_NO, QK_BOOT, KC_NO, KC_MLFT, KC_MDN,
+        KC_NO, KC_NO, KC_MUP, KC_NO, KC_UMODE, QK_BOOT, KC_NO, KC_MLFT, KC_MDN,
         KC_MRGT, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
         KC_TRNS)};
 
@@ -192,10 +203,24 @@ static bool tr_pressed = false;
 // Fn modifier state (matches Kanata nop0)
 static bool fn_modifier_active = false;
 
+// Fork key state tracking for key repeat
+static uint16_t delf_registered_key = KC_NO;
+static uint16_t pguf_registered_key = KC_NO;
+static uint16_t pgdf_registered_key = KC_NO;
+static uint16_t slaf_registered_key = KC_NO;
+static uint16_t comf_registered_key = KC_NO;
+static uint16_t dotf_registered_key = KC_NO;
+
 // Mouse control states (matches Kanata nop1/nop2/nop3)
 static bool mouse_slow_mode = false;    // nop1
 static bool mouse_precise_mode = false; // nop2
 static bool mouse_scroll_mode = false;  // nop3
+
+// Mouse key state tracking for continuous movement
+static uint16_t mouse_up_key = KC_NO;
+static uint16_t mouse_down_key = KC_NO;
+static uint16_t mouse_left_key = KC_NO;
+static uint16_t mouse_right_key = KC_NO;
 
 // One-shot state tracking for custom combinations
 static struct {
@@ -203,6 +228,33 @@ static struct {
   uint16_t timer;
   uint8_t mods;
 } oneshot_state = {false, 0, 0};
+
+// Tap-hold state for custom modifier keys
+static struct {
+  bool os_win_held;
+  bool os_hyp_held;
+  bool os_fn_held;
+  bool os_win_used; // Was another key pressed while held?
+  bool os_hyp_used; // Was another key pressed while held?
+  uint16_t os_win_timer;
+  uint16_t os_hyp_timer;
+
+  // Individual modifiers
+  bool mod_alt_held;
+  bool mod_ctrl_held;
+  bool mod_shift_held;
+  bool mod_meta_held;
+  bool mod_alt_used;
+  bool mod_ctrl_used;
+  bool mod_shift_used;
+  bool mod_meta_used;
+  uint16_t mod_alt_timer;
+  uint16_t mod_ctrl_timer;
+  uint16_t mod_shift_timer;
+  uint16_t mod_meta_timer;
+} modifier_hold_state = {false, false, false, false, false, 0,     0,
+                         false, false, false, false, false, false, false,
+                         false, 0,     0,     0,     0};
 
 // Timeouts (in milliseconds) - match Kanata config
 #define ONESHOT_TIMEOUT 300
@@ -249,59 +301,6 @@ static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
 }
 
 // ============================================================================
-// Mouse control with mode switching (matches Kanata switch logic)
-// ============================================================================
-
-// Mouse movement speeds (matches Kanata variables)
-#define MOUSE_MOVE_DELTA 8          // $mouse_move
-#define SLOW_MOUSE_MOVE_DELTA 4     // $slow_mouse_move
-#define PRECISE_MOUSE_MOVE_DELTA 1  // $precise_mouse_move
-#define SCROLL_MOVE_DELTA 8         // $scroll_move
-#define SLOW_SCROLL_MOVE_DELTA 4    // $slow_scroll_move
-#define PRECISE_SCROLL_MOVE_DELTA 1 // $precise_scroll_move
-
-static void handle_mouse_movement(int16_t x, int16_t y) {
-  // Match Kanata switch logic:
-  // (and nop1 nop2 nop3) → slow precise scroll
-  // (and nop1 nop3) → slow scroll
-  // (and nop1 nop2) → precise mouse
-  // nop1 → slow mouse
-  // nop3 → scroll
-  // default → mouse
-
-  // Note: QMK mouse keys use tap_code16 for directional movement
-  // The speed is controlled by MOUSEKEY config settings
-  // For now, this is a simplified implementation that maps to standard QMK
-  // mouse keys
-  // TODO: Implement variable speed mouse movement using custom mouse report or
-  // acceleration keys
-
-  if (mouse_scroll_mode) {
-    // Scroll mode: use wheel keys
-    if (y < 0)
-      tap_code(MS_WHLU); // Scroll up
-    else if (y > 0)
-      tap_code(MS_WHLD); // Scroll down
-    if (x < 0)
-      tap_code(MS_WHLL); // Scroll left
-    else if (x > 0)
-      tap_code(MS_WHLR); // Scroll right
-  } else {
-    // Mouse mode: use movement keys
-    // Note: Speed variations (slow/precise) would need acceleration keys or
-    // custom implementation
-    if (y < 0)
-      tap_code(MS_UP);
-    else if (y > 0)
-      tap_code(MS_DOWN);
-    if (x < 0)
-      tap_code(MS_LEFT);
-    else if (x > 0)
-      tap_code(MS_RGHT);
-  }
-}
-
-// ============================================================================
 // Main key processing
 // ============================================================================
 
@@ -311,6 +310,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       timer_elapsed(oneshot_state.timer) > ONESHOT_TIMEOUT) {
     unregister_mods(oneshot_state.mods);
     oneshot_state.active = false;
+  }
+
+  // Detect when other keys are pressed while custom modifiers are held
+  if (record->event.pressed && keycode != KC_OS_WIN && keycode != KC_OS_HYP &&
+      keycode != KC_OS_FN && keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
+      keycode != KC_MOD_SHIFT && keycode != KC_MOD_META) {
+    if (modifier_hold_state.os_win_held) {
+      modifier_hold_state.os_win_used = true;
+    }
+    if (modifier_hold_state.os_hyp_held) {
+      modifier_hold_state.os_hyp_used = true;
+    }
+    if (modifier_hold_state.mod_alt_held) {
+      modifier_hold_state.mod_alt_used = true;
+    }
+    if (modifier_hold_state.mod_ctrl_held) {
+      modifier_hold_state.mod_ctrl_used = true;
+    }
+    if (modifier_hold_state.mod_shift_held) {
+      modifier_hold_state.mod_shift_used = true;
+    }
+    if (modifier_hold_state.mod_meta_held) {
+      modifier_hold_state.mod_meta_used = true;
+    }
   }
 
   switch (keycode) {
@@ -395,29 +418,123 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // ========================================================================
   case KC_OS_WIN: // sWin: Alt+Ctrl+Meta
     if (record->event.pressed) {
-      oneshot_state.mods =
-          MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI);
-      oneshot_state.timer = timer_read();
-      oneshot_state.active = true;
-      set_oneshot_mods(oneshot_state.mods);
+      modifier_hold_state.os_win_held = true;
+      modifier_hold_state.os_win_used = false;
+      modifier_hold_state.os_win_timer = timer_read();
+      // Register as regular modifier for immediate effect when held
+      register_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI));
+    } else {
+      modifier_hold_state.os_win_held = false;
+      // Unregister the regular modifier
+      unregister_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI));
+
+      // If it was a quick tap and wasn't used, make it one-shot for next key
+      if (!modifier_hold_state.os_win_used &&
+          timer_elapsed(modifier_hold_state.os_win_timer) < TAPHOLD_TIMEOUT) {
+        set_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
+                         MOD_BIT(KC_LGUI));
+      }
     }
     return false;
 
   case KC_OS_HYP: // sHyp: Alt+Ctrl+Shift+Meta
     if (record->event.pressed) {
-      oneshot_state.mods = MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
-                           MOD_BIT(KC_LSFT) | MOD_BIT(KC_LGUI);
-      oneshot_state.timer = timer_read();
-      oneshot_state.active = true;
-      set_oneshot_mods(oneshot_state.mods);
+      modifier_hold_state.os_hyp_held = true;
+      modifier_hold_state.os_hyp_used = false;
+      modifier_hold_state.os_hyp_timer = timer_read();
+      // Register as regular modifier for immediate effect when held
+      register_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT) |
+                    MOD_BIT(KC_LGUI));
+    } else {
+      modifier_hold_state.os_hyp_held = false;
+      // Unregister the regular modifier
+      unregister_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT) |
+                      MOD_BIT(KC_LGUI));
+
+      // If it was a quick tap and wasn't used, make it one-shot for next key
+      if (!modifier_hold_state.os_hyp_used &&
+          timer_elapsed(modifier_hold_state.os_hyp_timer) < TAPHOLD_TIMEOUT) {
+        set_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
+                         MOD_BIT(KC_LSFT) | MOD_BIT(KC_LGUI));
+      }
     }
     return false;
 
   case KC_OS_FN: // sFn: Function modifier (nop0 in Kanata)
     if (record->event.pressed) {
       fn_modifier_active = true;
+      modifier_hold_state.os_fn_held = true;
     } else {
       fn_modifier_active = false;
+      modifier_hold_state.os_fn_held = false;
+    }
+    return false;
+
+  // ========================================================================
+  // Individual modifiers with tap-hold behavior
+  // ========================================================================
+  case KC_MOD_ALT:
+    if (record->event.pressed) {
+      modifier_hold_state.mod_alt_held = true;
+      modifier_hold_state.mod_alt_used = false;
+      modifier_hold_state.mod_alt_timer = timer_read();
+      register_mods(MOD_BIT(KC_LALT));
+    } else {
+      modifier_hold_state.mod_alt_held = false;
+      unregister_mods(MOD_BIT(KC_LALT));
+      if (!modifier_hold_state.mod_alt_used &&
+          timer_elapsed(modifier_hold_state.mod_alt_timer) < TAPHOLD_TIMEOUT) {
+        set_oneshot_mods(MOD_BIT(KC_LALT));
+      }
+    }
+    return false;
+
+  case KC_MOD_CTRL:
+    if (record->event.pressed) {
+      modifier_hold_state.mod_ctrl_held = true;
+      modifier_hold_state.mod_ctrl_used = false;
+      modifier_hold_state.mod_ctrl_timer = timer_read();
+      register_mods(MOD_BIT(KC_LCTL));
+    } else {
+      modifier_hold_state.mod_ctrl_held = false;
+      unregister_mods(MOD_BIT(KC_LCTL));
+      if (!modifier_hold_state.mod_ctrl_used &&
+          timer_elapsed(modifier_hold_state.mod_ctrl_timer) < TAPHOLD_TIMEOUT) {
+        set_oneshot_mods(MOD_BIT(KC_LCTL));
+      }
+    }
+    return false;
+
+  case KC_MOD_SHIFT:
+    if (record->event.pressed) {
+      modifier_hold_state.mod_shift_held = true;
+      modifier_hold_state.mod_shift_used = false;
+      modifier_hold_state.mod_shift_timer = timer_read();
+      register_mods(MOD_BIT(KC_LSFT));
+    } else {
+      modifier_hold_state.mod_shift_held = false;
+      unregister_mods(MOD_BIT(KC_LSFT));
+      if (!modifier_hold_state.mod_shift_used &&
+          timer_elapsed(modifier_hold_state.mod_shift_timer) <
+              TAPHOLD_TIMEOUT) {
+        set_oneshot_mods(MOD_BIT(KC_LSFT));
+      }
+    }
+    return false;
+
+  case KC_MOD_META:
+    if (record->event.pressed) {
+      modifier_hold_state.mod_meta_held = true;
+      modifier_hold_state.mod_meta_used = false;
+      modifier_hold_state.mod_meta_timer = timer_read();
+      register_mods(MOD_BIT(KC_LGUI));
+    } else {
+      modifier_hold_state.mod_meta_held = false;
+      unregister_mods(MOD_BIT(KC_LGUI));
+      if (!modifier_hold_state.mod_meta_used &&
+          timer_elapsed(modifier_hold_state.mod_meta_timer) < TAPHOLD_TIMEOUT) {
+        set_oneshot_mods(MOD_BIT(KC_LGUI));
+      }
     }
     return false;
 
@@ -441,25 +558,71 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // ========================================================================
   case KC_MUP:
     if (record->event.pressed) {
-      handle_mouse_movement(0, -1);
+      // Register appropriate key based on scroll mode
+      if (mouse_scroll_mode) {
+        register_code(MS_WHLU);
+        mouse_up_key = MS_WHLU;
+      } else {
+        register_code(MS_UP);
+        mouse_up_key = MS_UP;
+      }
+    } else {
+      // Unregister the key that was registered
+      if (mouse_up_key != KC_NO) {
+        unregister_code(mouse_up_key);
+        mouse_up_key = KC_NO;
+      }
     }
     return false;
 
   case KC_MDN:
     if (record->event.pressed) {
-      handle_mouse_movement(0, 1);
+      if (mouse_scroll_mode) {
+        register_code(MS_WHLD);
+        mouse_down_key = MS_WHLD;
+      } else {
+        register_code(MS_DOWN);
+        mouse_down_key = MS_DOWN;
+      }
+    } else {
+      if (mouse_down_key != KC_NO) {
+        unregister_code(mouse_down_key);
+        mouse_down_key = KC_NO;
+      }
     }
     return false;
 
   case KC_MLFT:
     if (record->event.pressed) {
-      handle_mouse_movement(-1, 0);
+      if (mouse_scroll_mode) {
+        register_code(MS_WHLL);
+        mouse_left_key = MS_WHLL;
+      } else {
+        register_code(MS_LEFT);
+        mouse_left_key = MS_LEFT;
+      }
+    } else {
+      if (mouse_left_key != KC_NO) {
+        unregister_code(mouse_left_key);
+        mouse_left_key = KC_NO;
+      }
     }
     return false;
 
   case KC_MRGT:
     if (record->event.pressed) {
-      handle_mouse_movement(1, 0);
+      if (mouse_scroll_mode) {
+        register_code(MS_WHLR);
+        mouse_right_key = MS_WHLR;
+      } else {
+        register_code(MS_RGHT);
+        mouse_right_key = MS_RGHT;
+      }
+    } else {
+      if (mouse_right_key != KC_NO) {
+        unregister_code(mouse_right_key);
+        mouse_right_key = KC_NO;
+      }
     }
     return false;
 
@@ -471,10 +634,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
-        tap_code(KC_DEL);
+        register_code(KC_DEL);
         set_mods(saved_mods);
+        delf_registered_key = KC_DEL;
       } else {
-        tap_code(KC_BSPC);
+        register_code(KC_BSPC);
+        delf_registered_key = KC_BSPC;
+      }
+    } else {
+      // Release the key that was registered
+      if (delf_registered_key != KC_NO) {
+        unregister_code(delf_registered_key);
+        delf_registered_key = KC_NO;
       }
     }
     return false;
@@ -484,10 +655,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
-        tap_code(KC_BSLS);
+        register_code(KC_BSLS);
         set_mods(saved_mods);
+        slaf_registered_key = KC_BSLS;
       } else {
-        tap_code(KC_SLSH);
+        register_code(KC_SLSH);
+        slaf_registered_key = KC_SLSH;
+      }
+    } else {
+      if (slaf_registered_key != KC_NO) {
+        unregister_code(slaf_registered_key);
+        slaf_registered_key = KC_NO;
       }
     }
     return false;
@@ -496,9 +674,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
       if (is_left_shift_active()) {
         // Already shifted, output underscore
-        tap_code(KC_MINS);
+        register_code(KC_MINS);
+        comf_registered_key = KC_MINS;
       } else {
-        tap_code(KC_COMM);
+        register_code(KC_COMM);
+        comf_registered_key = KC_COMM;
+      }
+    } else {
+      if (comf_registered_key != KC_NO) {
+        unregister_code(comf_registered_key);
+        comf_registered_key = KC_NO;
       }
     }
     return false;
@@ -507,9 +692,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
       if (is_left_shift_active()) {
         // Already shifted, output question mark
-        tap_code(KC_SLSH);
+        register_code(KC_SLSH);
+        dotf_registered_key = KC_SLSH;
       } else {
-        tap_code(KC_DOT);
+        register_code(KC_DOT);
+        dotf_registered_key = KC_DOT;
+      }
+    } else {
+      if (dotf_registered_key != KC_NO) {
+        unregister_code(dotf_registered_key);
+        dotf_registered_key = KC_NO;
       }
     }
     return false;
@@ -519,10 +711,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
-        tap_code(KC_HOME);
+        register_code(KC_HOME);
         set_mods(saved_mods);
+        pguf_registered_key = KC_HOME;
       } else {
-        tap_code(KC_PGUP);
+        register_code(KC_PGUP);
+        pguf_registered_key = KC_PGUP;
+      }
+    } else {
+      if (pguf_registered_key != KC_NO) {
+        unregister_code(pguf_registered_key);
+        pguf_registered_key = KC_NO;
       }
     }
     return false;
@@ -532,10 +731,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
-        tap_code(KC_END);
+        register_code(KC_END);
         set_mods(saved_mods);
+        pgdf_registered_key = KC_END;
       } else {
-        tap_code(KC_PGDN);
+        register_code(KC_PGDN);
+        pgdf_registered_key = KC_PGDN;
+      }
+    } else {
+      if (pgdf_registered_key != KC_NO) {
+        unregister_code(pgdf_registered_key);
+        pgdf_registered_key = KC_NO;
       }
     }
     return false;
@@ -590,15 +796,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_DOLF: // $/₹
     if (record->event.pressed) {
-      // Dollar normally, Rupee when shifted (Unicode)
-      // For now, just output dollar - Rupee needs Unicode support
       if (is_left_shift_active()) {
-        // TODO: Implement Unicode for Rupee symbol
+        // Shifted: Rupee symbol (₹) via Unicode
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
-        tap_code16(KC_DLR);
+        send_unicode_string("₹");
         set_mods(saved_mods);
       } else {
+        // Normal: Dollar ($)
         tap_code16(KC_DLR);
       }
     }
@@ -772,6 +977,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // Tap: play/pause, Hold: next track
       // Simplified version: just play/pause for now
       tap_code(KC_MPLY);
+    }
+    return false;
+
+  // ========================================================================
+  // Unicode mode switching
+  // ========================================================================
+  case KC_UMODE:
+    if (record->event.pressed) {
+      // Cycle through Unicode input modes
+      uint8_t current_mode = get_unicode_input_mode();
+      uint8_t next_mode =
+          (current_mode + 1) % 3; // Cycle: Linux(0) → macOS(1) → WinCompose(2)
+      set_unicode_input_mode(next_mode);
     }
     return false;
   }
