@@ -174,7 +174,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
         // Left side
         KC_NO, KC_SCRE, KC_BRIU, KC_MEDC, KC_VOLU, KC_NO, KC_NO, KC_MPRE,
-        KC_MSLW, KC_MSCR, KC_BTN1, KC_BTN2, KC_NO, KC_BRID, KC_MPRV, KC_VOLD,
+        KC_MSLW, KC_MSCR, MS_BTN1, MS_BTN2, KC_NO, KC_BRID, KC_MPRV, KC_VOLD,
         KC_NO, KC_TRNS, KC_TRNS,
         // Right side
         KC_NO, KC_NO, KC_MUP, KC_NO, KC_NO, QK_BOOT, KC_NO, KC_MLFT, KC_MDN,
@@ -279,25 +279,25 @@ static void handle_mouse_movement(int16_t x, int16_t y) {
   if (mouse_scroll_mode) {
     // Scroll mode: use wheel keys
     if (y < 0)
-      tap_code(KC_WH_U); // Scroll up
+      tap_code(MS_WHLU); // Scroll up
     else if (y > 0)
-      tap_code(KC_WH_D); // Scroll down
+      tap_code(MS_WHLD); // Scroll down
     if (x < 0)
-      tap_code(KC_WH_L); // Scroll left
+      tap_code(MS_WHLL); // Scroll left
     else if (x > 0)
-      tap_code(KC_WH_R); // Scroll right
+      tap_code(MS_WHLR); // Scroll right
   } else {
     // Mouse mode: use movement keys
     // Note: Speed variations (slow/precise) would need acceleration keys or
     // custom implementation
     if (y < 0)
-      tap_code(KC_MS_UP);
+      tap_code(MS_UP);
     else if (y > 0)
-      tap_code(KC_MS_DOWN);
+      tap_code(MS_DOWN);
     if (x < 0)
-      tap_code(KC_MS_LEFT);
+      tap_code(MS_LEFT);
     else if (x > 0)
-      tap_code(KC_MS_RIGHT);
+      tap_code(MS_RGHT);
   }
 }
 
