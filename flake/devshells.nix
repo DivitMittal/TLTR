@@ -28,9 +28,12 @@
             alejandra
             ## C/C++
             clang-tools
-            ## qmk cli
-            #qmk
+            ### QMK Toolchain
+            gcc-arm-embedded-13 # arm-none-eabi-gcc for RP2040
             ;
+          qmk = pkgs.writeScriptBin "qmk" ''
+            exec ${pkgs.uv}/bin/uv tool run qmk "$@"
+          '';
           keymap-drawer = pkgs.writeScriptBin "keymap" ''
             exec ${pkgs.uv}/bin/uv tool run --from keymap-drawer keymap "$@"
           '';
