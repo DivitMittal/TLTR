@@ -3,11 +3,11 @@
 // Speed level definitions (matching Kanata behavior)
 // Default: modestly fast
 #define MOUSE_MOVE_DEFAULT 8
-#define MOUSE_WHEEL_DEFAULT 1
+#define MOUSE_WHEEL_DEFAULT 3
 
 // Slow mode: slower movement
 #define MOUSE_MOVE_SLOW 3
-#define MOUSE_WHEEL_SLOW 1
+#define MOUSE_WHEEL_SLOW 2
 
 // Precise mode: very slow, precise movement
 #define MOUSE_MOVE_PRECISE 1
