@@ -105,8 +105,8 @@ enum custom_keycodes {
   KC_MRGT, // Mouse/scroll right
 
   // Media/Screen controls
-  KC_SCRE, // Screen saver/sleep control (tap-hold)
-  KC_MEDC, // Media control (play/forward tap-hold)
+  KC_SCRE, // Screen control (tap=lock screen, hold=sleep)
+  KC_MEDC, // Media control (tap=play/pause, hold=next track)
 
   // Unicode mode switching
   KC_UMODE, // Cycle through Unicode input modes
@@ -267,6 +267,20 @@ static struct {
 } modifier_hold_state = {false, false, false, false, false, 0,     0,
                          false, false, false, false, false, false, false,
                          false, 0,     0,     0,     0};
+
+// Screen control tap-hold state
+static struct {
+  bool held;
+  bool used;
+  uint16_t timer;
+} screen_hold_state = {false, false, 0};
+
+// Media control tap-hold state
+static struct {
+  bool held;
+  bool used;
+  uint16_t timer;
+} media_hold_state = {false, false, 0};
 
 // Timeouts (in milliseconds) - match Kanata config
 #define ONESHOT_TIMEOUT 300
@@ -614,8 +628,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_MLFT:
     if (record->event.pressed) {
       if (mouse_scroll_mode) {
-        register_code(MS_WHLL);
-        mouse_left_key = MS_WHLL;
+        register_code(MS_WHLR); // Reversed: left key scrolls right
+        mouse_left_key = MS_WHLR;
       } else {
         register_code(MS_LEFT);
         mouse_left_key = MS_LEFT;
@@ -631,8 +645,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_MRGT:
     if (record->event.pressed) {
       if (mouse_scroll_mode) {
-        register_code(MS_WHLR);
-        mouse_right_key = MS_WHLR;
+        register_code(MS_WHLL); // Reversed: right key scrolls left
+        mouse_right_key = MS_WHLL;
       } else {
         register_code(MS_RGHT);
         mouse_right_key = MS_RGHT;
