@@ -2,16 +2,26 @@
 
 // Speed level definitions (matching Kanata behavior)
 // Default: fast
-#define MOUSE_MOVE_DEFAULT 12
+#define MOUSE_MOVE_DEFAULT 16
 #define MOUSE_WHEEL_DEFAULT 4
 
 // Slow mode: slower movement
-#define MOUSE_MOVE_SLOW 3
+#define MOUSE_MOVE_SLOW 8
 #define MOUSE_WHEEL_SLOW 2
 
 // Precise mode: very slow, precise movement
-#define MOUSE_MOVE_PRECISE 1
+#define MOUSE_MOVE_PRECISE 4
 #define MOUSE_WHEEL_PRECISE 1
+
+// Cursor movement intervals - keep fast for smooth movement
+#define CURSOR_INTERVAL_DEFAULT 8  // 125Hz - very smooth
+#define CURSOR_INTERVAL_SLOW 12    // 83Hz - smooth
+#define CURSOR_INTERVAL_PRECISE 16 // 60Hz - smooth
+
+// Scroll intervals - slower for controlled scrolling
+#define SCROLL_INTERVAL_DEFAULT 32  // 30Hz - moderate speed
+#define SCROLL_INTERVAL_SLOW 64     // 15Hz - slow, controlled
+#define SCROLL_INTERVAL_PRECISE 100 // 10Hz - very slow, precise
 
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
@@ -37,6 +47,7 @@ static uint16_t mouse_timer = 0;
 // Forward declarations for helper functions
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
+static inline uint16_t get_mouse_interval(void);
 
 // Unicode setup - automatically detect OS and set input mode
 void keyboard_post_init_user(void) {
@@ -71,8 +82,8 @@ void matrix_scan_user(void) {
     return;
   }
 
-  // Throttle mouse reports to MOUSEKEY_INTERVAL (16ms)
-  if (timer_elapsed(mouse_timer) < MOUSEKEY_INTERVAL) {
+  // Throttle mouse reports based on current speed mode
+  if (timer_elapsed(mouse_timer) < get_mouse_interval()) {
     return;
   }
   mouse_timer = timer_read();
@@ -439,6 +450,30 @@ static inline int8_t get_wheel_speed(void) {
     return MOUSE_WHEEL_SLOW; // Slow
   } else {
     return MOUSE_WHEEL_DEFAULT; // Modestly fast (default)
+  }
+}
+
+// Get current mouse report interval based on mode flags
+// Uses different intervals for cursor movement (fast) vs scrolling (slow)
+static inline uint16_t get_mouse_interval(void) {
+  if (mouse_scroll_mode) {
+    // Scrolling mode - use slower intervals for controlled scrolling
+    if (mouse_precise_mode) {
+      return SCROLL_INTERVAL_PRECISE; // 100ms - very slow
+    } else if (mouse_slow_mode) {
+      return SCROLL_INTERVAL_SLOW; // 64ms - slow
+    } else {
+      return SCROLL_INTERVAL_DEFAULT; // 32ms - moderate
+    }
+  } else {
+    // Cursor movement mode - use fast intervals for smooth movement
+    if (mouse_precise_mode) {
+      return CURSOR_INTERVAL_PRECISE; // 16ms - smooth
+    } else if (mouse_slow_mode) {
+      return CURSOR_INTERVAL_SLOW; // 12ms - smooth
+    } else {
+      return CURSOR_INTERVAL_DEFAULT; // 8ms - very smooth
+    }
   }
 }
 
