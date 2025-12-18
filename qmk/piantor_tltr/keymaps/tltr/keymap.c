@@ -1,16 +1,5 @@
 #include QMK_KEYBOARD_H
 
-// Mouse key configuration - Constant mode with three speed levels
-// These override the defaults to provide precise control
-#define MOUSEKEY_DELAY 0             // No delay before movement starts
-#define MOUSEKEY_INTERVAL 16         // Time between mouse reports (ms)
-#define MOUSEKEY_MOVE_DELTA 8        // Default: modestly fast
-#define MOUSEKEY_WHEEL_DELTA 1       // Default: modestly fast scroll
-#define MOUSEKEY_MAX_SPEED 8         // Same as MOVE_DELTA for constant speed
-#define MOUSEKEY_TIME_TO_MAX 0       // No acceleration - constant mode
-#define MOUSEKEY_WHEEL_MAX_SPEED 8   // Same as initial for constant
-#define MOUSEKEY_WHEEL_TIME_TO_MAX 0 // No scroll acceleration
-
 // Speed level definitions (matching Kanata behavior)
 // Default: modestly fast
 #define MOUSE_MOVE_DEFAULT 8
@@ -26,6 +15,31 @@
 
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
+
+// ============================================================================
+// State variables (must be declared before use in functions)
+// ============================================================================
+
+// Mouse control states (matches Kanata nop1/nop2/nop3)
+static bool mouse_slow_mode = false;    // nop1
+static bool mouse_precise_mode = false; // nop2
+static bool mouse_scroll_mode = false;  // nop3
+
+// Mouse direction state tracking for continuous movement/scrolling
+static bool mouse_up_pressed = false;
+static bool mouse_down_pressed = false;
+static bool mouse_left_pressed = false;
+static bool mouse_right_pressed = false;
+
+// Mouse report throttling timer
+static uint16_t mouse_timer = 0;
+
+// Forward declarations for helper functions
+static inline int8_t get_mouse_speed(void);
+static inline int8_t get_wheel_speed(void);
+
+// Key overrides - currently empty, but required by QMK
+const key_override_t *key_overrides[] = {NULL};
 
 // Unicode setup - automatically detect OS and set input mode
 void keyboard_post_init_user(void) {
@@ -221,7 +235,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_COLEMAK] = LAYOUT_split_2x6_1x5_2(
         // Left side
         CW_TOGG, KC_Q, KC_W, KC_F, KC_P, KC_B, KC_DELF, KC_A, KC_R, KC_S, KC_T,
-        KC_G, KC_Z, KC_X, KC_C, KC_D, KC_V, KC_TL_KEY, OSM(MOD_LSFT),
+        KC_G, KC_Z, KC_X, KC_C, KC_D, KC_V, KC_TL_KEY, KC_LSFT,
         // Right side
         KC_J, KC_L, KC_U, KC_Y, KC_QUOT, KC_SCLN, KC_M, KC_N, KC_E, KC_I, KC_O,
         KC_ENT, KC_K, KC_H, KC_COMF, KC_DOTF, KC_SLAF, KC_SPC, KC_TR_KEY),
@@ -315,20 +329,6 @@ static uint16_t pgdf_registered_key = KC_NO;
 static uint16_t slaf_registered_key = KC_NO;
 static uint16_t comf_registered_key = KC_NO;
 static uint16_t dotf_registered_key = KC_NO;
-
-// Mouse control states (matches Kanata nop1/nop2/nop3)
-static bool mouse_slow_mode = false;    // nop1
-static bool mouse_precise_mode = false; // nop2
-static bool mouse_scroll_mode = false;  // nop3
-
-// Mouse direction state tracking for continuous movement/scrolling
-static bool mouse_up_pressed = false;
-static bool mouse_down_pressed = false;
-static bool mouse_left_pressed = false;
-static bool mouse_right_pressed = false;
-
-// Mouse report throttling timer
-static uint16_t mouse_timer = 0;
 
 // One-shot state tracking for custom combinations
 static struct {

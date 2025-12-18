@@ -43,10 +43,12 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
 
 ## Can be deployed via:
 
-1. [Kanata](https://github.com/jtroo/kanata/)
+### Software-based (works with any keyboard):
+
+1. [Kanata](https://github.com/jtroo/kanata/) - Cross-platform key remapper
    1. macOS
       - Dependencies:
-        1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-3.1.0.pkg)
+        1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice)
         2. [Shortcuts](<https://www.wikipedia.com/en/articles/Shortcuts_(Apple)>)
    2. Windows
       - Dependencies:
@@ -54,8 +56,15 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
         2. [InterceptionDriver](https://github.com/oblitum/Interception)
    3. \*nix
 
-1. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements)
+2. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements) - macOS only
    1. macOS
+
+### Hardware-based (firmware flashed to keyboard):
+
+3. [QMK Firmware](https://qmk.fm/) - For programmable keyboards
+   - Target keyboard: [Piantor](https://github.com/beekeeb/piantor) (RP2040-based Cantor variant)
+   - Firmware location: `qmk/piantor_tltr/`
+   - Build instructions: See [qmk/README.md](qmk/README.md)
 
 ---
 
