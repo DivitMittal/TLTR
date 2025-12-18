@@ -12,7 +12,7 @@ layout:
 layers:
   Custom-Colemak:
     - [
-        { tap: "caps-word" },
+        { tap: "⟳" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },
@@ -54,7 +54,7 @@ layers:
         { tap: ".", shifted: "?" },
         { tap: "/", shifted: "\\" },
       ]
-    - [{ tap: "TL" }, { tap: "⇧" }, { tap: "␣" }, { tap: "TR" }]
+    - [{ tap: "TL" }, { tap: "⇧", hold: "CW" }, { tap: "␣" }, { tap: "TR" }]
 
   TL:
     - [
@@ -162,7 +162,7 @@ layers:
         { tap: "🖱️↑" },
         null,
         null,
-        { tap: "live ⟳" },
+        { tap: "⚡ Boot" },
       ]
     - [
         null,

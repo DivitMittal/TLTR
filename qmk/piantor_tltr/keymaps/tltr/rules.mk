@@ -7,6 +7,9 @@ UNICODE_ENABLE = yes
 # Enable caps word
 CAPS_WORD_ENABLE = yes
 
+# Enable repeat key
+REPEAT_KEY_ENABLE = yes
+
 # Enable mouse keys
 MOUSEKEY_ENABLE = yes
 

@@ -60,6 +60,8 @@
     (a b c d e f g h i j k l m n o p q r s t u v w x y z) ;; to be shifted
     (1 2 3 4 5 6 7 8 9 0 ▲ ▼ ◀ ▶ ⌫ ⌦ ‐ ‹⇧ ⇧›)  ;; ignore
   )
+  ;; tap-dance shift: tap once = shift, tap twice = caps word
+  sft (tap-dance 200 (‹⇧ @cw))
 )
 #|
  Custom Colemak with,
@@ -68,10 +70,10 @@
  3. angle mod (sliding keys to left & right on the bottom-most row with z being on lshft & / on rshft)
 |#
 (deflayer CUSTOM_COLEMAK
-  @cw   q  w  f  p  b      j   l  u     y    '     ;
+  rpt   q  w  f  p  b      j   l  u     y    '     ;
   @delf a  r  s  t  g      m  n  e     i     o    _
        z  x  c  d  v        k  h @comf @dotf @slaf
-           @tl ‹⇧            spc  @tr
+           @tl @sft          spc  @tr
 )
 
 (defvar
