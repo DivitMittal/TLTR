@@ -30,33 +30,25 @@ qmk/
 
 ### Prerequisites
 
-1. QMK CLI installed:
+1. QMK CLI installed and set up:
 
    ```bash
    uv tool install qmk
+   qmk setup
    ```
 
-2. QMK firmware repository cloned:
-
-   ```bash
-   git clone https://github.com/qmk/qmk_firmware.git
-   cd qmk_firmware
-   ```
-
-3. Symlink the custom keyboard to QMK firmware:
+2. Symlink the custom keyboard to QMK firmware:
    ```bash
    ln -s /path/to/TLTR/qmk/piantor_tltr keyboards/beekeeb/piantor_tltr
    ```
 
 ### Compilation
 
-From the `qmk_firmware` directory:
-
 ```bash
 qmk compile -kb beekeeb/piantor_tltr -km tltr
 ```
 
-Or using make:
+Or using make (from the `qmk_firmware` directory):
 
 ```bash
 make beekeeb/piantor_tltr:tltr
