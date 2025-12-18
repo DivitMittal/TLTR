@@ -16,21 +16,8 @@
 // One-shot modifier configuration (matches Kanata os_timeout)
 #define ONESHOT_TIMEOUT 300 // 300ms timeout
 
-// Mouse key configuration with kinetic speed
-#define MK_KINETIC_SPEED
-#define MOUSEKEY_DELAY 0
-#define MOUSEKEY_INTERVAL 16
-#define MOUSEKEY_MOVE_DELTA 5
-#define MOUSEKEY_INITIAL_SPEED 100
-#define MOUSEKEY_BASE_SPEED 1000
-#define MOUSEKEY_DECELERATED_SPEED 400
-#define MOUSEKEY_ACCELERATED_SPEED 3000
-
-// Scroll configuration (matches Kanata $scroll_move)
-#define MOUSEKEY_WHEEL_DELAY 0
-#define MOUSEKEY_WHEEL_INTERVAL 80
-#define MOUSEKEY_WHEEL_MAX_SPEED 8
-#define MOUSEKEY_WHEEL_TIME_TO_MAX 40
+// Mouse key configuration is now handled in keymap.c for custom constant mode
+// with dynamic speed adjustment (slow/precise modes)
 
 // Tap-hold configuration matching Kanata timeouts
 #define TAPPING_TERM 200

@@ -1,5 +1,29 @@
 #include QMK_KEYBOARD_H
 
+// Mouse key configuration - Constant mode with three speed levels
+// These override the defaults to provide precise control
+#define MOUSEKEY_DELAY 0             // No delay before movement starts
+#define MOUSEKEY_INTERVAL 16         // Time between mouse reports (ms)
+#define MOUSEKEY_MOVE_DELTA 8        // Default: modestly fast
+#define MOUSEKEY_WHEEL_DELTA 1       // Default: modestly fast scroll
+#define MOUSEKEY_MAX_SPEED 8         // Same as MOVE_DELTA for constant speed
+#define MOUSEKEY_TIME_TO_MAX 0       // No acceleration - constant mode
+#define MOUSEKEY_WHEEL_MAX_SPEED 8   // Same as initial for constant
+#define MOUSEKEY_WHEEL_TIME_TO_MAX 0 // No scroll acceleration
+
+// Speed level definitions (matching Kanata behavior)
+// Default: modestly fast
+#define MOUSE_MOVE_DEFAULT 8
+#define MOUSE_WHEEL_DEFAULT 1
+
+// Slow mode: slower movement
+#define MOUSE_MOVE_SLOW 3
+#define MOUSE_WHEEL_SLOW 1
+
+// Precise mode: very slow, precise movement
+#define MOUSE_MOVE_PRECISE 1
+#define MOUSE_WHEEL_PRECISE 1
+
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
 
@@ -25,6 +49,60 @@ void keyboard_post_init_user(void) {
     set_unicode_input_mode(UNICODE_MODE_LINUX);
     break;
   }
+}
+
+// Custom mouse movement handling with dynamic speed adjustment
+// This hook is called regularly to handle ongoing mouse movement
+void matrix_scan_user(void) {
+  // Only process if any direction key is pressed
+  if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
+      !mouse_right_pressed) {
+    return;
+  }
+
+  // Throttle mouse reports to MOUSEKEY_INTERVAL (16ms)
+  if (timer_elapsed(mouse_timer) < MOUSEKEY_INTERVAL) {
+    return;
+  }
+  mouse_timer = timer_read();
+
+  // Create a mouse report
+  report_mouse_t mouse_report = {0};
+
+  if (mouse_scroll_mode) {
+    // Scroll mode - use wheel deltas (reversed for natural scrolling)
+    int8_t wheel_speed = get_wheel_speed();
+    if (mouse_up_pressed) {
+      mouse_report.v = -wheel_speed; // Reversed: up scrolls down
+    }
+    if (mouse_down_pressed) {
+      mouse_report.v = wheel_speed; // Reversed: down scrolls up
+    }
+    if (mouse_left_pressed) {
+      mouse_report.h = wheel_speed; // Reversed: left scrolls right
+    }
+    if (mouse_right_pressed) {
+      mouse_report.h = -wheel_speed; // Reversed: right scrolls left
+    }
+  } else {
+    // Cursor mode - use x/y deltas
+    int8_t move_speed = get_mouse_speed();
+    if (mouse_up_pressed) {
+      mouse_report.y = -move_speed; // Up is negative Y
+    }
+    if (mouse_down_pressed) {
+      mouse_report.y = move_speed; // Down is positive Y
+    }
+    if (mouse_left_pressed) {
+      mouse_report.x = -move_speed; // Left is negative X
+    }
+    if (mouse_right_pressed) {
+      mouse_report.x = move_speed; // Right is positive X
+    }
+  }
+
+  // Send the mouse report
+  host_mouse_send(&mouse_report);
 }
 
 // Caps Word configuration (matches Kanata: 3000ms timeout)
@@ -243,11 +321,14 @@ static bool mouse_slow_mode = false;    // nop1
 static bool mouse_precise_mode = false; // nop2
 static bool mouse_scroll_mode = false;  // nop3
 
-// Mouse key state tracking for continuous movement
-static uint16_t mouse_up_key = KC_NO;
-static uint16_t mouse_down_key = KC_NO;
-static uint16_t mouse_left_key = KC_NO;
-static uint16_t mouse_right_key = KC_NO;
+// Mouse direction state tracking for continuous movement/scrolling
+static bool mouse_up_pressed = false;
+static bool mouse_down_pressed = false;
+static bool mouse_left_pressed = false;
+static bool mouse_right_pressed = false;
+
+// Mouse report throttling timer
+static uint16_t mouse_timer = 0;
 
 // One-shot state tracking for custom combinations
 static struct {
@@ -341,6 +422,29 @@ static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
   return false;
 }
 
+// Get current mouse movement speed based on mode flags
+// Precise takes priority over slow (matches Kanata behavior)
+static inline int8_t get_mouse_speed(void) {
+  if (mouse_precise_mode) {
+    return MOUSE_MOVE_PRECISE; // Very slow, precise
+  } else if (mouse_slow_mode) {
+    return MOUSE_MOVE_SLOW; // Slow
+  } else {
+    return MOUSE_MOVE_DEFAULT; // Modestly fast (default)
+  }
+}
+
+// Get current mouse wheel speed based on mode flags
+static inline int8_t get_wheel_speed(void) {
+  if (mouse_precise_mode) {
+    return MOUSE_WHEEL_PRECISE; // Very slow, precise
+  } else if (mouse_slow_mode) {
+    return MOUSE_WHEEL_SLOW; // Slow
+  } else {
+    return MOUSE_WHEEL_DEFAULT; // Modestly fast (default)
+  }
+}
+
 // ============================================================================
 // Main key processing
 // ============================================================================
@@ -354,10 +458,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   // Detect when other keys are pressed while custom modifiers are held
+  // Exclude modifier keys themselves and mouse control keys
   if (record->event.pressed && keycode != KC_OS_WIN && keycode != KC_OS_HYP &&
       keycode != KC_OS_FN && keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
       keycode != KC_MOD_SHIFT && keycode != KC_MOD_META && keycode != KC_SCRE &&
-      keycode != KC_MEDC) {
+      keycode != KC_MEDC && keycode != KC_MSLW && keycode != KC_MPRE &&
+      keycode != KC_MSCR && keycode != KC_MUP && keycode != KC_MDN &&
+      keycode != KC_MLFT && keycode != KC_MRGT) {
     if (modifier_hold_state.os_win_held) {
       modifier_hold_state.os_win_used = true;
     }
@@ -605,73 +712,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // Directional mouse/scroll keys (matches Kanata m△/m▽/m◅/m▻)
   // ========================================================================
   case KC_MUP:
-    if (record->event.pressed) {
-      // Register appropriate key based on scroll mode
-      if (mouse_scroll_mode) {
-        register_code(MS_WHLD); // Reversed: up key scrolls down
-        mouse_up_key = MS_WHLD;
-      } else {
-        register_code(MS_UP);
-        mouse_up_key = MS_UP;
-      }
-    } else {
-      // Unregister the key that was registered
-      if (mouse_up_key != KC_NO) {
-        unregister_code(mouse_up_key);
-        mouse_up_key = KC_NO;
-      }
-    }
+    mouse_up_pressed = record->event.pressed;
     return false;
 
   case KC_MDN:
-    if (record->event.pressed) {
-      if (mouse_scroll_mode) {
-        register_code(MS_WHLU); // Reversed: down key scrolls up
-        mouse_down_key = MS_WHLU;
-      } else {
-        register_code(MS_DOWN);
-        mouse_down_key = MS_DOWN;
-      }
-    } else {
-      if (mouse_down_key != KC_NO) {
-        unregister_code(mouse_down_key);
-        mouse_down_key = KC_NO;
-      }
-    }
+    mouse_down_pressed = record->event.pressed;
     return false;
 
   case KC_MLFT:
-    if (record->event.pressed) {
-      if (mouse_scroll_mode) {
-        register_code(MS_WHLR); // Reversed: left key scrolls right
-        mouse_left_key = MS_WHLR;
-      } else {
-        register_code(MS_LEFT);
-        mouse_left_key = MS_LEFT;
-      }
-    } else {
-      if (mouse_left_key != KC_NO) {
-        unregister_code(mouse_left_key);
-        mouse_left_key = KC_NO;
-      }
-    }
+    mouse_left_pressed = record->event.pressed;
     return false;
 
   case KC_MRGT:
-    if (record->event.pressed) {
-      if (mouse_scroll_mode) {
-        register_code(MS_WHLL); // Reversed: right key scrolls left
-        mouse_right_key = MS_WHLL;
-      } else {
-        register_code(MS_RGHT);
-        mouse_right_key = MS_RGHT;
-      }
-    } else {
-      if (mouse_right_key != KC_NO) {
-        unregister_code(mouse_right_key);
-        mouse_right_key = KC_NO;
-      }
-    }
+    mouse_right_pressed = record->event.pressed;
     return false;
 
   // ========================================================================
