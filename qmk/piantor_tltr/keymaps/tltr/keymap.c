@@ -1086,8 +1086,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code(KC_LGUI);
           unregister_code(KC_LCTL);
         } else {
-          // Hold: System sleep (universal across platforms)
-          tap_code(KC_SYSTEM_SLEEP);
+          // Hold: Display sleep
+          // macOS: Ctrl+Shift+Power (or Eject)
+          // For Windows: Use KC_SYSTEM_SLEEP
+          // For Linux: May need xset dpms force off via macro
+          register_code(KC_LCTL);
+          register_code(KC_LSFT);
+          tap_code(KC_POWER);
+          unregister_code(KC_LSFT);
+          unregister_code(KC_LCTL);
         }
       }
     }
