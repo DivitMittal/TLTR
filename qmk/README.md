@@ -8,9 +8,9 @@ The QMK implementation provides hardware-level key remapping and advanced featur
 
 ## Target Keyboard
 
-- **Keyboard**: [Piantor](https://github.com/beekeeb/piantor) by beekeeb
+- **Keyboard**: Modified [Piantor](https://github.com/beekeeb/piantor) by beekeeb
 - **Microcontroller**: RP2040 (Raspberry Pi Pico)
-- **Layout**: 38-key split keyboard (compatible with Cantor layout)
+- **Layout**: 38-key split keyboard
 - **Firmware directory**: `piantor_tltr/`
 
 ## Directory Structure
