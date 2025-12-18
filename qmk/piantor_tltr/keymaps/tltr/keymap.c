@@ -241,12 +241,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      *           └───┴───┘               └───┴───┘
      */
     [_COLEMAK] = LAYOUT_split_2x6_1x5_2(
-        // Left side
-        QK_REP, KC_Q, KC_W, KC_F, KC_P, KC_B, KC_DELF, KC_A, KC_R, KC_S, KC_T,
-        KC_G, KC_Z, KC_X, KC_C, KC_D, KC_V, KC_TL_KEY, KC_LSFT,
-        // Right side
-        KC_J, KC_L, KC_U, KC_Y, KC_QUOT, KC_SCLN, KC_M, KC_N, KC_E, KC_I, KC_O,
-        KC_ENT, KC_K, KC_H, KC_COMF, KC_DOTF, KC_SLAF, KC_SPC, KC_TR_KEY),
+        // Row 0
+        QK_REP, KC_Q, KC_W, KC_F, KC_P, KC_B, KC_J, KC_L, KC_U, KC_Y, KC_QUOT,
+        KC_SCLN,
+        // Row 1
+        KC_DELF, KC_A, KC_R, KC_S, KC_T, KC_G, KC_M, KC_N, KC_E, KC_I, KC_O,
+        KC_ENT,
+        // Row 2
+        KC_Z, KC_X, KC_C, KC_D, KC_V, KC_K, KC_H, KC_COMF, KC_DOTF, KC_SLAF,
+        // Row 3
+        KC_TL_KEY, KC_LSFT, KC_SPC, KC_TR_KEY),
 
     /*
      * TL Layer - Modifiers & Navigation (Matches Kanata TL layer)
@@ -262,14 +266,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * │ └─────┴─────┘                 └─────┴─────┘
      */
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        // Left side
-        KC_NO, KC_ESC, KC_OS_WIN, KC_OS_FN, KC_NO, KC_NO, KC_TRNS, KC_MOD_ALT,
-        KC_MOD_CTRL, KC_MOD_SHIFT, KC_MOD_META, KC_NO, KC_NO, KC_NO, KC_NO,
-        KC_OS_HYP, KC_NO, KC_TRNS, KC_TRNS,
-        // Right side
-        KC_PGUF, S(KC_TAB), KC_UP, KC_TAB, KC_NO, KC_NO, KC_PGDF, KC_LEFT,
-        KC_DOWN, KC_RGHT, KC_NO, KC_TRNS, KC_NO, KC_BSPC, KC_DEL, KC_NO,
-        KC_TRNS, KC_TRNS, KC_TRTLTR_KEY),
+        // Row 0
+        KC_NO, KC_ESC, KC_OS_WIN, KC_OS_FN, KC_NO, KC_NO, KC_PGUF, S(KC_TAB),
+        KC_UP, KC_TAB, KC_NO, KC_NO,
+        // Row 1
+        KC_TRNS, KC_MOD_ALT, KC_MOD_CTRL, KC_MOD_SHIFT, KC_MOD_META, KC_NO,
+        KC_PGDF, KC_LEFT, KC_DOWN, KC_RGHT, KC_NO, KC_TRNS,
+        // Row 2
+        KC_NO, KC_NO, KC_NO, KC_OS_HYP, KC_NO, KC_NO, KC_BSPC, KC_DEL, KC_NO,
+        KC_TRNS,
+        // Row 3
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRTLTR_KEY),
 
     /*
      * TR Layer - Numbers & Symbols (Matches Kanata TR layer)
@@ -285,14 +292,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * │ └─────┴─────┘                 └─────┴─────┘
      */
     [_TR] = LAYOUT_split_2x6_1x5_2(
-        // Left side
-        KC_NO, KC_EXCF, KC_ATSF, KC_OCTF, KC_DOLF, KC_NO, KC_TRNS, KC_AMPF,
-        KC_SQRF, KC_CURF, KC_PARF, KC_NO, KC_NO, KC_NO, KC_ANOF, KC_ANCF, KC_NO,
-        KC_TLTLTR_KEY, KC_TRNS,
-        // Right side
-        KC_PERF, KC_7F, KC_8F, KC_9F, KC_PLUF, KC_EQUF, KC_ASTF, KC_4F, KC_5F,
-        KC_6F, KC_HPNF, KC_TRNS, KC_0F, KC_1F, KC_2F, KC_3F, KC_SLAF, KC_TRNS,
-        KC_TRNS),
+        // Row 0
+        KC_NO, KC_EXCF, KC_ATSF, KC_OCTF, KC_DOLF, KC_NO, KC_PERF, KC_7F, KC_8F,
+        KC_9F, KC_PLUF, KC_EQUF,
+        // Row 1
+        KC_TRNS, KC_AMPF, KC_SQRF, KC_CURF, KC_PARF, KC_NO, KC_ASTF, KC_4F,
+        KC_5F, KC_6F, KC_HPNF, KC_TRNS,
+        // Row 2
+        KC_NO, KC_NO, KC_ANOF, KC_ANCF, KC_NO, KC_0F, KC_1F, KC_2F, KC_3F,
+        KC_SLAF,
+        // Row 3
+        KC_TLTLTR_KEY, KC_TRNS, KC_TRNS, KC_TRNS),
 
     /*
      * TLTR Layer - Mouse, Media & Display Controls (Matches Kanata TLTR layer)
@@ -308,14 +318,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * │ └─────┴─────┘                 └─────┴─────┘
      */
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
-        // Left side
-        KC_NO, KC_SCRE, KC_BRIU, KC_MEDC, KC_VOLU, KC_NO, KC_NO, KC_MPRE,
-        KC_MSLW, KC_MSCR, MS_BTN1, MS_BTN2, KC_NO, KC_BRID, KC_MPRV, KC_VOLD,
-        KC_NO, KC_TRNS, KC_TRNS,
-        // Right side
-        KC_NO, KC_NO, KC_MUP, KC_NO, KC_NO, QK_BOOT, KC_NO, KC_MLFT, KC_MDN,
-        KC_MRGT, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
-        KC_TRNS)};
+        // Row 0
+        KC_NO, KC_SCRE, KC_BRIU, KC_MEDC, KC_VOLU, KC_NO, KC_NO, KC_NO, KC_MUP,
+        KC_NO, KC_NO, QK_BOOT,
+        // Row 1
+        KC_NO, KC_MPRE, KC_MSLW, KC_MSCR, MS_BTN1, MS_BTN2, KC_NO, KC_MLFT,
+        KC_MDN, KC_MRGT, KC_NO, KC_NO,
+        // Row 2
+        KC_NO, KC_BRID, KC_MPRV, KC_VOLD, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
+        KC_NO,
+        // Row 3
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS)};
 
 // ============================================================================
 // Advanced state tracking
