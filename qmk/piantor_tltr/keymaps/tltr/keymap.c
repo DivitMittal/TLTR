@@ -1095,7 +1095,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           // For Linux: May need xset dpms force off via macro
           register_code(KC_LCTL);
           register_code(KC_LSFT);
-          tap_code(KC_POWER);
+          tap_code(KC_PWR);
           unregister_code(KC_LSFT);
           unregister_code(KC_LCTL);
         }

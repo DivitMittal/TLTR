@@ -44,12 +44,6 @@
 
 // Disable unused features to save memory and improve performance
 #define NO_MUSIC_MODE
-#define NO_ACTION_MACRO    // Don't use legacy macros
-#define NO_ACTION_FUNCTION // Don't use legacy functions
-
-// Reduce EEPROM usage if not needed
-#define EECONFIG_MAGIC_NUMBER 0x0001
-#define EECONFIG_MAGIC_NUMBER_OFF offsetof(eeconfig_t, magic)
 
 // Optimize matrix scanning
 #define MATRIX_IO_DELAY 30 // Default is good for RP2040
