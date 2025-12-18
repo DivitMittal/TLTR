@@ -33,7 +33,7 @@ qmk/
 1. QMK CLI installed:
 
    ```bash
-   python3 -m pip install --user qmk
+   uv tool install qmk
    ```
 
 2. QMK firmware repository cloned:
