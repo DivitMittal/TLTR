@@ -586,7 +586,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // If it was a quick tap and wasn't used, make it one-shot for next key
       if (!modifier_hold_state.os_win_used &&
           timer_elapsed(modifier_hold_state.os_win_timer) < TAPHOLD_TIMEOUT) {
-        set_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
+        add_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
                          MOD_BIT(KC_LGUI));
       }
     }
@@ -609,7 +609,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // If it was a quick tap and wasn't used, make it one-shot for next key
       if (!modifier_hold_state.os_hyp_used &&
           timer_elapsed(modifier_hold_state.os_hyp_timer) < TAPHOLD_TIMEOUT) {
-        set_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
+        add_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
                          MOD_BIT(KC_LSFT) | MOD_BIT(KC_LGUI));
       }
     }
@@ -639,7 +639,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       unregister_mods(MOD_BIT(KC_LALT));
       if (!modifier_hold_state.mod_alt_used &&
           timer_elapsed(modifier_hold_state.mod_alt_timer) < TAPHOLD_TIMEOUT) {
-        set_oneshot_mods(MOD_BIT(KC_LALT));
+        add_oneshot_mods(MOD_BIT(KC_LALT));
       }
     }
     return false;
@@ -655,7 +655,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       unregister_mods(MOD_BIT(KC_LCTL));
       if (!modifier_hold_state.mod_ctrl_used &&
           timer_elapsed(modifier_hold_state.mod_ctrl_timer) < TAPHOLD_TIMEOUT) {
-        set_oneshot_mods(MOD_BIT(KC_LCTL));
+        add_oneshot_mods(MOD_BIT(KC_LCTL));
       }
     }
     return false;
@@ -672,7 +672,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (!modifier_hold_state.mod_shift_used &&
           timer_elapsed(modifier_hold_state.mod_shift_timer) <
               TAPHOLD_TIMEOUT) {
-        set_oneshot_mods(MOD_BIT(KC_LSFT));
+        add_oneshot_mods(MOD_BIT(KC_LSFT));
       }
     }
     return false;
@@ -688,7 +688,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       unregister_mods(MOD_BIT(KC_LGUI));
       if (!modifier_hold_state.mod_meta_used &&
           timer_elapsed(modifier_hold_state.mod_meta_timer) < TAPHOLD_TIMEOUT) {
-        set_oneshot_mods(MOD_BIT(KC_LGUI));
+        add_oneshot_mods(MOD_BIT(KC_LGUI));
       }
     }
     return false;
