@@ -134,36 +134,6 @@ The complete TLTR keymap implementation:
 - One-shot modifier logic
 - State tracking for layers and modifiers
 
-## Building and Flashing
-
-See the [QMK README](../README.md) for detailed build and flash instructions.
-
-Quick commands:
-
-```bash
-# From qmk_firmware directory
-qmk compile -kb beekeeb/piantor_tltr -km tltr
-
-# Flash (after entering bootloader mode)
-cp .build/beekeeb_piantor_tltr_tltr.uf2 /Volumes/RPI-RP2/
-```
-
-## Keymap Overview
-
-```
-┌─────────────────────────────────────────────┐
-│           COLEMAK Base Layer                │
-├─────┬───┬───┬───┬───┬───┬───┬───┬───┬───┬──┤
-│ CW  │ Q │ W │ F │ P │ B │ J │ L │ U │ Y │' │
-├─────┼───┼───┼───┼───┼───┼───┼───┼───┼───┼──┤
-│ D/B │ A │ R │ S │ T │ G │ M │ N │ E │ I │O │
-├─────┼───┼───┼───┼───┼───┼───┼───┼───┼───┼──┤
-│     │ Z │ X │ C │ D │ V │ K │ H │,/_│./? │/ │
-└─────┴───┴───┴───┼───┼───┼───┼───┼───┴───┴──┘
-                  │TL │SFT│SPC│TR │
-                  └───┴───┴───┴───┘
-```
-
 ## Memory Optimizations
 
 - 8-bit layer state (we only use 4 layers)
@@ -211,21 +181,3 @@ All timing values match the Kanata implementation:
 | KC_MUP/MDN/MLFT/MRGT | Mouse/scroll directions           |
 | KC_SCRE              | Tap: lock screen, Hold: sleep     |
 | KC_MEDC              | Tap: play/pause, Hold: next track |
-
-## Differences from Standard Piantor
-
-This is a custom variant of the Piantor keyboard with:
-
-1. Custom keymap optimized for the TLTR layout
-2. Advanced mouse key implementation with speed modes
-3. Extensive fork key system
-4. Custom one-shot modifier combinations
-5. OS detection and automatic Unicode configuration
-
-## Support
-
-For issues or questions:
-
-- QMK general: [QMK Documentation](https://docs.qmk.fm/)
-- TLTR layout: [Main Repository](../../README.md)
-- Piantor hardware: [beekeeb/piantor](https://github.com/beekeeb/piantor)

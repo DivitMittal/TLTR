@@ -75,23 +75,3 @@ The compiled firmware will be at:
    ```
 
 4. The keyboard will automatically reboot with the new firmware
-
-## Configuration
-
-### Mouse Key Settings
-
-Defined in `piantor_tltr/config.h`:
-
-```c
-#define MOUSEKEY_DELAY 0             // No delay before movement starts
-#define MOUSEKEY_INTERVAL 16         // Time between mouse reports (ms)
-#define MOUSEKEY_MOVE_DELTA 8        // Default speed
-#define MOUSEKEY_MAX_SPEED 8         // Constant speed mode
-#define MOUSEKEY_TIME_TO_MAX 0       // No acceleration
-```
-
-### Timing Settings
-
-- **Tapping term**: 200ms (matches Kanata)
-- **One-shot timeout**: 300ms (matches Kanata)
-- **Caps Word timeout**: 3000ms (matches Kanata)
