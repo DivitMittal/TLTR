@@ -42,8 +42,20 @@
 // Memory optimizations
 #define LAYER_STATE_8BIT // We only have 4 layers
 
-// Disable unused features to save memory
+// Disable unused features to save memory and improve performance
 #define NO_MUSIC_MODE
+#define NO_ACTION_MACRO    // Don't use legacy macros
+#define NO_ACTION_FUNCTION // Don't use legacy functions
+
+// Reduce EEPROM usage if not needed
+#define EECONFIG_MAGIC_NUMBER 0x0001
+#define EECONFIG_MAGIC_NUMBER_OFF offsetof(eeconfig_t, magic)
+
+// Optimize matrix scanning
+#define MATRIX_IO_DELAY 30 // Default is good for RP2040
+
+// Reduce debounce algorithm overhead (sym_defer_g is fastest)
+#define DEBOUNCE_TYPE sym_defer_g
 
 // Custom feature flags for TLTR implementation
 #define TLTR_CUSTOM_MOUSE_KEYS

@@ -38,9 +38,6 @@ static uint16_t mouse_timer = 0;
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
 
-// Key overrides - currently empty, but required by QMK
-const key_override_t *key_overrides[] = {NULL};
-
 // Unicode setup - automatically detect OS and set input mode
 void keyboard_post_init_user(void) {
   // Use OS detection to automatically set Unicode input mode
@@ -450,44 +447,50 @@ static inline int8_t get_wheel_speed(void) {
 // ============================================================================
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  // Handle one-shot timeout
-  if (oneshot_state.active &&
-      timer_elapsed(oneshot_state.timer) > ONESHOT_TIMEOUT) {
-    unregister_mods(oneshot_state.mods);
-    oneshot_state.active = false;
+  // Handle one-shot timeout - only check if oneshot is actually active
+  if (oneshot_state.active) {
+    if (timer_elapsed(oneshot_state.timer) > ONESHOT_TIMEOUT) {
+      unregister_mods(oneshot_state.mods);
+      oneshot_state.active = false;
+    }
   }
 
   // Detect when other keys are pressed while custom modifiers are held
-  // Exclude modifier keys themselves and mouse control keys
-  if (record->event.pressed && keycode != KC_OS_WIN && keycode != KC_OS_HYP &&
-      keycode != KC_OS_FN && keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
-      keycode != KC_MOD_SHIFT && keycode != KC_MOD_META && keycode != KC_SCRE &&
-      keycode != KC_MEDC && keycode != KC_MSLW && keycode != KC_MPRE &&
-      keycode != KC_MSCR && keycode != KC_MUP && keycode != KC_MDN &&
-      keycode != KC_MLFT && keycode != KC_MRGT) {
-    if (modifier_hold_state.os_win_held) {
-      modifier_hold_state.os_win_used = true;
-    }
-    if (modifier_hold_state.os_hyp_held) {
-      modifier_hold_state.os_hyp_used = true;
-    }
-    if (modifier_hold_state.mod_alt_held) {
-      modifier_hold_state.mod_alt_used = true;
-    }
-    if (modifier_hold_state.mod_ctrl_held) {
-      modifier_hold_state.mod_ctrl_used = true;
-    }
-    if (modifier_hold_state.mod_shift_held) {
-      modifier_hold_state.mod_shift_used = true;
-    }
-    if (modifier_hold_state.mod_meta_held) {
-      modifier_hold_state.mod_meta_used = true;
-    }
-    if (screen_hold_state.held) {
-      screen_hold_state.used = true;
-    }
-    if (media_hold_state.held) {
-      media_hold_state.used = true;
+  // Only check on key press, and only check held states (skip if none held)
+  if (record->event.pressed) {
+    // Fast path: if no modifiers/special keys held, skip all checks
+    if (modifier_hold_state.os_win_held || modifier_hold_state.os_hyp_held ||
+        modifier_hold_state.mod_alt_held || modifier_hold_state.mod_ctrl_held ||
+        modifier_hold_state.mod_shift_held ||
+        modifier_hold_state.mod_meta_held || screen_hold_state.held ||
+        media_hold_state.held) {
+
+      // Exclude modifier keys themselves and mouse control keys
+      if (keycode != KC_OS_WIN && keycode != KC_OS_HYP && keycode != KC_OS_FN &&
+          keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
+          keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
+          keycode != KC_SCRE && keycode != KC_MEDC && keycode != KC_MSLW &&
+          keycode != KC_MPRE && keycode != KC_MSCR && keycode != KC_MUP &&
+          keycode != KC_MDN && keycode != KC_MLFT && keycode != KC_MRGT) {
+
+        // Mark held modifiers as used
+        if (modifier_hold_state.os_win_held)
+          modifier_hold_state.os_win_used = true;
+        if (modifier_hold_state.os_hyp_held)
+          modifier_hold_state.os_hyp_used = true;
+        if (modifier_hold_state.mod_alt_held)
+          modifier_hold_state.mod_alt_used = true;
+        if (modifier_hold_state.mod_ctrl_held)
+          modifier_hold_state.mod_ctrl_used = true;
+        if (modifier_hold_state.mod_shift_held)
+          modifier_hold_state.mod_shift_used = true;
+        if (modifier_hold_state.mod_meta_held)
+          modifier_hold_state.mod_meta_used = true;
+        if (screen_hold_state.held)
+          screen_hold_state.used = true;
+        if (media_hold_state.held)
+          media_hold_state.used = true;
+      }
     }
   }
 
