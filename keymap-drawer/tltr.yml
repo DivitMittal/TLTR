@@ -6,7 +6,7 @@ layout:
   #   columns: 6
   #   thumbs: 2
   #   drop_pinky: true
-  qmk_info_json: ./qmk/keyboard.json
+  qmk_info_json: ./qmk/piantor_tltr/keyboard.json
   layout_name: LAYOUT_split_2x6_1x5_2
 
 layers:
