@@ -3,12 +3,28 @@
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
 
-// Unicode setup - set default input mode
+// Unicode setup - automatically detect OS and set input mode
 void keyboard_post_init_user(void) {
-  // Set default Unicode input mode (can be changed with KC_UMODE)
-  // Start with Linux mode (most universal)
-  // Cycle order: Linux → macOS → WinCompose → Linux
-  set_unicode_input_mode(UNICODE_MODE_LINUX);
+  // Use OS detection to automatically set Unicode input mode
+  // This detects the OS when the keyboard is plugged in
+  os_variant_t detected_os = detected_host_os();
+
+  switch (detected_os) {
+  case OS_MACOS:
+  case OS_IOS:
+    set_unicode_input_mode(UNICODE_MODE_MACOS);
+    break;
+  case OS_WINDOWS:
+    set_unicode_input_mode(UNICODE_MODE_WINCOMPOSE);
+    break;
+  case OS_LINUX:
+    set_unicode_input_mode(UNICODE_MODE_LINUX);
+    break;
+  default:
+    // Fallback to Linux mode if OS cannot be detected
+    set_unicode_input_mode(UNICODE_MODE_LINUX);
+    break;
+  }
 }
 
 // Caps Word configuration (matches Kanata: 3000ms timeout)
@@ -107,9 +123,6 @@ enum custom_keycodes {
   // Media/Screen controls
   KC_SCRE, // Screen control (tap=lock screen, hold=sleep)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
-
-  // Unicode mode switching
-  KC_UMODE, // Cycle through Unicode input modes
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -138,14 +151,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
      * TL Layer - Modifiers & Navigation (Matches Kanata TL layer)
      *
-     * ┌─────┬─────┬──────┬──────┬──────┬───┐       ┌──────┬──────┬──────┬──────┬───┬─────┐
-     * │ --  │ Esc │ sWin │ sFn  │  --  │-- │       │ PgU  │S-Tab │  Up  │ Tab  │-- │ --  │
-     * ├─────┼─────┼──────┼──────┼──────┼───┤       ├──────┼──────┼──────┼──────┼───┼─────┤
-     * │     │ Alt │ Ctrl │Shift │ Meta │-- │       │ PgD  │ Left │ Down │ Rght │-- │     │
-     * └─────┼─────┼──────┼──────┼──────┼───┤       ├──────┼──────┼──────┼──────┼───┼─────┘
-     *       │ --  │  --  │  --  │ sHyp │-- │       │  --  │ Bspc │ Del  │  --  │   │
-     *       └─────┴──────┴──────┼──────┼───┤       ├──────┼──────┼──────┴──────┴───┘
-     *                           │  TL  │LSF│       │ Spc  │ TLTR │
+     * ┌─────┬─────┬──────┬──────┬──────┬───┐
+     * ┌──────┬──────┬──────┬──────┬───┬─────┐ │ --  │ Esc │ sWin │ sFn  │  --
+     * │-- │       │ PgU  │S-Tab │  Up  │ Tab  │-- │ --  │
+     * ├─────┼─────┼──────┼──────┼──────┼───┤
+     * ├──────┼──────┼──────┼──────┼───┼─────┤ │     │ Alt │ Ctrl │Shift │ Meta
+     * │-- │       │ PgD  │ Left │ Down │ Rght │-- │     │
+     * └─────┼─────┼──────┼──────┼──────┼───┤
+     * ├──────┼──────┼──────┼──────┼───┼─────┘ │ --  │  --  │  --  │ sHyp │-- │
+     * │  --  │ Bspc │ Del  │  --  │   │ └─────┴──────┴──────┼──────┼───┤
+     * ├──────┼──────┼──────┴──────┴───┘ │  TL  │LSF│       │ Spc  │ TLTR │
      *                           └──────┴───┘       └──────┴──────┘
      */
     [_TL] = LAYOUT_split_2x6_1x5_2(
@@ -161,11 +176,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
      * TR Layer - Numbers & Symbols (Matches Kanata TR layer)
      *
-     * ┌─────┬─────┬─────┬─────┬─────┬───┐       ┌──────┬─────┬─────┬─────┬───┬───┐
-     * │ --  │ !/` │ @/~ │ #/^ │ $/₹ │-- │       │ %/F12│ 7/F7│ 8/F8│ 9/F9│ + │ = │
-     * ├─────┼─────┼─────┼─────┼─────┼───┤       ├──────┼─────┼─────┼─────┼───┼───┤
-     * │     │ &/| │ [/] │ {/} │ (/) │-- │       │  *   │ 4/F4│ 5/F5│ 6/F6│ - │   │
-     * └─────┼─────┼─────┼─────┼─────┼───┤       ├──────┼─────┼─────┼─────┼───┼───┘
+     * ┌─────┬─────┬─────┬─────┬─────┬───┐ ┌──────┬─────┬─────┬─────┬───┬───┐ │
+     * --  │ !/` │ @/~ │ #/^ │ $/₹ │-- │       │ %/F12│ 7/F7│ 8/F8│ 9/F9│ + │ =
+     * │ ├─────┼─────┼─────┼─────┼─────┼───┤ ├──────┼─────┼─────┼─────┼───┼───┤
+     * │     │ &/| │ [/] │ {/} │ (/) │-- │       │  *   │ 4/F4│ 5/F5│ 6/F6│ - │
+     * │ └─────┼─────┼─────┼─────┼─────┼───┤ ├──────┼─────┼─────┼─────┼───┼───┘
      *       │ --  │ --  │  <  │  >  │-- │       │ 0/F10│ 1/F1│ 2/F2│ 3/F3│ / │
      *       └─────┴─────┴─────┼─────┼───┤       ├──────┼─────┼─────┴─────┴───┘
      *                         │TLTR │LSF│       │ Spc  │ TR  │
@@ -184,15 +199,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
      * TLTR Layer - Mouse, Media & Display Controls (Matches Kanata TLTR layer)
      *
-     * ┌─────┬──────┬──────┬─────┬──────┬───┐       ┌───┬───┬────┬───┬──────┬──────┐
-     * │ --  │ Scrn │ Bri+ │ Med │ Vol+ │-- │       │-- │-- │ M↑ │-- │ UMod │ Boot │
-     * ├─────┼──────┼──────┼─────┼──────┼───┤       ├───┼───┼────┼───┼──────┼──────┤
-     * │ --  │ MPre │ MSlo │MScr │ Btn1 │Bt2│       │-- │M← │ M↓ │M→ │  --  │  --  │
-     * └─────┼──────┼──────┼─────┼──────┼───┤       ├───┼───┼────┼───┼──────┼──────┘
-     *       │  --  │ Bri- │MPrv │ Vol- │-- │       │-- │-- │ -- │-- │  --  │
-     *       └──────┴──────┴─────┼──────┼───┤       ├───┼───┼────┴───┴──────┘
-     *                           │  TL  │LSF│       │Spc│TR │
-     *                           └──────┴───┘       └───┴───┘
+     * ┌─────┬──────┬──────┬─────┬──────┬───┐ ┌───┬───┬────┬───┬──────┬──────┐
+     * │ --  │ Scrn │ Bri+ │ Med │ Vol+ │-- │       │-- │-- │ M↑ │-- │  --  │
+     * Boot │ ├─────┼──────┼──────┼─────┼──────┼───┤
+     * ├───┼───┼────┼───┼──────┼──────┤ │ --  │ MPre │ MSlo │MScr │ Btn1 │Bt2│
+     * │-- │M← │ M↓ │M→ │  --  │  --  │ └─────┼──────┼──────┼─────┼──────┼───┤
+     * ├───┼───┼────┼───┼──────┼──────┘ │  --  │ Bri- │MPrv │ Vol- │-- │ │-- │--
+     * │ -- │-- │  --  │ └──────┴──────┴─────┼──────┼───┤
+     * ├───┼───┼────┴───┴──────┘ │  TL  │LSF│       │Spc│TR │ └──────┴───┘
+     * └───┴───┘
      */
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
         // Left side
@@ -200,7 +215,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_MSLW, KC_MSCR, MS_BTN1, MS_BTN2, KC_NO, KC_BRID, KC_MPRV, KC_VOLD,
         KC_NO, KC_TRNS, KC_TRNS,
         // Right side
-        KC_NO, KC_NO, KC_MUP, KC_NO, KC_UMODE, QK_BOOT, KC_NO, KC_MLFT, KC_MDN,
+        KC_NO, KC_NO, KC_MUP, KC_NO, KC_NO, QK_BOOT, KC_NO, KC_MLFT, KC_MDN,
         KC_MRGT, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO, KC_TRNS,
         KC_TRNS)};
 
@@ -1044,19 +1059,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_code(KC_MNXT);
         }
       }
-    }
-    return false;
-
-  // ========================================================================
-  // Unicode mode switching
-  // ========================================================================
-  case KC_UMODE:
-    if (record->event.pressed) {
-      // Cycle through Unicode input modes
-      uint8_t current_mode = get_unicode_input_mode();
-      uint8_t next_mode =
-          (current_mode + 1) % 3; // Cycle: Linux(0) → macOS(1) → WinCompose(2)
-      set_unicode_input_mode(next_mode);
     }
     return false;
   }
