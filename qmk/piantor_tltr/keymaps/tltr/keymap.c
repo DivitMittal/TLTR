@@ -327,7 +327,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // Detect when other keys are pressed while custom modifiers are held
   if (record->event.pressed && keycode != KC_OS_WIN && keycode != KC_OS_HYP &&
       keycode != KC_OS_FN && keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
-      keycode != KC_MOD_SHIFT && keycode != KC_MOD_META) {
+      keycode != KC_MOD_SHIFT && keycode != KC_MOD_META && keycode != KC_SCRE &&
+      keycode != KC_MEDC) {
     if (modifier_hold_state.os_win_held) {
       modifier_hold_state.os_win_used = true;
     }
@@ -345,6 +346,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     if (modifier_hold_state.mod_meta_held) {
       modifier_hold_state.mod_meta_used = true;
+    }
+    if (screen_hold_state.held) {
+      screen_hold_state.used = true;
+    }
+    if (media_hold_state.held) {
+      media_hold_state.used = true;
     }
   }
 
@@ -572,8 +579,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
       // Register appropriate key based on scroll mode
       if (mouse_scroll_mode) {
-        register_code(MS_WHLU);
-        mouse_up_key = MS_WHLU;
+        register_code(MS_WHLD); // Reversed: up key scrolls down
+        mouse_up_key = MS_WHLD;
       } else {
         register_code(MS_UP);
         mouse_up_key = MS_UP;
@@ -590,8 +597,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_MDN:
     if (record->event.pressed) {
       if (mouse_scroll_mode) {
-        register_code(MS_WHLD);
-        mouse_down_key = MS_WHLD;
+        register_code(MS_WHLU); // Reversed: down key scrolls up
+        mouse_down_key = MS_WHLU;
       } else {
         register_code(MS_DOWN);
         mouse_down_key = MS_DOWN;
@@ -977,18 +984,52 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // ========================================================================
   case KC_SCRE:
     if (record->event.pressed) {
-      // TODO: Implement tap-hold for screensaver/sleep
-      // Tap: screensaver, Hold: sleep
-      // This needs platform-specific implementation
+      screen_hold_state.held = true;
+      screen_hold_state.used = false;
+      screen_hold_state.timer = timer_read();
+    } else {
+      screen_hold_state.held = false;
+      uint16_t elapsed = timer_elapsed(screen_hold_state.timer);
+
+      // Only trigger action if no other keys were pressed while held
+      if (!screen_hold_state.used) {
+        if (elapsed < TAPHOLD_TIMEOUT) {
+          // Tap: Lock screen (customize for your OS)
+          // macOS (default): Ctrl+Cmd+Q
+          // For Linux: Replace with Ctrl+Alt+L
+          // For Windows: Replace with Win+L
+          register_code(KC_LCTL);
+          register_code(KC_LGUI);
+          tap_code(KC_Q);
+          unregister_code(KC_LGUI);
+          unregister_code(KC_LCTL);
+        } else {
+          // Hold: System sleep (universal across platforms)
+          tap_code(KC_SYSTEM_SLEEP);
+        }
+      }
     }
     return false;
 
   case KC_MEDC:
     if (record->event.pressed) {
-      // TODO: Implement tap-hold for play/next
-      // Tap: play/pause, Hold: next track
-      // Simplified version: just play/pause for now
-      tap_code(KC_MPLY);
+      media_hold_state.held = true;
+      media_hold_state.used = false;
+      media_hold_state.timer = timer_read();
+    } else {
+      media_hold_state.held = false;
+      uint16_t elapsed = timer_elapsed(media_hold_state.timer);
+
+      // Only trigger action if no other keys were pressed while held
+      if (!media_hold_state.used) {
+        if (elapsed < TAPHOLD_TIMEOUT) {
+          // Tap: Play/pause
+          tap_code(KC_MPLY);
+        } else {
+          // Hold: Next track
+          tap_code(KC_MNXT);
+        }
+      }
     }
     return false;
 
