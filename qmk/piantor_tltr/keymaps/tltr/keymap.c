@@ -1,9 +1,9 @@
 #include QMK_KEYBOARD_H
 
 // Speed level definitions (matching Kanata behavior)
-// Default: modestly fast
-#define MOUSE_MOVE_DEFAULT 8
-#define MOUSE_WHEEL_DEFAULT 3
+// Default: fast
+#define MOUSE_MOVE_DEFAULT 12
+#define MOUSE_WHEEL_DEFAULT 4
 
 // Slow mode: slower movement
 #define MOUSE_MOVE_SLOW 3
