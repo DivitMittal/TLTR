@@ -1,6 +1,6 @@
 layout:
-  qmk_info_json: ./ansi-keyboard.json
-  layout_name: LAYOUT_Macbook_ANSI
+  qmk_info_json: ./keymap-drawer/ansi-keyboard.json
+  layout_name: LAYOUT_macbook_ansi
 
 layers:
   Base:
