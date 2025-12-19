@@ -32,8 +32,12 @@ _: {
           run = "uv tool install keymap-drawer";
         }
         {
-          name = "Run keymap-drawer";
+          name = "Run keymap-drawer for split keyboard";
           run = "keymap draw ./keymap-drawer/tltr.yml 1> assets/tltr.svg";
+        }
+        {
+          name = "Run keymap-drawer for ANSI keyboard";
+          run = "keymap draw ./keymap-drawer/tltr-ansi.yml 1> assets/tltr-ansi.svg";
         }
         {
           name = "Push to repo";

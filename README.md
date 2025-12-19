@@ -36,7 +36,20 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
 | TLTR                                                                                          | Mouse, Media & Display control |
 
 <div align='center'>
-    <img title='Layers' src='./assets/tltr.svg' alt='Layers of the keyboard layout visualized'/>
+    <table>
+        <tr>
+            <th>Split Keyboard Layout</th>
+            <th>ANSI Keyboard Layout</th>
+        </tr>
+        <tr>
+            <td>
+                <img title='TLTR Split Keyboard' src='./assets/tltr.svg' alt='Split keyboard layout visualization'/>
+            </td>
+            <td>
+                <img title='TLTR ANSI Keyboard' src='./assets/tltr-ansi.svg' alt='ANSI keyboard layout visualization'/>
+            </td>
+        </tr>
+    </table>
 </div>
 
 ---

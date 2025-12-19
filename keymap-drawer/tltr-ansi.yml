@@ -1,0 +1,434 @@
+layout:
+  qmk_info_json: ./ansi-keyboard.json
+  layout_name: LAYOUT_Macbook_ANSI
+
+layers:
+  Base:
+    # Function row (16 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Number row (14 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Top alpha row (14 keys) - Colemak with Wide mod
+    - [
+        { tap: "⟳" },
+        { tap: "q", shifted: "Q" },
+        { tap: "w", shifted: "W" },
+        { tap: "f", shifted: "F" },
+        { tap: "p", shifted: "P" },
+        { tap: "b", shifted: "B" },
+        null,
+        { tap: "j", shifted: "J" },
+        { tap: "l", shifted: "L" },
+        { tap: "u", shifted: "U" },
+        { tap: "y", shifted: "Y" },
+        { tap: "'", shifted: '"' },
+        { tap: ";", shifted: ":" },
+        null,
+      ]
+
+    # Home row (13 keys) - Colemak with Wide mod
+    - [
+        { tap: "⌫", shifted: "⌦" },
+        { tap: "a", shifted: "A" },
+        { tap: "r", shifted: "R" },
+        { tap: "s", shifted: "S" },
+        { tap: "t", shifted: "T" },
+        { tap: "g", shifted: "G" },
+        null,
+        { tap: "m", shifted: "M" },
+        { tap: "n", shifted: "N" },
+        { tap: "e", shifted: "E" },
+        { tap: "i", shifted: "I" },
+        { tap: "o", shifted: "O" },
+        { tap: "⏎" },
+      ]
+
+    # Bottom row (13 keys) - Colemak with Wide + Angle mod
+    - [
+        { tap: "z", shifted: "Z" },
+        { tap: "x", shifted: "X" },
+        { tap: "c", shifted: "C" },
+        { tap: "d", shifted: "D" },
+        { tap: "v", shifted: "V" },
+        null,
+        null,
+        { tap: "k", shifted: "K" },
+        { tap: "h", shifted: "H" },
+        { tap: ",", shifted: "_" },
+        { tap: ".", shifted: "?" },
+        { tap: "/", shifted: "\\" },
+        null,
+      ]
+
+    # Space row (10 keys)
+    # Note: ⇧ is tap-dance (tap once=shift, tap twice=caps-word), shown as tap/hold for visualization
+    - [
+        null,
+        null,
+        null,
+        { tap: "TL" },
+        { tap: "⇧", hold: "CW" },
+        { tap: "␣" },
+        { tap: "TR" },
+        null,
+        null,
+        null,
+      ]
+
+  TL:
+    # Function row (16 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Number row (14 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Top alpha row (14 keys) - Navigation layer
+    - [
+        null,
+        { tap: "⎋" },
+        { tap: "🪟", type: "sticky" },
+        { tap: "Fn", type: "sticky" },
+        null,
+        null,
+        null,
+        { tap: "⇞", shifted: "⤒" },
+        { tap: "⇤" },
+        { tap: "↑" },
+        { tap: "⇥" },
+        null,
+        null,
+        null,
+      ]
+
+    # Home row (13 keys) - Modifiers & Navigation
+    - [
+        { tap: "⌫", shifted: "⌦" },
+        { tap: "⌥", type: "sticky" },
+        { tap: "⌃", type: "sticky" },
+        { tap: "⇧", type: "sticky" },
+        { tap: "⌘", type: "sticky" },
+        null,
+        null,
+        { tap: "⇟", shifted: "⤓" },
+        { tap: "←" },
+        { tap: "↓" },
+        { tap: "→" },
+        null,
+        { tap: "⏎" },
+      ]
+
+    # Bottom row (13 keys) - Hyper key
+    - [
+        null,
+        null,
+        null,
+        { tap: "Hypr", type: "sticky" },
+        null,
+        null,
+        null,
+        null,
+        { tap: "⌫" },
+        { tap: "⌦" },
+        null,
+        null,
+        null,
+      ]
+
+    # Space row (10 keys)
+    - [
+        null,
+        null,
+        null,
+        { tap: "TL", type: "held" },
+        { tap: "⇧" },
+        { tap: "␣" },
+        { tap: "TR" },
+        null,
+        null,
+        null,
+      ]
+
+  TR:
+    # Function row (16 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Number row (14 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Top alpha row (14 keys) - Symbols & Numbers
+    - [
+        null,
+        { tap: "!", shifted: "`" },
+        { tap: "@", shifted: "~" },
+        { tap: "#", shifted: "^" },
+        { tap: "$", shifted: "₹" },
+        null,
+        null,
+        { tap: "%", left: "F12" },
+        { tap: "⑦", left: "F7" },
+        { tap: "⑧", left: "F8" },
+        { tap: "⑨", left: "F9" },
+        { tap: "+" },
+        { tap: "=" },
+        null,
+      ]
+
+    # Home row (13 keys) - Brackets & Numbers
+    - [
+        { tap: "⌫", shifted: "⌦" },
+        { tap: "&", shifted: "|" },
+        { tap: "[", shifted: "]" },
+        { tap: "{", shifted: "}" },
+        { tap: "(", shifted: ")" },
+        null,
+        null,
+        { tap: "*", left: "F11" },
+        { tap: "④", left: "F4" },
+        { tap: "⑤", left: "F5" },
+        { tap: "⑥", left: "F6" },
+        { tap: "-" },
+        { tap: "⏎" },
+      ]
+
+    # Bottom row (13 keys) - Angle brackets & Numbers
+    - [
+        null,
+        null,
+        { tap: "<" },
+        { tap: ">" },
+        null,
+        null,
+        null,
+        { tap: "⓪", left: "F10" },
+        { tap: "①", left: "F1" },
+        { tap: "②", left: "F2" },
+        { tap: "③", left: "F3" },
+        { tap: "/", shifted: "\\" },
+        null,
+      ]
+
+    # Space row (10 keys)
+    - [
+        null,
+        null,
+        null,
+        { tap: "TL" },
+        { tap: "⇧" },
+        { tap: "␣" },
+        { tap: "TR", type: "held" },
+        null,
+        null,
+        null,
+      ]
+
+  TLTR:
+    # Function row (16 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Number row (14 keys) - not used
+    - [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Top alpha row (14 keys) - Screen & Media & Mouse
+    - [
+        null,
+        { tap: "🖥️", hold: "💤" },
+        { tap: "🔆" },
+        { tap: "⏯️", hold: "⏭️" },
+        { tap: "🔊" },
+        null,
+        null,
+        null,
+        null,
+        { tap: "🖱️↑" },
+        null,
+        null,
+        { tap: "⚡" },
+        null,
+      ]
+
+    # Home row (13 keys) - Mouse control
+    - [
+        null,
+        { tap: "🖱️🎯", type: "sticky" },
+        { tap: "🖱️🐌", type: "sticky" },
+        { tap: "🖱️🛞", type: "sticky" },
+        { tap: "🖱1" },
+        { tap: "🖱2" },
+        null,
+        null,
+        { tap: "🖱️←" },
+        { tap: "🖱️↓" },
+        { tap: "🖱️→" },
+        null,
+        null,
+      ]
+
+    # Bottom row (13 keys) - Media control
+    - [
+        null,
+        { tap: "🔅" },
+        { tap: "⏮️" },
+        { tap: "🔉" },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ]
+
+    # Space row (10 keys)
+    - [
+        null,
+        null,
+        null,
+        { tap: "TL", type: "held" },
+        { tap: "⇧" },
+        { tap: "␣" },
+        { tap: "TR", type: "held" },
+        null,
+        null,
+        null,
+      ]
+
+combos:
+  - { key_positions: [73, 76], key: "TLTR", align: "bottom", layers: [Base] }
+
+draw_config:
+  key_h: 60
+  key_w: 60
+  dark_mode: "auto"
+  draw_key_slides: true
