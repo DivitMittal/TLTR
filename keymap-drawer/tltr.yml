@@ -60,7 +60,7 @@ layers:
     - [
         null,
         { tap: "⎋" },
-        { tap: "🪟 Man", type: "sticky" },
+        { tap: "🪟", type: "sticky" },
         { tap: "Fn", type: "sticky" },
         null,
         null,
@@ -91,7 +91,7 @@ layers:
         null,
         null,
         null,
-        { tap: "Hypr" },
+        { tap: "✦" },
         null,
 
         null,
@@ -151,7 +151,7 @@ layers:
   TLTR:
     - [
         null,
-        { tap: "🖥️saver", hold: "💤" },
+        { tap: "🔒", hold: "💤" },
         { tap: "🔆" },
         { tap: "⏯️", hold: "⏭️" },
         { tap: "🔊" },
@@ -162,7 +162,7 @@ layers:
         { tap: "🖱️↑" },
         null,
         null,
-        { tap: "⚡ Boot" },
+        { tap: "Reload" },
       ]
     - [
         null,

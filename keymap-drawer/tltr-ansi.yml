@@ -188,7 +188,7 @@ layers:
         null,
         null,
         null,
-        { tap: "Hypr", type: "sticky" },
+        { tap: "✦", type: "sticky" },
         null,
         null,
         null,
@@ -361,7 +361,7 @@ layers:
     # Top alpha row (14 keys) - Screen & Media & Mouse
     - [
         null,
-        { tap: "🖥️", hold: "💤" },
+        { tap: "🔒", hold: "💤" },
         { tap: "🔆" },
         { tap: "⏯️", hold: "⏭️" },
         { tap: "🔊" },
@@ -372,7 +372,7 @@ layers:
         { tap: "🖱️↑" },
         null,
         null,
-        { tap: "⚡" },
+        { tap: "Reload" },
         null,
       ]
 
