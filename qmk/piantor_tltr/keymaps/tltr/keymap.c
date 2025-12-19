@@ -41,6 +41,9 @@ static bool mouse_down_pressed = false;
 static bool mouse_left_pressed = false;
 static bool mouse_right_pressed = false;
 
+// Mouse button state tracking
+static uint8_t mouse_buttons = 0;
+
 // Mouse report throttling timer
 static uint16_t mouse_timer = 0;
 
@@ -88,8 +91,9 @@ void matrix_scan_user(void) {
   }
   mouse_timer = timer_read();
 
-  // Create a mouse report
-  report_mouse_t mouse_report = {0};
+  // Create a mouse report with current button state
+  report_mouse_t mouse_report = {
+      .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
 
   if (mouse_scroll_mode) {
     // Scroll mode - use wheel deltas (reversed for natural scrolling)
@@ -220,6 +224,10 @@ enum custom_keycodes {
   KC_MLFT, // Mouse/scroll left
   KC_MRGT, // Mouse/scroll right
 
+  // Mouse buttons
+  KC_MBTN1, // Mouse button 1 (left click)
+  KC_MBTN2, // Mouse button 2 (right click)
+
   // Media/Screen controls
   KC_SCRE, // Screen control (tap=lock screen, hold=sleep)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
@@ -255,14 +263,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
      * TL Layer - Modifiers & Navigation (Matches Kanata TL layer)
      *
-     * ┌─────┬─────┬─────┬─────┬─────┬───┐       ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │ xx  │ Esc │sWin │ sFn │ xx  │xx │       │PgU/H│S-Tab│ Up  │ Tab │ xx  │ xx  │
-     * ├─────┼─────┼─────┼─────┼─────┼───┤       ├─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ __  │ Alt │Ctrl │Shift│Meta │xx │       │PgD/E│Left │Down │Rght │ xx  │ __  │
-     * └─────┼─────┼─────┼─────┼─────┼───┘       └─────┼─────┼─────┼─────┼─────┼─────┘
-     *       │ xx  │ xx  │ xx  │sHyp │ xx│       │ xx  │Bspc │ Del │ xx  │ xx  │
-     *       └─────┴─────┼─────┼─────┼───┘       └─────┼─────┼─────┼─────┼─────┘
-     *                   │ TL  │ LSF │               │ Spc │TLTR │
+     * ┌─────┬─────┬─────┬─────┬─────┬───┐ ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │ xx  │ Esc │sWin │ sFn │ xx  │xx │       │PgU/H│S-Tab│ Up  │ Tab │ xx  │
+     * xx  │ ├─────┼─────┼─────┼─────┼─────┼───┤
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤ │ __  │ Alt │Ctrl │Shift│Meta │xx │
+     * │PgD/E│Left │Down │Rght │ xx  │ __  │ └─────┼─────┼─────┼─────┼─────┼───┘
+     * └─────┼─────┼─────┼─────┼─────┼─────┘ │ xx  │ xx  │ xx  │sHyp │ xx│ │ xx
+     * │Bspc │ Del │ xx  │ xx  │ └─────┴─────┼─────┼─────┼───┘
+     * └─────┼─────┼─────┼─────┼─────┘ │ TL  │ LSF │               │ Spc │TLTR │
      *                   └─────┴─────┘               └─────┴─────┘
      */
     [_TL] = LAYOUT_split_2x6_1x5_2(
@@ -281,14 +289,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
      * TR Layer - Numbers & Symbols (Matches Kanata TR layer)
      *
-     * ┌─────┬─────┬─────┬─────┬─────┬───┐       ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │ xx  │ !/` │ @/~ │ #/^ │ $/₹ │xx │       │%/F12│7/F7 │8/F8 │9/F9 │ +   │ =   │
-     * ├─────┼─────┼─────┼─────┼─────┼───┤       ├─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ __  │ &/| │ [/] │ {/} │ (/) │xx │       │* F11│4/F4 │5/F5 │6/F6 │ -   │ __  │
-     * └─────┼─────┼─────┼─────┼─────┼───┘       └─────┼─────┼─────┼─────┼─────┼─────┘
-     *       │ xx  │ xx  │ <   │ >   │ xx│       │0/F10│1/F1 │2/F2 │3/F3 │ /   │
-     *       └─────┴─────┼─────┼─────┼───┘       └─────┼─────┼─────┼─────┼─────┘
-     *                   │TLTR │ LSF │               │ Spc │ TR  │
+     * ┌─────┬─────┬─────┬─────┬─────┬───┐ ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │ xx  │ !/` │ @/~ │ #/^ │ $/₹ │xx │       │%/F12│7/F7 │8/F8 │9/F9 │ +   │
+     * =   │ ├─────┼─────┼─────┼─────┼─────┼───┤
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤ │ __  │ &/| │ [/] │ {/} │ (/) │xx │
+     * │* F11│4/F4 │5/F5 │6/F6 │ -   │ __  │ └─────┼─────┼─────┼─────┼─────┼───┘
+     * └─────┼─────┼─────┼─────┼─────┼─────┘ │ xx  │ xx  │ <   │ >   │ xx│
+     * │0/F10│1/F1 │2/F2 │3/F3 │ /   │ └─────┴─────┼─────┼─────┼───┘
+     * └─────┼─────┼─────┼─────┼─────┘ │TLTR │ LSF │               │ Spc │ TR  │
      *                   └─────┴─────┘               └─────┴─────┘
      */
     [_TR] = LAYOUT_split_2x6_1x5_2(
@@ -307,14 +315,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
      * TLTR Layer - Mouse, Media & Display Controls (Matches Kanata TLTR layer)
      *
-     * ┌─────┬─────┬─────┬─────┬─────┬───┐       ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │ xx  │Scrn │Bri+ │ Med │Vol+ │xx │       │ xx  │ xx  │ M↑  │ xx  │ xx  │Boot │
-     * ├─────┼─────┼─────┼─────┼─────┼───┤       ├─────┼─────┼─────┼─────┼─────┼─────┤
-     * │ xx  │MPre │MSlo │MScr │Btn1 │Btn│       │ xx  │ M←  │ M↓  │ M→  │ xx  │ xx  │
-     * └─────┼─────┼─────┼─────┼─────┼───┘       └─────┼─────┼─────┼─────┼─────┼─────┘
-     *       │ xx  │Bri- │MPrv │Vol- │ xx│       │ xx  │ xx  │ xx  │ xx  │ xx  │
-     *       └─────┴─────┼─────┼─────┼───┘       └─────┴─────┼─────┼─────┼─────┘
-     *                   │ TL  │ LSF │               │ Spc │ TR  │
+     * ┌─────┬─────┬─────┬─────┬─────┬───┐ ┌─────┬─────┬─────┬─────┬─────┬─────┐
+     * │ xx  │Scrn │Bri+ │ Med │Vol+ │xx │       │ xx  │ xx  │ M↑  │ xx  │ xx
+     * │Boot │ ├─────┼─────┼─────┼─────┼─────┼───┤
+     * ├─────┼─────┼─────┼─────┼─────┼─────┤ │ xx  │MPre │MSlo │MScr │Btn1 │Btn│
+     * │ xx  │ M←  │ M↓  │ M→  │ xx  │ xx  │ └─────┼─────┼─────┼─────┼─────┼───┘
+     * └─────┼─────┼─────┼─────┼─────┼─────┘ │ xx  │Bri- │MPrv │Vol- │ xx│ │ xx
+     * │ xx  │ xx  │ xx  │ xx  │ └─────┴─────┼─────┼─────┼───┘
+     * └─────┴─────┼─────┼─────┼─────┘ │ TL  │ LSF │               │ Spc │ TR  │
      *                   └─────┴─────┘               └─────┴─────┘
      */
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
@@ -322,7 +330,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NO, KC_SCRE, KC_BRIU, KC_MEDC, KC_VOLU, KC_NO, KC_NO, KC_NO, KC_MUP,
         KC_NO, KC_NO, QK_BOOT,
         // Row 1
-        KC_NO, KC_MPRE, KC_MSLW, KC_MSCR, MS_BTN1, MS_BTN2, KC_NO, KC_MLFT,
+        KC_NO, KC_MPRE, KC_MSLW, KC_MSCR, KC_MBTN1, KC_MBTN2, KC_NO, KC_MLFT,
         KC_MDN, KC_MRGT, KC_NO, KC_NO,
         // Row 2
         KC_NO, KC_BRID, KC_MPRV, KC_VOLD, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
@@ -517,7 +525,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
           keycode != KC_SCRE && keycode != KC_MEDC && keycode != KC_MSLW &&
           keycode != KC_MPRE && keycode != KC_MSCR && keycode != KC_MUP &&
-          keycode != KC_MDN && keycode != KC_MLFT && keycode != KC_MRGT) {
+          keycode != KC_MDN && keycode != KC_MLFT && keycode != KC_MRGT &&
+          keycode != KC_MBTN1 && keycode != KC_MBTN2) {
 
         // Mark held modifiers as used
         if (modifier_hold_state.os_win_held)
@@ -774,6 +783,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_MRGT:
     mouse_right_pressed = record->event.pressed;
+    return false;
+
+  // ========================================================================
+  // Mouse buttons (track state for drag operations)
+  // ========================================================================
+  case KC_MBTN1:
+    if (record->event.pressed) {
+      mouse_buttons |= MOUSE_BTN1;
+    } else {
+      mouse_buttons &= ~MOUSE_BTN1;
+    }
+    // Send immediate button report
+    {
+      report_mouse_t mouse_report = {
+          .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
+      host_mouse_send(&mouse_report);
+    }
+    return false;
+
+  case KC_MBTN2:
+    if (record->event.pressed) {
+      mouse_buttons |= MOUSE_BTN2;
+    } else {
+      mouse_buttons &= ~MOUSE_BTN2;
+    }
+    // Send immediate button report
+    {
+      report_mouse_t mouse_report = {
+          .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
+      host_mouse_send(&mouse_report);
+    }
     return false;
 
   // ========================================================================
