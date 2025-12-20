@@ -1,6 +1,7 @@
 #include QMK_KEYBOARD_H
+#include "hardware/watchdog.h"
 
-// Speed level definitions (matching Kanata behavior)
+// Speed level definitions
 // Default: fast
 #define MOUSE_MOVE_DEFAULT 16
 #define MOUSE_WHEEL_DEFAULT 4
@@ -30,7 +31,7 @@ enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
 // State variables (must be declared before use in functions)
 // ============================================================================
 
-// Mouse control states (matches Kanata nop1/nop2/nop3)
+// Mouse control states
 static bool mouse_slow_mode = false;    // nop1
 static bool mouse_precise_mode = false; // nop2
 static bool mouse_scroll_mode = false;  // nop3
@@ -46,6 +47,9 @@ static uint8_t mouse_buttons = 0;
 
 // Mouse report throttling timer
 static uint16_t mouse_timer = 0;
+
+// Boot/Reboot key timer
+static uint16_t boot_hold_timer = 0;
 
 // Forward declarations for helper functions
 static inline int8_t get_mouse_speed(void);
@@ -131,7 +135,7 @@ void matrix_scan_user(void) {
   host_mouse_send(&mouse_report);
 }
 
-// Caps Word configuration (matches Kanata: 3000ms timeout)
+// Caps Word configuration
 bool caps_word_press_user(uint16_t keycode) {
   switch (keycode) {
   // Keycodes that continue Caps Word, with shift applied
@@ -140,8 +144,7 @@ bool caps_word_press_user(uint16_t keycode) {
     add_weak_mods(MOD_BIT(KC_LSFT)); // Apply shift to next key
     return true;
 
-  // Keycodes that continue Caps Word, without shifting (matches Kanata ignore
-  // list)
+  // Keycodes that continue Caps Word, without shifting
   case KC_1 ... KC_0:
   case KC_BSPC:
   case KC_DEL:
@@ -196,13 +199,13 @@ enum custom_keycodes {
   KC_9F,
   KC_0F,
 
-  // Advanced thumb key combinations (matches Kanata implementation 3)
+  // Advanced thumb key combinations
   KC_TL_KEY,     // Left thumb key with TLTR logic
   KC_TR_KEY,     // Right thumb key with TLTR logic
   KC_TLTLTR_KEY, // TL+TLTR activation (used in TR layer)
   KC_TRTLTR_KEY, // TR+TLTR activation (used in TL layer)
 
-  // One-shot modifier combinations (matches Kanata)
+  // One-shot modifier combinations
   KC_OS_WIN, // sWin: Alt+Ctrl+Meta (window manager)
   KC_OS_HYP, // sHyp: Alt+Ctrl+Shift+Meta (hyper)
   KC_OS_FN,  // sFn: Function modifier
@@ -213,10 +216,10 @@ enum custom_keycodes {
   KC_MOD_SHIFT, // Shift modifier (tap for oneshot, hold for regular)
   KC_MOD_META,  // Meta/GUI modifier (tap for oneshot, hold for regular)
 
-  // Mouse control modifiers (matches Kanata nop1/nop2/nop3)
-  KC_MSLW, // Mouse slow modifier (nop1)
-  KC_MPRE, // Mouse precise modifier (nop2)
-  KC_MSCR, // Mouse scroll modifier (nop3)
+  // Mouse control modifiers
+  KC_MSLW, // Mouse slow modifier
+  KC_MPRE, // Mouse precise modifier
+  KC_MSCR, // Mouse scroll modifier
 
   // Directional mouse keys with mode switching
   KC_MUP,  // Mouse/scroll up (combines with modifiers)
@@ -231,112 +234,46 @@ enum custom_keycodes {
   // Media/Screen controls
   KC_SCRE, // Screen control (tap=lock screen, hold=sleep)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
+
+  // Boot/Reboot control
+  KC_BOOT_HOLD, // Boot control (tap=reboot, hold=bootloader)
 };
 
+// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    /*
-     * COLEMAK MOD-DH + WIDE + ANGLE (38-key TLTR layout)
-     * Matches Kanata CUSTOM_COLEMAK layer
-     *
-     * ┌─────┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬─────┐
-     * │ REP │ Q │ W │ F │ P │ B │       │ J │ L │ U │ Y │ ' │  ;  │
-     * ├─────┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼─────┤
-     * │DELF │ A │ R │ S │ T │ G │       │ M │ N │ E │ I │ O │ ENT │
-     * └─────┼───┼───┼───┼───┼───┘       └───┼───┼───┼───┼───┼─────┘
-     *       │ Z │ X │ C │ D │ V │       │ K │ H │,/_│./?│/ \│
-     *       └───┴───┼───┼───┼───┘       └───┼───┼───┼───┼───┘
-     *               │TL │LSF│               │SPC│ TR│
-     *               └───┴───┘               └───┴───┘
-     */
+    // COLEMAK MOD-DH + WIDE + ANGLE (38-key TLTR layout)
     [_COLEMAK] = LAYOUT_split_2x6_1x5_2(
-        // Row 0
-        QK_REP, KC_Q, KC_W, KC_F, KC_P, KC_B, KC_J, KC_L, KC_U, KC_Y, KC_QUOT,
-        KC_SCLN,
-        // Row 1
-        KC_DELF, KC_A, KC_R, KC_S, KC_T, KC_G, KC_M, KC_N, KC_E, KC_I, KC_O,
-        KC_ENT,
-        // Row 2
-        KC_Z, KC_X, KC_C, KC_D, KC_V, KC_K, KC_H, KC_COMF, KC_DOTF, KC_SLAF,
-        // Row 3
-        KC_TL_KEY, KC_LSFT, KC_SPC, KC_TR_KEY),
+        QK_REP,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,        KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT, KC_SCLN,
+        KC_DELF, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,        KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
+                 KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,        KC_K,    KC_H,    KC_COMF, KC_DOTF, KC_SLAF,
+                                   KC_TL_KEY, KC_LSFT,            KC_SPC,  KC_TR_KEY
+    ),
 
-    /*
-     * TL Layer - Modifiers & Navigation (Matches Kanata TL layer)
-     *
-     * ┌─────┬─────┬─────┬─────┬─────┬───┐ ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │ xx  │ Esc │sWin │ sFn │ xx  │xx │       │PgU/H│S-Tab│ Up  │ Tab │ xx  │
-     * xx  │ ├─────┼─────┼─────┼─────┼─────┼───┤
-     * ├─────┼─────┼─────┼─────┼─────┼─────┤ │ __  │ Alt │Ctrl │Shift│Meta │xx │
-     * │PgD/E│Left │Down │Rght │ xx  │ __  │ └─────┼─────┼─────┼─────┼─────┼───┘
-     * └─────┼─────┼─────┼─────┼─────┼─────┘ │ xx  │ xx  │ xx  │sHyp │ xx│ │ xx
-     * │Bspc │ Del │ xx  │ xx  │ └─────┴─────┼─────┼─────┼───┘
-     * └─────┼─────┼─────┼─────┼─────┘ │ TL  │ LSF │               │ Spc │TLTR │
-     *                   └─────┴─────┘               └─────┴─────┘
-     */
+    // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        // Row 0
-        KC_NO, KC_ESC, KC_OS_WIN, KC_OS_FN, KC_NO, KC_NO, KC_PGUF, S(KC_TAB),
-        KC_UP, KC_TAB, KC_NO, KC_NO,
-        // Row 1
-        KC_TRNS, KC_MOD_ALT, KC_MOD_CTRL, KC_MOD_SHIFT, KC_MOD_META, KC_NO,
-        KC_PGDF, KC_LEFT, KC_DOWN, KC_RGHT, KC_NO, KC_TRNS,
-        // Row 2
-        KC_NO, KC_NO, KC_NO, KC_OS_HYP, KC_NO, KC_NO, KC_BSPC, KC_DEL, KC_NO,
-        KC_TRNS,
-        // Row 3
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRTLTR_KEY),
+        KC_NO,   KC_ESC,      KC_OS_WIN,    KC_OS_FN,     KC_NO,       KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_TRNS, KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_NO,       KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
+                 KC_NO,       KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
+                                            KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
+    ),
 
-    /*
-     * TR Layer - Numbers & Symbols (Matches Kanata TR layer)
-     *
-     * ┌─────┬─────┬─────┬─────┬─────┬───┐ ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │ xx  │ !/` │ @/~ │ #/^ │ $/₹ │xx │       │%/F12│7/F7 │8/F8 │9/F9 │ +   │
-     * =   │ ├─────┼─────┼─────┼─────┼─────┼───┤
-     * ├─────┼─────┼─────┼─────┼─────┼─────┤ │ __  │ &/| │ [/] │ {/} │ (/) │xx │
-     * │* F11│4/F4 │5/F5 │6/F6 │ -   │ __  │ └─────┼─────┼─────┼─────┼─────┼───┘
-     * └─────┼─────┼─────┼─────┼─────┼─────┘ │ xx  │ xx  │ <   │ >   │ xx│
-     * │0/F10│1/F1 │2/F2 │3/F3 │ /   │ └─────┴─────┼─────┼─────┼───┘
-     * └─────┼─────┼─────┼─────┼─────┘ │TLTR │ LSF │               │ Spc │ TR  │
-     *                   └─────┴─────┘               └─────┴─────┘
-     */
+    // TR Layer - Numbers & Symbols
     [_TR] = LAYOUT_split_2x6_1x5_2(
-        // Row 0
-        KC_NO, KC_EXCF, KC_ATSF, KC_OCTF, KC_DOLF, KC_NO, KC_PERF, KC_7F, KC_8F,
-        KC_9F, KC_PLUF, KC_EQUF,
-        // Row 1
-        KC_TRNS, KC_AMPF, KC_SQRF, KC_CURF, KC_PARF, KC_NO, KC_ASTF, KC_4F,
-        KC_5F, KC_6F, KC_HPNF, KC_TRNS,
-        // Row 2
-        KC_NO, KC_NO, KC_ANOF, KC_ANCF, KC_NO, KC_0F, KC_1F, KC_2F, KC_3F,
-        KC_SLAF,
-        // Row 3
-        KC_TLTLTR_KEY, KC_TRNS, KC_TRNS, KC_TRNS),
+        KC_NO,       KC_EXCF, KC_ATSF, KC_OCTF, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUF, KC_EQUF,
+        KC_TRNS,     KC_AMPF, KC_SQRF, KC_CURF, KC_PARF, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_HPNF, KC_TRNS,
+                     KC_NO,   KC_NO,   KC_ANOF, KC_ANCF, KC_NO,       KC_0F,   KC_1F,   KC_2F,   KC_3F,   KC_SLAF,
+                                       KC_TLTLTR_KEY, KC_TRNS,        KC_TRNS, KC_TRNS
+    ),
 
-    /*
-     * TLTR Layer - Mouse, Media & Display Controls (Matches Kanata TLTR layer)
-     *
-     * ┌─────┬─────┬─────┬─────┬─────┬───┐ ┌─────┬─────┬─────┬─────┬─────┬─────┐
-     * │ xx  │Scrn │Bri+ │ Med │Vol+ │xx │       │ xx  │ xx  │ M↑  │ xx  │ xx
-     * │Boot │ ├─────┼─────┼─────┼─────┼─────┼───┤
-     * ├─────┼─────┼─────┼─────┼─────┼─────┤ │ xx  │MPre │MSlo │MScr │Btn1 │Btn│
-     * │ xx  │ M←  │ M↓  │ M→  │ xx  │ xx  │ └─────┼─────┼─────┼─────┼─────┼───┘
-     * └─────┼─────┼─────┼─────┼─────┼─────┘ │ xx  │Bri- │MPrv │Vol- │ xx│ │ xx
-     * │ xx  │ xx  │ xx  │ xx  │ └─────┴─────┼─────┼─────┼───┘
-     * └─────┴─────┼─────┼─────┼─────┘ │ TL  │ LSF │               │ Spc │ TR  │
-     *                   └─────┴─────┘               └─────┴─────┘
-     */
+    // TLTR Layer - Mouse, Media & Display Controls
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
-        // Row 0
-        KC_NO, KC_SCRE, KC_BRIU, KC_MEDC, KC_VOLU, KC_NO, KC_NO, KC_NO, KC_MUP,
-        KC_NO, KC_NO, QK_BOOT,
-        // Row 1
-        KC_NO, KC_MPRE, KC_MSLW, KC_MSCR, KC_MBTN1, KC_MBTN2, KC_NO, KC_MLFT,
-        KC_MDN, KC_MRGT, KC_NO, KC_NO,
-        // Row 2
-        KC_NO, KC_BRID, KC_MPRV, KC_VOLD, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
-        KC_NO,
-        // Row 3
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS)};
+        KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_NO,   KC_NO,   KC_MUP,  KC_NO,   KC_NO,   KC_BOOT_HOLD,
+        KC_NO,   KC_MPRE, KC_MSLW, KC_MSCR,  KC_MBTN1, KC_MBTN2,    KC_NO,   KC_MLFT, KC_MDN,  KC_MRGT, KC_NO,   KC_NO,
+                 KC_NO,   KC_BRID, KC_MPRV,  KC_VOLD,  KC_NO,       KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
+                                   KC_TRNS,  KC_TRNS,               KC_TRNS, KC_TRNS
+    )
+};
+// clang-format on
 
 // ============================================================================
 // Advanced state tracking
@@ -346,7 +283,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 static bool tl_pressed = false;
 static bool tr_pressed = false;
 
-// Fn modifier state (matches Kanata nop0)
+// Fn modifier state
 static bool fn_modifier_active = false;
 
 // Fork key state tracking for key repeat
@@ -405,7 +342,7 @@ static struct {
   uint16_t timer;
 } media_hold_state = {false, false, 0};
 
-// Timeouts (in milliseconds) - match Kanata config
+// Timeouts (in milliseconds)
 #define ONESHOT_TIMEOUT 300
 #define TAPHOLD_TIMEOUT 200
 
@@ -413,7 +350,7 @@ static struct {
 // Helper functions
 // ============================================================================
 
-// Check if left shift is active (not any shift - matches Kanata (‹⇧))
+// Check if left shift is active
 static inline bool is_left_shift_active(void) {
   return (get_mods() & MOD_BIT(KC_LSFT)) ||
          (get_oneshot_mods() & MOD_BIT(KC_LSFT));
@@ -450,7 +387,7 @@ static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
 }
 
 // Get current mouse movement speed based on mode flags
-// Precise takes priority over slow (matches Kanata behavior)
+Precise takes priority over slow
 static inline int8_t get_mouse_speed(void) {
   if (mouse_precise_mode) {
     return MOUSE_MOVE_PRECISE; // Very slow, precise
@@ -551,7 +488,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   switch (keycode) {
   // ========================================================================
-  // Thumb key layer activation (matches Kanata implementation 3)
+  // Thumb key layer activation
   // ========================================================================
   case KC_TL_KEY:
     if (record->event.pressed) {
@@ -627,7 +564,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
 
   // ========================================================================
-  // One-shot modifier combinations (matches Kanata)
+  // One-shot modifier combinations
   // ========================================================================
   case KC_OS_WIN: // sWin: Alt+Ctrl+Meta
     if (record->event.pressed) {
@@ -673,7 +610,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_OS_FN: // sFn: Function modifier (nop0 in Kanata)
+  case KC_OS_FN: // sFn: Function modifier
     if (record->event.pressed) {
       fn_modifier_active = true;
       modifier_hold_state.os_fn_held = true;
@@ -752,22 +689,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
 
   // ========================================================================
-  // Mouse control modifiers (matches Kanata nop1/nop2/nop3)
+  // Mouse control modifiers
   // ========================================================================
-  case KC_MSLW: // nop1 - slow mode
+  case KC_MSLW: // slow mode
     mouse_slow_mode = record->event.pressed;
     return false;
 
-  case KC_MPRE: // nop2 - precise mode
+  case KC_MPRE: // precise mode
     mouse_precise_mode = record->event.pressed;
     return false;
 
-  case KC_MSCR: // nop3 - scroll mode
+  case KC_MSCR: // scroll mode
     mouse_scroll_mode = record->event.pressed;
     return false;
 
   // ========================================================================
-  // Directional mouse/scroll keys (matches Kanata m△/m▽/m◅/m▻)
+  // Directional mouse/scroll keys
   // ========================================================================
   case KC_MUP:
     mouse_up_pressed = record->event.pressed;
@@ -1109,7 +1046,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
 
   // ========================================================================
-  // Unshifted symbols (matches Kanata @hpn, @equ, @plu, @ano, @anc)
+  // Unshifted symbols
   // ========================================================================
   case KC_HPNF: // Hyphen (unshifted -)
     if (record->event.pressed) {
@@ -1151,7 +1088,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
 
   // ========================================================================
-  // Media and screen controls (tap-hold matching Kanata)
+  // Media and screen controls
   // ========================================================================
   case KC_SCRE:
     if (record->event.pressed) {
@@ -1207,6 +1144,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           // Hold: Next track
           tap_code(KC_MNXT);
         }
+      }
+    }
+    return false;
+
+  // ========================================================================
+  // Boot/Reboot control (tap-hold)
+  // ========================================================================
+  case KC_BOOT_HOLD:
+    if (record->event.pressed) {
+      boot_hold_timer = timer_read();
+    } else {
+      uint16_t elapsed = timer_elapsed(boot_hold_timer);
+      if (elapsed < TAPHOLD_TIMEOUT) {
+        // Tap: Reboot keyboard using RP2040 watchdog
+        watchdog_reboot(0, 0, 0);
+      } else {
+        // Hold: Enter bootloader mode for flashing
+        reset_keyboard();
       }
     }
     return false;

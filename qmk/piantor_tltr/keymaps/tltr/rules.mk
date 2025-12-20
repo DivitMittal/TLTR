@@ -13,8 +13,10 @@ REPEAT_KEY_ENABLE = yes
 # Enable mouse keys
 MOUSEKEY_ENABLE = yes
 
+# Enable media keys
+EXTRAKEY_ENABLE = yes
+
 # Performance optimizations
 LTO_ENABLE = yes           # Link Time Optimization - smaller/faster code
 CONSOLE_ENABLE = no        # Disable console for performance
 COMMAND_ENABLE = no        # Disable command feature
-EXTRAKEY_ENABLE = yes      # Keep for media keys
