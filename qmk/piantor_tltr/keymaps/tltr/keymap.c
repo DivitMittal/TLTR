@@ -285,6 +285,7 @@ static bool tr_pressed = false;
 
 // Fn modifier state
 static bool fn_modifier_active = false;
+static bool fn_oneshot_active = false;
 
 // Fork key state tracking for key repeat
 static uint16_t delf_registered_key = KC_NO;
@@ -308,8 +309,10 @@ static struct {
   bool os_fn_held;
   bool os_win_used; // Was another key pressed while held?
   bool os_hyp_used; // Was another key pressed while held?
+  bool os_fn_used;  // Was another key pressed while held?
   uint16_t os_win_timer;
   uint16_t os_hyp_timer;
+  uint16_t os_fn_timer;
 
   // Individual modifiers
   bool mod_alt_held;
@@ -324,9 +327,9 @@ static struct {
   uint16_t mod_ctrl_timer;
   uint16_t mod_shift_timer;
   uint16_t mod_meta_timer;
-} modifier_hold_state = {false, false, false, false, false, 0,     0,
-                         false, false, false, false, false, false, false,
-                         false, 0,     0,     0,     0};
+} modifier_hold_state = {false, false, false, false, false, false, 0,
+                         0,     0,     false, false, false, false, false,
+                         false, false, false, 0,     0,     0,     0};
 
 // Screen control tap-hold state
 static struct {
@@ -451,25 +454,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     // Fast path: if no modifiers/special keys held, skip all checks
     if (modifier_hold_state.os_win_held || modifier_hold_state.os_hyp_held ||
-        modifier_hold_state.mod_alt_held || modifier_hold_state.mod_ctrl_held ||
+        modifier_hold_state.os_fn_held || modifier_hold_state.mod_alt_held ||
+        modifier_hold_state.mod_ctrl_held ||
         modifier_hold_state.mod_shift_held ||
         modifier_hold_state.mod_meta_held || screen_hold_state.held ||
         media_hold_state.held) {
 
-      // Exclude modifier keys themselves and mouse control keys
+      // Exclude modifier keys themselves, mouse control keys, and thumb layer
+      // keys
       if (keycode != KC_OS_WIN && keycode != KC_OS_HYP && keycode != KC_OS_FN &&
           keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
           keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
           keycode != KC_SCRE && keycode != KC_MEDC && keycode != KC_MSLW &&
           keycode != KC_MPRE && keycode != KC_MSCR && keycode != KC_MUP &&
           keycode != KC_MDN && keycode != KC_MLFT && keycode != KC_MRGT &&
-          keycode != KC_MBTN1 && keycode != KC_MBTN2) {
+          keycode != KC_MBTN1 && keycode != KC_MBTN2 && keycode != KC_TL_KEY &&
+          keycode != KC_TR_KEY && keycode != KC_TLTLTR_KEY &&
+          keycode != KC_TRTLTR_KEY) {
 
         // Mark held modifiers as used
         if (modifier_hold_state.os_win_held)
           modifier_hold_state.os_win_used = true;
         if (modifier_hold_state.os_hyp_held)
           modifier_hold_state.os_hyp_used = true;
+        if (modifier_hold_state.os_fn_held)
+          modifier_hold_state.os_fn_used = true;
         if (modifier_hold_state.mod_alt_held)
           modifier_hold_state.mod_alt_used = true;
         if (modifier_hold_state.mod_ctrl_held)
@@ -607,10 +616,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_OS_FN: // sFn: Function modifier
     if (record->event.pressed) {
       fn_modifier_active = true;
+      fn_oneshot_active =
+          false; // Cancel any existing one-shot when pressed again
       modifier_hold_state.os_fn_held = true;
+      modifier_hold_state.os_fn_used = false;
+      modifier_hold_state.os_fn_timer = timer_read();
     } else {
-      fn_modifier_active = false;
       modifier_hold_state.os_fn_held = false;
+
+      // If it was a quick tap and wasn't used, make it one-shot for next key
+      if (!modifier_hold_state.os_fn_used &&
+          timer_elapsed(modifier_hold_state.os_fn_timer) < TAPHOLD_TIMEOUT) {
+        // Keep fn_modifier_active true and mark as one-shot
+        fn_oneshot_active = true;
+      } else {
+        // Was held and used, or held too long - just turn off
+        fn_modifier_active = false;
+        fn_oneshot_active = false;
+      }
     }
     return false;
 
@@ -1159,6 +1182,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
     }
     return false;
+  }
+
+  // Clear Fn one-shot after a key is pressed (excluding modifiers and layer
+  // keys)
+  if (fn_oneshot_active && record->event.pressed) {
+    // Exclude keys that shouldn't consume the one-shot
+    if (keycode != KC_OS_WIN && keycode != KC_OS_HYP && keycode != KC_OS_FN &&
+        keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
+        keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
+        keycode != KC_MSLW && keycode != KC_MPRE && keycode != KC_MSCR &&
+        keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
+        keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY &&
+        keycode != KC_LSFT && keycode != KC_RSFT) {
+      // A key that consumes the one-shot was pressed
+      // Clear the one-shot after this key is processed
+      fn_modifier_active = false;
+      fn_oneshot_active = false;
+    }
   }
 
   return true;
