@@ -387,7 +387,7 @@ static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
 }
 
 // Get current mouse movement speed based on mode flags
-Precise takes priority over slow
+// Precise takes priority over slow
 static inline int8_t get_mouse_speed(void) {
   if (mouse_precise_mode) {
     return MOUSE_MOVE_PRECISE; // Very slow, precise
@@ -493,73 +493,67 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_TL_KEY:
     if (record->event.pressed) {
       tl_pressed = true;
+      // Always activate TL layer
+      layer_on(_TL);
+      // Also activate TLTR if TR is pressed
       if (tr_pressed) {
-        // Both TL and TR pressed = activate TLTR layer
         layer_on(_TLTR);
-      } else {
-        // Only TL pressed = activate TL layer
-        layer_on(_TL);
       }
     } else {
       tl_pressed = false;
-      // Release TLTR if it's active
-      if (IS_LAYER_ON(_TLTR)) {
-        layer_off(_TLTR);
-      }
-      // Release TL if TR is not pressed
-      if (!tr_pressed) {
-        layer_off(_TL);
-      } else {
-        // Ensure TR layer is active if TR still held
-        if (!IS_LAYER_ON(_TR)) {
-          layer_on(_TR);
-        }
-      }
+      // Always turn off TLTR and TL
+      layer_off(_TLTR);
+      layer_off(_TL);
     }
     return false;
 
   case KC_TR_KEY:
     if (record->event.pressed) {
       tr_pressed = true;
+      // Always activate TR layer
+      layer_on(_TR);
+      // Also activate TLTR if TL is pressed
       if (tl_pressed) {
-        // Both TL and TR pressed = activate TLTR layer
         layer_on(_TLTR);
-      } else {
-        // Only TR pressed = activate TR layer
-        layer_on(_TR);
       }
     } else {
       tr_pressed = false;
-      // Release TLTR if it's active
-      if (IS_LAYER_ON(_TLTR)) {
-        layer_off(_TLTR);
-      }
-      // Release TR if TL is not pressed
-      if (!tl_pressed) {
-        layer_off(_TR);
-      } else {
-        // Ensure TL layer is active if TL still held
-        if (!IS_LAYER_ON(_TL)) {
-          layer_on(_TL);
-        }
-      }
+      // Always turn off TLTR and TR
+      layer_off(_TLTR);
+      layer_off(_TR);
     }
     return false;
 
   // Special keys for activating TLTR from within TL/TR layers
   case KC_TLTLTR_KEY:
+    // This is the TL key when pressed from TR layer
     if (record->event.pressed) {
+      tl_pressed = true;
+      // Activate TL layer (TR should already be on)
+      layer_on(_TL);
+      // Activate TLTR on top
       layer_on(_TLTR);
     } else {
+      tl_pressed = false;
+      // Turn off TLTR and TL
       layer_off(_TLTR);
+      layer_off(_TL);
     }
     return false;
 
   case KC_TRTLTR_KEY:
+    // This is the TR key when pressed from TL layer
     if (record->event.pressed) {
+      tr_pressed = true;
+      // Activate TR layer (TL should already be on)
+      layer_on(_TR);
+      // Activate TLTR on top
       layer_on(_TLTR);
     } else {
+      tr_pressed = false;
+      // Turn off TLTR and TR
       layer_off(_TLTR);
+      layer_off(_TR);
     }
     return false;
 
