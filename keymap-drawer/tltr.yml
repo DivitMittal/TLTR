@@ -58,7 +58,7 @@ layers:
 
   TL:
     - [
-        null,
+        { tap: "🔃", hold: "⬇️" },
         { tap: "⎋" },
         { tap: "🪟", type: "sticky" },
         { tap: "Fn", type: "sticky" },
@@ -162,7 +162,7 @@ layers:
         { tap: "🖱️↑" },
         null,
         null,
-        { tap: "Reload" },
+        null,
       ]
     - [
         null,

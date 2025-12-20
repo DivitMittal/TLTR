@@ -98,10 +98,10 @@
 ;; TL (Thumb Left) layer
 ;; for modifiers & navigation
 (deflayer TL
-  XX  ⎋   @sWin  @sFn   XX   XX       @pguf   @btb  ▲   ↹   XX  XX
-  _  @sAlt  @sCtl @sSft @sMet XX     @pgdf   ◀     ▼   ▶   XX   _
-    XX    XX     XX    @sHyp XX        XX     ⌫     ⌦   XX  _
-                XX  _                       _ @trtltr
+  lrld   ⎋   @sWin @sFn   XX   XX       @pguf   @btb   ▲   ↹   XX  XX
+  _    @sAlt @sCtl @sSft @sMet XX       @pgdf    ◀     ▼   ▶   XX   _
+        XX    XX    XX   @sHyp XX        XX      ⌫     ⌦   XX  _
+                   XX  _                       _ @trtltr
 )
 
 (defalias
@@ -341,7 +341,7 @@
 ;; TLTR (Thumb Left & Thumb Right) layer
 ;; for non-keyboard functions like mouse, media, screen etc.
 (deflayer TLTR
-  XX @scre 🔆  @med  🔊  XX          XX XX  @m△ XX  XX  lrld
+  XX @scre 🔆  @med  🔊  XX          XX XX  @m△ XX  XX  XX
   XX  @pre @slw @scr  🖰1 🖰2       XX @m◅ @m▽ @m▻ XX   XX
      XX   🔅   @ba   🔉  XX          XX XX  XX  XX  XX
                 XX _                    _ XX

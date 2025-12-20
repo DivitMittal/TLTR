@@ -251,10 +251,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        KC_NO,   KC_ESC,      KC_OS_WIN,    KC_OS_FN,     KC_NO,       KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
-        KC_TRNS, KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_NO,       KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
-                 KC_NO,       KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
-                                            KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
+        KC_BOOT_HOLD, KC_ESC,      KC_OS_WIN,    KC_OS_FN,     KC_NO,       KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_NO,       KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
+                      KC_NO,       KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
+                                                 KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
     ),
 
     // TR Layer - Numbers & Symbols
@@ -267,7 +267,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TLTR Layer - Mouse, Media & Display Controls
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
-        KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_NO,   KC_NO,   KC_MUP,  KC_NO,   KC_NO,   KC_BOOT_HOLD,
+        KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_NO,   KC_NO,   KC_MUP,  KC_NO,   KC_NO,   KC_NO,
         KC_NO,   KC_MPRE, KC_MSLW, KC_MSCR,  KC_MBTN1, KC_MBTN2,    KC_NO,   KC_MLFT, KC_MDN,  KC_MRGT, KC_NO,   KC_NO,
                  KC_NO,   KC_BRID, KC_MPRV,  KC_VOLD,  KC_NO,       KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
                                    KC_TRNS,  KC_TRNS,               KC_TRNS, KC_TRNS

@@ -150,7 +150,7 @@ layers:
 
     # Top alpha row (14 keys) - Navigation layer
     - [
-        null,
+        { tap: "🔃", hold: "⬇️" },
         { tap: "⎋" },
         { tap: "🪟", type: "sticky" },
         { tap: "Fn", type: "sticky" },
@@ -372,7 +372,7 @@ layers:
         { tap: "🖱️↑" },
         null,
         null,
-        { tap: "Reload" },
+        null,
         null,
       ]
 
