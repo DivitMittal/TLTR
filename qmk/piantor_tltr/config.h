@@ -40,7 +40,8 @@
 #define USB_POLLING_INTERVAL_MS 1
 
 // USB suspend/resume behavior
-#define USB_SUSPEND_WAKEUP_DELAY 200 // 200ms delay after waking from suspend
+// #define USB_SUSPEND_WAKEUP_DELAY 200 // 200ms delay after waking from suspend
+#define NO_USB_STARTUP_CHECK // keyboard after sleep macOS compatibility
 
 // Memory optimizations
 #define LAYER_STATE_8BIT // We only have 4 layers
