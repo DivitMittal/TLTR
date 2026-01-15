@@ -2,64 +2,47 @@
 #include "hardware/watchdog.h"
 
 // Speed level definitions
-// Default: fast
 #define MOUSE_MOVE_DEFAULT 16
 #define MOUSE_WHEEL_DEFAULT 4
 
-// Slow mode: slower movement
 #define MOUSE_MOVE_SLOW 8
 #define MOUSE_WHEEL_SLOW 2
 
-// Precise mode: very slow, precise movement
 #define MOUSE_MOVE_PRECISE 4
 #define MOUSE_WHEEL_PRECISE 1
 
-// Cursor movement intervals - keep fast for smooth movement
-#define CURSOR_INTERVAL_DEFAULT 8  // 125Hz - very smooth
-#define CURSOR_INTERVAL_SLOW 12    // 83Hz - smooth
-#define CURSOR_INTERVAL_PRECISE 16 // 60Hz - smooth
+// Cursor movement intervals
+#define CURSOR_INTERVAL_DEFAULT 8
+#define CURSOR_INTERVAL_SLOW 12
+#define CURSOR_INTERVAL_PRECISE 16
 
-// Scroll intervals - slower for controlled scrolling
-#define SCROLL_INTERVAL_DEFAULT 32  // 30Hz - moderate speed
-#define SCROLL_INTERVAL_SLOW 64     // 15Hz - slow, controlled
-#define SCROLL_INTERVAL_PRECISE 100 // 10Hz - very slow, precise
+// Scroll intervals
+#define SCROLL_INTERVAL_DEFAULT 32
+#define SCROLL_INTERVAL_SLOW 64
+#define SCROLL_INTERVAL_PRECISE 100
 
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
 
-// ============================================================================
-// State variables (must be declared before use in functions)
-// ============================================================================
+// State variables
+static bool mouse_slow_mode = false;
+static bool mouse_precise_mode = false;
+static bool mouse_scroll_mode = false;
 
-// Mouse control states
-static bool mouse_slow_mode = false;    // nop1
-static bool mouse_precise_mode = false; // nop2
-static bool mouse_scroll_mode = false;  // nop3
-
-// Mouse direction state tracking for continuous movement/scrolling
 static bool mouse_up_pressed = false;
 static bool mouse_down_pressed = false;
 static bool mouse_left_pressed = false;
 static bool mouse_right_pressed = false;
 
-// Mouse button state tracking
 static uint8_t mouse_buttons = 0;
-
-// Mouse report throttling timer
 static uint16_t mouse_timer = 0;
-
-// Boot/Reboot key timer
 static uint16_t boot_hold_timer = 0;
 
-// Forward declarations for helper functions
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
 static inline uint16_t get_mouse_interval(void);
 
-// Unicode setup - automatically detect OS and set input mode
 void keyboard_post_init_user(void) {
-  // Use OS detection to automatically set Unicode input mode
-  // This detects the OS when the keyboard is plugged in
   os_variant_t detected_os = detected_host_os();
 
   switch (detected_os) {
@@ -74,77 +57,65 @@ void keyboard_post_init_user(void) {
     set_unicode_input_mode(UNICODE_MODE_LINUX);
     break;
   default:
-    // Fallback to Linux mode if OS cannot be detected
     set_unicode_input_mode(UNICODE_MODE_LINUX);
     break;
   }
 }
 
-// Custom mouse movement handling with dynamic speed adjustment
-// This hook is called regularly to handle ongoing mouse movement
 void matrix_scan_user(void) {
-  // Only process if any direction key is pressed
   if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
       !mouse_right_pressed) {
     return;
   }
 
-  // Throttle mouse reports based on current speed mode
   if (timer_elapsed(mouse_timer) < get_mouse_interval()) {
     return;
   }
   mouse_timer = timer_read();
 
-  // Create a mouse report with current button state
   report_mouse_t mouse_report = {
       .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
 
   if (mouse_scroll_mode) {
-    // Scroll mode - use wheel deltas (reversed for natural scrolling)
     int8_t wheel_speed = get_wheel_speed();
     if (mouse_up_pressed) {
-      mouse_report.v = -wheel_speed; // Reversed: up scrolls down
+      mouse_report.v = -wheel_speed;
     }
     if (mouse_down_pressed) {
-      mouse_report.v = wheel_speed; // Reversed: down scrolls up
+      mouse_report.v = wheel_speed;
     }
     if (mouse_left_pressed) {
-      mouse_report.h = wheel_speed; // Reversed: left scrolls right
+      mouse_report.h = wheel_speed;
     }
     if (mouse_right_pressed) {
-      mouse_report.h = -wheel_speed; // Reversed: right scrolls left
+      mouse_report.h = -wheel_speed;
     }
   } else {
-    // Cursor mode - use x/y deltas
     int8_t move_speed = get_mouse_speed();
     if (mouse_up_pressed) {
-      mouse_report.y = -move_speed; // Up is negative Y
+      mouse_report.y = -move_speed;
     }
     if (mouse_down_pressed) {
-      mouse_report.y = move_speed; // Down is positive Y
+      mouse_report.y = move_speed;
     }
     if (mouse_left_pressed) {
-      mouse_report.x = -move_speed; // Left is negative X
+      mouse_report.x = -move_speed;
     }
     if (mouse_right_pressed) {
-      mouse_report.x = move_speed; // Right is positive X
+      mouse_report.x = move_speed;
     }
   }
 
-  // Send the mouse report
   host_mouse_send(&mouse_report);
 }
 
-// Caps Word configuration
 bool caps_word_press_user(uint16_t keycode) {
   switch (keycode) {
-  // Keycodes that continue Caps Word, with shift applied
   case KC_A ... KC_Z:
   case KC_MINS:
-    add_weak_mods(MOD_BIT(KC_LSFT)); // Apply shift to next key
+    add_weak_mods(MOD_BIT(KC_LSFT));
     return true;
 
-  // Keycodes that continue Caps Word, without shifting
   case KC_1 ... KC_0:
   case KC_BSPC:
   case KC_DEL:
@@ -158,11 +129,10 @@ bool caps_word_press_user(uint16_t keycode) {
     return true;
 
   default:
-    return false; // Deactivate Caps Word
+    return false;
   }
 }
 
-// Define custom keycodes
 enum custom_keycodes {
   // Fork keys (context-sensitive keys)
   KC_DELF = SAFE_RANGE, // Delete/Backspace Fork
@@ -275,19 +245,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
-// ============================================================================
 // Advanced state tracking
-// ============================================================================
-
-// Thumb key state for TL/TR/TLTR layer management
 static bool tl_pressed = false;
 static bool tr_pressed = false;
 
-// Fn modifier state
 static bool fn_modifier_active = false;
 static bool fn_oneshot_active = false;
 
-// Fork key state tracking for key repeat
 static uint16_t delf_registered_key = KC_NO;
 static uint16_t pguf_registered_key = KC_NO;
 static uint16_t pgdf_registered_key = KC_NO;
@@ -295,26 +259,23 @@ static uint16_t slaf_registered_key = KC_NO;
 static uint16_t comf_registered_key = KC_NO;
 static uint16_t dotf_registered_key = KC_NO;
 
-// One-shot state tracking for custom combinations
 static struct {
   bool active;
   uint16_t timer;
   uint8_t mods;
 } oneshot_state = {false, 0, 0};
 
-// Tap-hold state for custom modifier keys
 static struct {
   bool os_win_held;
   bool os_hyp_held;
   bool os_fn_held;
-  bool os_win_used; // Was another key pressed while held?
-  bool os_hyp_used; // Was another key pressed while held?
-  bool os_fn_used;  // Was another key pressed while held?
+  bool os_win_used;
+  bool os_hyp_used;
+  bool os_fn_used;
   uint16_t os_win_timer;
   uint16_t os_hyp_timer;
   uint16_t os_fn_timer;
 
-  // Individual modifiers
   bool mod_alt_held;
   bool mod_ctrl_held;
   bool mod_shift_held;
@@ -331,40 +292,30 @@ static struct {
                          0,     0,     false, false, false, false, false,
                          false, false, false, 0,     0,     0,     0};
 
-// Screen control tap-hold state
 static struct {
   bool held;
   bool used;
   uint16_t timer;
 } screen_hold_state = {false, false, 0};
 
-// Media control tap-hold state
 static struct {
   bool held;
   bool used;
   uint16_t timer;
 } media_hold_state = {false, false, 0};
 
-// Timeouts (in milliseconds)
 #define ONESHOT_TIMEOUT 300
 #define TAPHOLD_TIMEOUT 200
 
-// ============================================================================
-// Helper functions
-// ============================================================================
-
-// Check if left shift is active
 static inline bool is_left_shift_active(void) {
   return (get_mods() & MOD_BIT(KC_LSFT)) ||
          (get_oneshot_mods() & MOD_BIT(KC_LSFT));
 }
 
-// Check if any shift is active (for compatibility)
 static inline bool is_shift_active(void) {
   return (get_mods() & MOD_MASK_SHIFT) || (get_oneshot_mods() & MOD_MASK_SHIFT);
 }
 
-// Clear shift mods temporarily for unshifted output
 static inline void clear_shift_mods(void) {
   uint8_t mods = get_mods();
   if (mods & MOD_MASK_SHIFT) {
@@ -376,7 +327,6 @@ static inline void clear_shift_mods(void) {
   }
 }
 
-// Handle function key forks (number vs function based on Fn modifier)
 static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
                            uint16_t function_key) {
   if (record->event.pressed) {
@@ -389,59 +339,47 @@ static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
   return false;
 }
 
-// Get current mouse movement speed based on mode flags
-// Precise takes priority over slow
 static inline int8_t get_mouse_speed(void) {
   if (mouse_precise_mode) {
-    return MOUSE_MOVE_PRECISE; // Very slow, precise
+    return MOUSE_MOVE_PRECISE;
   } else if (mouse_slow_mode) {
-    return MOUSE_MOVE_SLOW; // Slow
+    return MOUSE_MOVE_SLOW;
   } else {
-    return MOUSE_MOVE_DEFAULT; // Modestly fast (default)
+    return MOUSE_MOVE_DEFAULT;
   }
 }
 
-// Get current mouse wheel speed based on mode flags
 static inline int8_t get_wheel_speed(void) {
   if (mouse_precise_mode) {
-    return MOUSE_WHEEL_PRECISE; // Very slow, precise
+    return MOUSE_WHEEL_PRECISE;
   } else if (mouse_slow_mode) {
-    return MOUSE_WHEEL_SLOW; // Slow
+    return MOUSE_WHEEL_SLOW;
   } else {
-    return MOUSE_WHEEL_DEFAULT; // Modestly fast (default)
+    return MOUSE_WHEEL_DEFAULT;
   }
 }
 
-// Get current mouse report interval based on mode flags
-// Uses different intervals for cursor movement (fast) vs scrolling (slow)
 static inline uint16_t get_mouse_interval(void) {
   if (mouse_scroll_mode) {
-    // Scrolling mode - use slower intervals for controlled scrolling
     if (mouse_precise_mode) {
-      return SCROLL_INTERVAL_PRECISE; // 100ms - very slow
+      return SCROLL_INTERVAL_PRECISE;
     } else if (mouse_slow_mode) {
-      return SCROLL_INTERVAL_SLOW; // 64ms - slow
+      return SCROLL_INTERVAL_SLOW;
     } else {
-      return SCROLL_INTERVAL_DEFAULT; // 32ms - moderate
+      return SCROLL_INTERVAL_DEFAULT;
     }
   } else {
-    // Cursor movement mode - use fast intervals for smooth movement
     if (mouse_precise_mode) {
-      return CURSOR_INTERVAL_PRECISE; // 16ms - smooth
+      return CURSOR_INTERVAL_PRECISE;
     } else if (mouse_slow_mode) {
-      return CURSOR_INTERVAL_SLOW; // 12ms - smooth
+      return CURSOR_INTERVAL_SLOW;
     } else {
-      return CURSOR_INTERVAL_DEFAULT; // 8ms - very smooth
+      return CURSOR_INTERVAL_DEFAULT;
     }
   }
 }
 
-// ============================================================================
-// Main key processing
-// ============================================================================
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  // Handle one-shot timeout - only check if oneshot is actually active
   if (oneshot_state.active) {
     if (timer_elapsed(oneshot_state.timer) > ONESHOT_TIMEOUT) {
       unregister_mods(oneshot_state.mods);
@@ -449,10 +387,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
   }
 
-  // Detect when other keys are pressed while custom modifiers are held
-  // Only check on key press, and only check held states (skip if none held)
   if (record->event.pressed) {
-    // Fast path: if no modifiers/special keys held, skip all checks
     if (modifier_hold_state.os_win_held || modifier_hold_state.os_hyp_held ||
         modifier_hold_state.os_fn_held || modifier_hold_state.mod_alt_held ||
         modifier_hold_state.mod_ctrl_held ||
@@ -460,8 +395,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         modifier_hold_state.mod_meta_held || screen_hold_state.held ||
         media_hold_state.held) {
 
-      // Exclude modifier keys themselves, mouse control keys, and thumb layer
-      // keys
       if (keycode != KC_OS_WIN && keycode != KC_OS_HYP && keycode != KC_OS_FN &&
           keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
           keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
@@ -472,7 +405,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           keycode != KC_TR_KEY && keycode != KC_TLTLTR_KEY &&
           keycode != KC_TRTLTR_KEY) {
 
-        // Mark held modifiers as used
         if (modifier_hold_state.os_win_held)
           modifier_hold_state.os_win_used = true;
         if (modifier_hold_state.os_hyp_held)
@@ -496,21 +428,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   switch (keycode) {
-  // ========================================================================
-  // Thumb key layer activation
-  // ========================================================================
   case KC_TL_KEY:
     if (record->event.pressed) {
       tl_pressed = true;
-      // Always activate TL layer
       layer_on(_TL);
-      // Also activate TLTR if TR is pressed
       if (tr_pressed) {
         layer_on(_TLTR);
       }
     } else {
       tl_pressed = false;
-      // Always turn off TLTR and TL
       layer_off(_TLTR);
       layer_off(_TL);
     }
@@ -519,69 +445,51 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_TR_KEY:
     if (record->event.pressed) {
       tr_pressed = true;
-      // Always activate TR layer
       layer_on(_TR);
-      // Also activate TLTR if TL is pressed
       if (tl_pressed) {
         layer_on(_TLTR);
       }
     } else {
       tr_pressed = false;
-      // Always turn off TLTR and TR
       layer_off(_TLTR);
       layer_off(_TR);
     }
     return false;
 
-  // Special keys for activating TLTR from within TL/TR layers
   case KC_TLTLTR_KEY:
-    // This is the TL key when pressed from TR layer
     if (record->event.pressed) {
       tl_pressed = true;
-      // Activate TL layer (TR should already be on)
       layer_on(_TL);
-      // Activate TLTR on top
       layer_on(_TLTR);
     } else {
       tl_pressed = false;
-      // Turn off TLTR and TL
       layer_off(_TLTR);
       layer_off(_TL);
     }
     return false;
 
   case KC_TRTLTR_KEY:
-    // This is the TR key when pressed from TL layer
     if (record->event.pressed) {
       tr_pressed = true;
-      // Activate TR layer (TL should already be on)
       layer_on(_TR);
-      // Activate TLTR on top
       layer_on(_TLTR);
     } else {
       tr_pressed = false;
-      // Turn off TLTR and TR
       layer_off(_TLTR);
       layer_off(_TR);
     }
     return false;
 
-  // ========================================================================
-  // One-shot modifier combinations
-  // ========================================================================
-  case KC_OS_WIN: // sWin: Alt+Ctrl+Meta
+  case KC_OS_WIN:
     if (record->event.pressed) {
       modifier_hold_state.os_win_held = true;
       modifier_hold_state.os_win_used = false;
       modifier_hold_state.os_win_timer = timer_read();
-      // Register as regular modifier for immediate effect when held
       register_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI));
     } else {
       modifier_hold_state.os_win_held = false;
-      // Unregister the regular modifier
       unregister_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI));
 
-      // If it was a quick tap and wasn't used, make it one-shot for next key
       if (!modifier_hold_state.os_win_used &&
           timer_elapsed(modifier_hold_state.os_win_timer) < TAPHOLD_TIMEOUT) {
         add_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
@@ -590,21 +498,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_OS_HYP: // sHyp: Alt+Ctrl+Shift+Meta
+  case KC_OS_HYP:
     if (record->event.pressed) {
       modifier_hold_state.os_hyp_held = true;
       modifier_hold_state.os_hyp_used = false;
       modifier_hold_state.os_hyp_timer = timer_read();
-      // Register as regular modifier for immediate effect when held
       register_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT) |
                     MOD_BIT(KC_LGUI));
     } else {
       modifier_hold_state.os_hyp_held = false;
-      // Unregister the regular modifier
       unregister_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT) |
                       MOD_BIT(KC_LGUI));
 
-      // If it was a quick tap and wasn't used, make it one-shot for next key
       if (!modifier_hold_state.os_hyp_used &&
           timer_elapsed(modifier_hold_state.os_hyp_timer) < TAPHOLD_TIMEOUT) {
         add_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
@@ -613,33 +518,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_OS_FN: // sFn: Function modifier
+  case KC_OS_FN:
     if (record->event.pressed) {
       fn_modifier_active = true;
-      fn_oneshot_active =
-          false; // Cancel any existing one-shot when pressed again
+      fn_oneshot_active = false;
       modifier_hold_state.os_fn_held = true;
       modifier_hold_state.os_fn_used = false;
       modifier_hold_state.os_fn_timer = timer_read();
     } else {
       modifier_hold_state.os_fn_held = false;
 
-      // If it was a quick tap and wasn't used, make it one-shot for next key
       if (!modifier_hold_state.os_fn_used &&
           timer_elapsed(modifier_hold_state.os_fn_timer) < TAPHOLD_TIMEOUT) {
-        // Keep fn_modifier_active true and mark as one-shot
         fn_oneshot_active = true;
       } else {
-        // Was held and used, or held too long - just turn off
         fn_modifier_active = false;
         fn_oneshot_active = false;
       }
     }
     return false;
 
-  // ========================================================================
-  // Individual modifiers with tap-hold behavior
-  // ========================================================================
   case KC_MOD_ALT:
     if (record->event.pressed) {
       modifier_hold_state.mod_alt_held = true;
@@ -705,24 +603,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  // ========================================================================
-  // Mouse control modifiers
-  // ========================================================================
-  case KC_MSLW: // slow mode
+  case KC_MSLW:
     mouse_slow_mode = record->event.pressed;
     return false;
 
-  case KC_MPRE: // precise mode
+  case KC_MPRE:
     mouse_precise_mode = record->event.pressed;
     return false;
 
-  case KC_MSCR: // scroll mode
+  case KC_MSCR:
     mouse_scroll_mode = record->event.pressed;
     return false;
 
-  // ========================================================================
-  // Directional mouse/scroll keys
-  // ========================================================================
   case KC_MUP:
     mouse_up_pressed = record->event.pressed;
     return false;
@@ -739,16 +631,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     mouse_right_pressed = record->event.pressed;
     return false;
 
-  // ========================================================================
-  // Mouse buttons (track state for drag operations)
-  // ========================================================================
   case KC_MBTN1:
     if (record->event.pressed) {
       mouse_buttons |= MOUSE_BTN1;
     } else {
       mouse_buttons &= ~MOUSE_BTN1;
     }
-    // Send immediate button report
     {
       report_mouse_t mouse_report = {
           .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
@@ -762,7 +650,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     } else {
       mouse_buttons &= ~MOUSE_BTN2;
     }
-    // Send immediate button report
     {
       report_mouse_t mouse_report = {
           .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
@@ -770,10 +657,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  // ========================================================================
-  // Fork keys - basic (check left shift)
-  // ========================================================================
-  case KC_DELF: // Delete/Backspace
+  case KC_DELF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
@@ -786,7 +670,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         delf_registered_key = KC_BSPC;
       }
     } else {
-      // Release the key that was registered
       if (delf_registered_key != KC_NO) {
         unregister_code(delf_registered_key);
         delf_registered_key = KC_NO;
@@ -794,7 +677,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_SLAF: // Slash/Backslash
+  case KC_SLAF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
@@ -814,10 +697,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_COMF: // Comma/Underscore
+  case KC_COMF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Already shifted, output underscore
         register_code(KC_MINS);
         comf_registered_key = KC_MINS;
       } else {
@@ -832,10 +714,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_DOTF: // Dot/Question
+  case KC_DOTF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Already shifted, output question mark
         register_code(KC_SLSH);
         dotf_registered_key = KC_SLSH;
       } else {
@@ -850,7 +731,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_PGUF: // Page Up/Home
+  case KC_PGUF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
@@ -870,7 +751,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_PGDF: // Page Down/End
+  case KC_PGDF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
         uint8_t saved_mods = get_mods();
@@ -890,31 +771,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  // ========================================================================
-  // Symbol forks (check left shift, produce shifted symbols)
-  // ========================================================================
-  case KC_EXCF: // !/`
+  case KC_EXCF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: grave
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         tap_code(KC_GRV);
         set_mods(saved_mods);
       } else {
-        // Normal: exclamation (S-1)
         tap_code16(KC_EXLM);
       }
     }
     return false;
 
-  case KC_ATSF: // @/~
+  case KC_ATSF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: tilde (S-`)
         tap_code16(KC_TILD);
       } else {
-        // Normal: at (S-2)
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         tap_code16(KC_AT);
@@ -923,13 +797,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_OCTF: // #/^
+  case KC_OCTF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: caret (S-6)
         tap_code16(KC_CIRC);
       } else {
-        // Normal: hash (S-3)
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         tap_code16(KC_HASH);
@@ -938,28 +810,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_DOLF: // $/₹
+  case KC_DOLF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: Rupee symbol (₹) via Unicode
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         send_unicode_string("₹");
         set_mods(saved_mods);
       } else {
-        // Normal: Dollar ($)
         tap_code16(KC_DLR);
       }
     }
     return false;
 
-  case KC_AMPF: // &/|
+  case KC_AMPF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: pipe (S-\)
         tap_code16(KC_PIPE);
       } else {
-        // Normal: ampersand (S-7)
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         tap_code16(KC_AMPR);
@@ -968,16 +836,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  // ========================================================================
-  // Bracket forks
-  // ========================================================================
-  case KC_CURF: // {/}
+  case KC_CURF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: right curly
         tap_code16(KC_RCBR);
       } else {
-        // Normal: left curly
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         tap_code16(KC_LCBR);
@@ -986,13 +849,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_PARF: // (/)
+  case KC_PARF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: right paren
         tap_code16(KC_RPRN);
       } else {
-        // Normal: left paren
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         tap_code16(KC_LPRN);
@@ -1001,24 +862,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_SQRF: // [/]
+  case KC_SQRF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        // Shifted: right square bracket
         uint8_t saved_mods = get_mods();
         clear_shift_mods();
         tap_code(KC_RBRC);
         set_mods(saved_mods);
       } else {
-        // Normal: left square bracket
         tap_code(KC_LBRC);
       }
     }
     return false;
 
-  // ========================================================================
-  // Function key forks (number vs function based on Fn modifier)
-  // ========================================================================
   case KC_1F:
     return handle_fn_fork(record, KC_1, KC_F1);
   case KC_2F:
@@ -1040,38 +896,33 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_0F:
     return handle_fn_fork(record, KC_0, KC_F10);
 
-  case KC_ASTF: // */F11
+  case KC_ASTF:
     if (record->event.pressed) {
       if (fn_modifier_active) {
         tap_code(KC_F11);
       } else {
-        // Asterisk (S-8)
         tap_code16(KC_ASTR);
       }
     }
     return false;
 
-  case KC_PERF: // %/F12
+  case KC_PERF:
     if (record->event.pressed) {
       if (fn_modifier_active) {
         tap_code(KC_F12);
       } else {
-        // Percent (S-5)
         tap_code16(KC_PERC);
       }
     }
     return false;
 
-  // ========================================================================
-  // Unshifted symbols
-  // ========================================================================
-  case KC_HPNF: // Hyphen (unshifted -)
+  case KC_HPNF:
     if (record->event.pressed) {
       tap_code(KC_MINS);
     }
     return false;
 
-  case KC_EQUF: // Equals (unshifted =)
+  case KC_EQUF:
     if (record->event.pressed) {
       uint8_t saved_mods = get_mods();
       clear_shift_mods();
@@ -1080,13 +931,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_PLUF: // Plus (S-=)
+  case KC_PLUF:
     if (record->event.pressed) {
       tap_code16(KC_PLUS);
     }
     return false;
 
-  case KC_ANOF: // < (unshifted)
+  case KC_ANOF:
     if (record->event.pressed) {
       uint8_t saved_mods = get_mods();
       clear_shift_mods();
@@ -1095,7 +946,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_ANCF: // > (unshifted)
+  case KC_ANCF:
     if (record->event.pressed) {
       uint8_t saved_mods = get_mods();
       clear_shift_mods();
@@ -1104,9 +955,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  // ========================================================================
-  // Media and screen controls
-  // ========================================================================
   case KC_SCRE:
     if (record->event.pressed) {
       screen_hold_state.held = true;
@@ -1116,23 +964,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       screen_hold_state.held = false;
       uint16_t elapsed = timer_elapsed(screen_hold_state.timer);
 
-      // Only trigger action if no other keys were pressed while held
       if (!screen_hold_state.used) {
         if (elapsed < TAPHOLD_TIMEOUT) {
-          // Tap: Lock screen (customize for your OS)
-          // macOS (default): Ctrl+Cmd+Q
-          // For Linux: Replace with Ctrl+Alt+L
-          // For Windows: Replace with Win+L
           register_code(KC_LCTL);
           register_code(KC_LGUI);
           tap_code(KC_Q);
           unregister_code(KC_LGUI);
           unregister_code(KC_LCTL);
         } else {
-          // Hold: Display sleep
-          // macOS: Ctrl+Shift+Power (or Eject)
-          // For Windows: Use KC_SYSTEM_SLEEP
-          // For Linux: May need xset dpms force off via macro
           register_code(KC_LCTL);
           register_code(KC_LSFT);
           tap_code(KC_PWR);
@@ -1152,42 +991,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       media_hold_state.held = false;
       uint16_t elapsed = timer_elapsed(media_hold_state.timer);
 
-      // Only trigger action if no other keys were pressed while held
       if (!media_hold_state.used) {
         if (elapsed < TAPHOLD_TIMEOUT) {
-          // Tap: Play/pause
           tap_code(KC_MPLY);
         } else {
-          // Hold: Next track
           tap_code(KC_MNXT);
         }
       }
     }
     return false;
 
-  // ========================================================================
-  // Boot/Reboot control (tap-hold)
-  // ========================================================================
   case KC_BOOT_HOLD:
     if (record->event.pressed) {
       boot_hold_timer = timer_read();
     } else {
       uint16_t elapsed = timer_elapsed(boot_hold_timer);
       if (elapsed < TAPHOLD_TIMEOUT) {
-        // Tap: Reboot keyboard using RP2040 watchdog
         watchdog_reboot(0, 0, 0);
       } else {
-        // Hold: Enter bootloader mode for flashing
         reset_keyboard();
       }
     }
     return false;
   }
 
-  // Clear Fn one-shot after a key is pressed (excluding modifiers and layer
-  // keys)
   if (fn_oneshot_active && record->event.pressed) {
-    // Exclude keys that shouldn't consume the one-shot
     if (keycode != KC_OS_WIN && keycode != KC_OS_HYP && keycode != KC_OS_FN &&
         keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
         keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
@@ -1195,8 +1023,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
         keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY &&
         keycode != KC_LSFT && keycode != KC_RSFT) {
-      // A key that consumes the one-shot was pressed
-      // Clear the one-shot after this key is processed
       fn_modifier_active = false;
       fn_oneshot_active = false;
     }
