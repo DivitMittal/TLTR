@@ -406,7 +406,7 @@ layers:
         null,
         null,
         null,
-        null,
+        { tap: "🖱️🔄" },
         null,
       ]
 

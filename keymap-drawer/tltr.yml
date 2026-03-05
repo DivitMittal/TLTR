@@ -190,7 +190,7 @@ layers:
         null,
         null,
         null,
-        null,
+        { tap: "🖱️🔄" },
       ]
     - [
         { tap: "TL", type: "held" },

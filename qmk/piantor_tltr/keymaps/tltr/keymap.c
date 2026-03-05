@@ -28,6 +28,7 @@ enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
 static bool mouse_slow_mode = false;
 static bool mouse_precise_mode = false;
 static bool mouse_scroll_mode = false;
+static bool scroll_direction_reversed = false;
 
 static bool mouse_up_pressed = false;
 static bool mouse_down_pressed = false;
@@ -81,17 +82,19 @@ void matrix_scan_user(void) {
 
   if (mouse_scroll_mode) {
     int8_t wheel_speed = get_wheel_speed();
+    int8_t v_dir = scroll_direction_reversed ? 1 : -1;
+    int8_t h_dir = scroll_direction_reversed ? -1 : 1;
     if (mouse_up_pressed) {
-      mouse_report.v = -wheel_speed;
+      mouse_report.v = v_dir * wheel_speed;
     }
     if (mouse_down_pressed) {
-      mouse_report.v = wheel_speed;
+      mouse_report.v = -v_dir * wheel_speed;
     }
     if (mouse_left_pressed) {
-      mouse_report.h = wheel_speed;
+      mouse_report.h = h_dir * wheel_speed;
     }
     if (mouse_right_pressed) {
-      mouse_report.h = -wheel_speed;
+      mouse_report.h = -h_dir * wheel_speed;
     }
   } else {
     int8_t move_speed = get_mouse_speed();
@@ -210,6 +213,9 @@ enum custom_keycodes {
 
   // Boot/Reboot control
   KC_BOOT_HOLD, // Boot control (tap=reboot, hold=bootloader)
+
+  // Scroll direction toggle
+  KC_SCRL_REV, // Toggle scroll direction (for natural scrolling compatibility)
 };
 
 // clang-format off
@@ -242,7 +248,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
         KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_NO,   KC_NO,   KC_MUP,  KC_NO,   KC_NO,   KC_NO,
         KC_NO,   KC_MPRE, KC_MSLW, KC_MSCR,  KC_MBTN1, KC_MBTN2,    KC_NO,   KC_MLFT, KC_MDN,  KC_MRGT, KC_NO,   KC_NO,
-                 KC_NO,   KC_BRID, KC_MPRV,  KC_VOLD,  KC_NO,       KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,
+                 KC_NO,   KC_BRID, KC_MPRV,  KC_VOLD,  KC_NO,       KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_SCRL_REV,
                                    KC_TRNS,  KC_TRNS,               KC_TRNS, KC_TRNS
     )
 };
@@ -1032,6 +1038,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         reset_keyboard();
       }
+    }
+    return false;
+
+  case KC_SCRL_REV:
+    if (record->event.pressed) {
+      scroll_direction_reversed = !scroll_direction_reversed;
     }
     return false;
   }
