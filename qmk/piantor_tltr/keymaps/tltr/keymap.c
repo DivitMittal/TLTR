@@ -38,6 +38,9 @@ static uint8_t mouse_buttons = 0;
 static uint16_t mouse_timer = 0;
 static uint16_t boot_hold_timer = 0;
 
+static uint8_t mbtn1_oneshot_mods = 0;
+static uint8_t mbtn2_oneshot_mods = 0;
+
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
 static inline uint16_t get_mouse_interval(void);
@@ -633,9 +636,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_MBTN1:
     if (record->event.pressed) {
+      mbtn1_oneshot_mods = get_oneshot_mods();
+      if (mbtn1_oneshot_mods) {
+        register_mods(mbtn1_oneshot_mods);
+        clear_oneshot_mods();
+      }
       mouse_buttons |= MOUSE_BTN1;
     } else {
       mouse_buttons &= ~MOUSE_BTN1;
+      if (mbtn1_oneshot_mods) {
+        unregister_mods(mbtn1_oneshot_mods);
+        mbtn1_oneshot_mods = 0;
+      }
     }
     {
       report_mouse_t mouse_report = {
@@ -646,9 +658,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_MBTN2:
     if (record->event.pressed) {
+      mbtn2_oneshot_mods = get_oneshot_mods();
+      if (mbtn2_oneshot_mods) {
+        register_mods(mbtn2_oneshot_mods);
+        clear_oneshot_mods();
+      }
       mouse_buttons |= MOUSE_BTN2;
     } else {
       mouse_buttons &= ~MOUSE_BTN2;
+      if (mbtn2_oneshot_mods) {
+        unregister_mods(mbtn2_oneshot_mods);
+        mbtn2_oneshot_mods = 0;
+      }
     }
     {
       report_mouse_t mouse_report = {
