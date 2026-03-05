@@ -12,8 +12,7 @@
         "claude-code",
         "--project",
         "~/Projects/TLTR"
-      ],
-      "env": {}
+      ]
     }
   }
 }

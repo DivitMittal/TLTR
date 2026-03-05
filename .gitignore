@@ -13,7 +13,7 @@ result-*
 .pre-commit-config.yaml
 
 ## AI
-.serena*
+.serena/
 
 ## Qmk
 qmk_firmware/
