@@ -1264,6 +1264,7 @@ path.combo { stroke: #7f7f7f; }
 </g>
 <g transform="translate(788, 285)" class="key keypos-68">
 <rect rx="6" ry="6" x="-50" y="-28" width="101" height="56" class="key"/>
+<text x="0" y="0" class="key tap">🖱️🔄</text>
 </g>
 <g transform="translate(885, 300)" class="key keypos-69">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
