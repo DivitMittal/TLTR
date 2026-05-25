@@ -116,7 +116,7 @@ layers:
         { tap: "⑧", left: "F8" },
         { tap: "⑨", left: "F9" },
         { tap: "+" },
-        { tap: "=" },
+        { tap: "=", shifted: "—" },
       ]
     - [
         { tap: "⌫", shifted: "⌦" },
@@ -130,7 +130,7 @@ layers:
         { tap: "④", left: "F4" },
         { tap: "⑤", left: "F5" },
         { tap: "⑥", left: "F6" },
-        { tap: "-" },
+        { tap: "-", shifted: "–" },
         { tap: "⏎" },
       ]
     - [

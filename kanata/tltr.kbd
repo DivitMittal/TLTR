@@ -106,6 +106,8 @@
 
 (defalias
   hpn (unshift ‐) equ (unshift ₌)
+  hpnf (fork @hpn (unicode –) (‹⇧))
+  equf (fork @equ (unicode —) (‹⇧))
   ;; ANSI US keycodes shifted
   til S-ˋ exc S-1 ats S-2 oct S-3 dol S-4 per S-5 car S-6 amp S-7 ast S-8 pao S-9 pac S-0 plu S-₌
   cuo S-[ cuc S-] pip S-\ ano S-, anc S-.
@@ -137,8 +139,8 @@
 ;; TR (Thumb Right) layer
 ;; for symbols & numbers
 (deflayer TR
-  XX @excf @atsf @octf @dolf XX      @perf  @7f  @8f  @9f  @plu  @equ
-  _   @ampf @sqrf @curf @parf XX    @astf  @4f  @5f  @6f  @hpn   _
+  XX @excf @atsf @octf @dolf XX      @perf  @7f  @8f  @9f  @plu  @equf
+  _   @ampf @sqrf @curf @parf XX    @astf  @4f  @5f  @6f  @hpnf   _
      XX    XX    @ano  @anc  XX       @0f   @1f  @2f  @3f  @slaf
               @tltltr _                      _ XX
 )
