@@ -155,7 +155,7 @@ layers:
         { tap: "🔆" },
         { tap: "⏯️", hold: "⏭️" },
         { tap: "🔊" },
-        null,
+        { tap: "🖱3" },
 
         null,
         null,
@@ -180,11 +180,11 @@ layers:
         null,
       ]
     - [
-        null,
+        { tap: "🖱5" },
         { tap: "🔅" },
         { tap: "⏮️" },
         { tap: "🔉" },
-        null,
+        { tap: "🖱4" },
 
         null,
         null,
