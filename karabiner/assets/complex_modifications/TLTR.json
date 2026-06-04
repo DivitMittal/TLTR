@@ -259,6 +259,49 @@
               "type": "variable_if",
               "name": "TLTR_scroll",
               "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "l",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "mouse_key": {
+                "vertical_wheel": -32
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 1
             }
           ]
         },
@@ -291,6 +334,49 @@
             {
               "type": "variable_if",
               "name": "TLTR_scroll",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "o",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "mouse_key": {
+                "vertical_wheel": 32
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
               "value": 1
             }
           ]
@@ -325,6 +411,49 @@
               "type": "variable_if",
               "name": "TLTR_scroll",
               "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "k",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "mouse_key": {
+                "horizontal_wheel": -32
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 1
             }
           ]
         },
@@ -357,6 +486,117 @@
             {
               "type": "variable_if",
               "name": "TLTR_scroll",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "semicolon",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "mouse_key": {
+                "horizontal_wheel": 32
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "slash",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "TLTR_scroll_reversed",
+                "value": 1
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "slash",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "set_variable": {
+                "name": "TLTR_scroll_reversed",
+                "value": 0
+              }
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TLTR_scroll_reversed",
               "value": 1
             }
           ]

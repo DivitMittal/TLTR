@@ -2709,6 +2709,11 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -2742,6 +2747,49 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "l",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "vertical_wheel": -32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -2775,6 +2823,49 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "o",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "vertical_wheel": 32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -2808,6 +2899,49 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "k",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "horizontal_wheel": -32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -2820,6 +2954,112 @@
                   {
                     "mouse_key": {
                       "horizontal_wheel": -32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "semicolon",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "horizontal_wheel": 32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
+                  }
+                ],
+                "from": {
+                  "key_code": "slash",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "TLTR_scroll_reversed",
+                      "value": 1
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "slash",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "TLTR_scroll_reversed",
+                      "value": 0
                     }
                   }
                 ],
@@ -9239,6 +9479,11 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -9272,6 +9517,49 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "l",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "vertical_wheel": -32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -9305,6 +9593,49 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "o",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "vertical_wheel": 32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -9338,6 +9669,49 @@
                     "name": "TLTR_scroll",
                     "type": "variable_if",
                     "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "k",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "horizontal_wheel": -32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
                   }
                 ],
                 "from": {
@@ -9350,6 +9724,112 @@
                   {
                     "mouse_key": {
                       "horizontal_wheel": -32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "semicolon",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "mouse_key": {
+                      "horizontal_wheel": 32
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 0
+                  }
+                ],
+                "from": {
+                  "key_code": "slash",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "TLTR_scroll_reversed",
+                      "value": 1
+                    }
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "conditions": [
+                  {
+                    "name": "TL_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TR_layer",
+                    "type": "variable_if",
+                    "value": 1
+                  },
+                  {
+                    "name": "TLTR_scroll_reversed",
+                    "type": "variable_if",
+                    "value": 1
+                  }
+                ],
+                "from": {
+                  "key_code": "slash",
+                  "modifiers": {
+                    "optional": ["any"]
+                  }
+                },
+                "to": [
+                  {
+                    "set_variable": {
+                      "name": "TLTR_scroll_reversed",
+                      "value": 0
                     }
                   }
                 ],
