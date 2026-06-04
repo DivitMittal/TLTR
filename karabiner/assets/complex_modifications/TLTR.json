@@ -416,6 +416,84 @@
         {
           "type": "basic",
           "from": {
+            "key_code": "t",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "pointing_button": "button3"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "v",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "pointing_button": "button4"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "left_shift",
+            "modifiers": {
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "pointing_button": "button5"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
             "key_code": "r"
           },
           "to": [
