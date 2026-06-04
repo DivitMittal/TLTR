@@ -197,7 +197,7 @@
         {
           "type": "basic",
           "from": {
-            "key_code": "r",
+            "key_code": "e",
             "modifiers": {
               "optional": ["any"]
             }
