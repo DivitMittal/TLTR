@@ -593,15 +593,46 @@
                 "caps_lock",
                 "left_option",
                 "left_command",
-                "left_control",
-                "left_shift",
-                "right_shift"
+                "left_control"
               ]
             }
           },
           "to": [
             {
               "key_code": "hyphen"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "quote",
+            "modifiers": {
+              "mandatory": ["shift"],
+              "optional": [
+                "caps_lock",
+                "left_option",
+                "left_command",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "hyphen",
+              "modifiers": ["left_option"]
             }
           ],
           "conditions": [
@@ -717,14 +748,46 @@
                 "caps_lock",
                 "left_option",
                 "left_command",
-                "left_control",
-                "left_shift"
+                "left_control"
               ]
             }
           },
           "to": [
             {
               "key_code": "equal_sign"
+            }
+          ],
+          "conditions": [
+            {
+              "type": "variable_if",
+              "name": "TR_layer",
+              "value": 1
+            },
+            {
+              "type": "variable_if",
+              "name": "TL_layer",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "close_bracket",
+            "modifiers": {
+              "mandatory": ["shift"],
+              "optional": [
+                "caps_lock",
+                "left_option",
+                "left_command",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "key_code": "hyphen",
+              "modifiers": ["left_option", "left_shift"]
             }
           ],
           "conditions": [
