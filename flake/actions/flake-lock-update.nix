@@ -7,11 +7,6 @@
   flake.actions-nix.workflows.".github/workflows/flake-lock-update.yml" = {
     on = {
       workflow_dispatch = {};
-      schedule = [
-        {
-          cron = "0 0 * * 0"; # Every Sunday at midnight
-        }
-      ];
     };
     jobs.locking-flake = {
       permissions =
