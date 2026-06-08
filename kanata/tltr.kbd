@@ -299,6 +299,8 @@
   md (🖱↓ $rd $mo)
   mr (🖱→ $rd $mo)
   ml (🖱← $rd $mo)
+  zmi (multi ‹⌃ (🖱☸↑ $rd $so))
+  zmo (multi ‹⌃ (🖱☸↓ $rd $so))
 )
 (defalias
   slw nop1
@@ -343,9 +345,8 @@
 ;; TLTR (Thumb Left & Thumb Right) layer
 ;; for non-keyboard functions like mouse, media, screen etc.
 (deflayer TLTR
-  XX @scre 🔆  @med  🔊  🖰3         XX XX  @m△ XX  XX  XX
+  XX @scre 🔆  @med  🔊  🖰3       @zmo @zmi @m△ XX  XX  XX
   XX  @pre @slw @scr  🖰1 🖰2       XX @m◅ @m▽ @m▻ XX   XX
      🖰5   🔅   @ba   🔉  🖰4         XX XX  XX  XX  XX
                 XX _                    _ XX
 )
-

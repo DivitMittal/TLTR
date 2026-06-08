@@ -157,8 +157,8 @@ layers:
         { tap: "🔊" },
         { tap: "🖱3" },
 
-        null,
-        null,
+        { tap: "⌃🛞↓" },
+        { tap: "⌃🛞↑" },
         { tap: "🖱️↑" },
         null,
         null,

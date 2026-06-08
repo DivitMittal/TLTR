@@ -34,6 +34,8 @@ static bool mouse_up_pressed = false;
 static bool mouse_down_pressed = false;
 static bool mouse_left_pressed = false;
 static bool mouse_right_pressed = false;
+static bool zoom_in_pressed = false;
+static bool zoom_out_pressed = false;
 
 static uint8_t mouse_buttons = 0;
 static uint16_t mouse_timer = 0;
@@ -45,6 +47,7 @@ static uint8_t mbtn2_oneshot_mods = 0;
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
 static inline uint16_t get_mouse_interval(void);
+static inline void update_zoom_ctrl(void);
 
 void keyboard_post_init_user(void) {
   os_variant_t detected_os = detected_host_os();
@@ -68,7 +71,7 @@ void keyboard_post_init_user(void) {
 
 void matrix_scan_user(void) {
   if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
-      !mouse_right_pressed) {
+      !mouse_right_pressed && !zoom_in_pressed && !zoom_out_pressed) {
     return;
   }
 
@@ -80,7 +83,15 @@ void matrix_scan_user(void) {
   report_mouse_t mouse_report = {
       .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
 
-  if (mouse_scroll_mode) {
+  if (zoom_in_pressed || zoom_out_pressed) {
+    int8_t wheel_speed = get_wheel_speed();
+    if (zoom_in_pressed) {
+      mouse_report.v = -wheel_speed;
+    }
+    if (zoom_out_pressed) {
+      mouse_report.v = wheel_speed;
+    }
+  } else if (mouse_scroll_mode) {
     int8_t wheel_speed = get_wheel_speed();
     int8_t v_dir = scroll_direction_reversed ? 1 : -1;
     int8_t h_dir = scroll_direction_reversed ? -1 : 1;
@@ -207,6 +218,9 @@ enum custom_keycodes {
   KC_MBTN1, // Mouse button 1 (left click)
   KC_MBTN2, // Mouse button 2 (right click)
 
+  KC_ZMIN,
+  KC_ZMOUT,
+
   // Media/Screen controls
   KC_SCRE, // Screen control (tap=lock screen, hold=sleep)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
@@ -246,7 +260,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TLTR Layer - Mouse, Media & Display Controls
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
-        KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_NO,   KC_NO,   KC_MUP,  KC_NO,   KC_NO,   KC_NO,
+        KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_ZMOUT, KC_ZMIN, KC_MUP,  KC_NO,   KC_NO,   KC_NO,
         KC_NO,   KC_MPRE, KC_MSLW, KC_MSCR,  KC_MBTN1, KC_MBTN2,    KC_NO,   KC_MLFT, KC_MDN,  KC_MRGT, KC_NO,   KC_NO,
                  KC_NO,   KC_BRID, KC_MPRV,  KC_VOLD,  KC_NO,       KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_SCRL_REV,
                                    KC_TRNS,  KC_TRNS,               KC_TRNS, KC_TRNS
@@ -369,7 +383,7 @@ static inline int8_t get_wheel_speed(void) {
 }
 
 static inline uint16_t get_mouse_interval(void) {
-  if (mouse_scroll_mode) {
+  if (mouse_scroll_mode || zoom_in_pressed || zoom_out_pressed) {
     if (mouse_precise_mode) {
       return SCROLL_INTERVAL_PRECISE;
     } else if (mouse_slow_mode) {
@@ -385,6 +399,14 @@ static inline uint16_t get_mouse_interval(void) {
     } else {
       return CURSOR_INTERVAL_DEFAULT;
     }
+  }
+}
+
+static inline void update_zoom_ctrl(void) {
+  if (zoom_in_pressed || zoom_out_pressed) {
+    register_code(KC_LCTL);
+  } else {
+    unregister_code(KC_LCTL);
   }
 }
 
@@ -410,9 +432,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           keycode != KC_SCRE && keycode != KC_MEDC && keycode != KC_MSLW &&
           keycode != KC_MPRE && keycode != KC_MSCR && keycode != KC_MUP &&
           keycode != KC_MDN && keycode != KC_MLFT && keycode != KC_MRGT &&
-          keycode != KC_MBTN1 && keycode != KC_MBTN2 && keycode != KC_TL_KEY &&
-          keycode != KC_TR_KEY && keycode != KC_TLTLTR_KEY &&
-          keycode != KC_TRTLTR_KEY) {
+          keycode != KC_MBTN1 && keycode != KC_MBTN2 && keycode != KC_ZMIN &&
+          keycode != KC_ZMOUT && keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
+          keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY) {
 
         if (modifier_hold_state.os_win_held)
           modifier_hold_state.os_win_used = true;
@@ -638,6 +660,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_MRGT:
     mouse_right_pressed = record->event.pressed;
+    return false;
+
+  case KC_ZMIN:
+    zoom_in_pressed = record->event.pressed;
+    update_zoom_ctrl();
+    return false;
+
+  case KC_ZMOUT:
+    zoom_out_pressed = record->event.pressed;
+    update_zoom_ctrl();
     return false;
 
   case KC_MBTN1:
