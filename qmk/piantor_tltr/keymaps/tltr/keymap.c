@@ -2,24 +2,24 @@
 #include "hardware/watchdog.h"
 
 // Speed level definitions
-#define MOUSE_MOVE_DEFAULT 16
-#define MOUSE_WHEEL_DEFAULT 4
+#define MOUSE_MOVE_DEFAULT 60
+#define MOUSE_WHEEL_DEFAULT 6
 
-#define MOUSE_MOVE_SLOW 8
+#define MOUSE_MOVE_SLOW 10
 #define MOUSE_WHEEL_SLOW 2
 
-#define MOUSE_MOVE_PRECISE 4
+#define MOUSE_MOVE_PRECISE 3
 #define MOUSE_WHEEL_PRECISE 1
 
 // Cursor movement intervals
-#define CURSOR_INTERVAL_DEFAULT 8
-#define CURSOR_INTERVAL_SLOW 12
-#define CURSOR_INTERVAL_PRECISE 16
+#define CURSOR_INTERVAL_DEFAULT 20
+#define CURSOR_INTERVAL_SLOW 20
+#define CURSOR_INTERVAL_PRECISE 20
 
 // Scroll intervals
-#define SCROLL_INTERVAL_DEFAULT 32
-#define SCROLL_INTERVAL_SLOW 64
-#define SCROLL_INTERVAL_PRECISE 100
+#define SCROLL_INTERVAL_DEFAULT 20
+#define SCROLL_INTERVAL_SLOW 20
+#define SCROLL_INTERVAL_PRECISE 20
 
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
