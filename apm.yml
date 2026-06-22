@@ -1,0 +1,26 @@
+name: tltr
+version: 1.0.0
+description: Bespoke cross-platform 38-key keyboard layout (Colemak Mod-DH Wide Angle) with Kanata, Karabiner-Elements, and QMK implementations
+author: DivitMittal
+license: MIT
+target:
+  - claude
+  - codex
+  - opencode
+type: instructions
+
+dependencies:
+  mcp:
+    - name: serena
+      registry: false
+      transport: stdio
+      command: uvx
+      args:
+        - --from
+        - git+https://github.com/oraios/serena
+        - serena
+        - start-mcp-server
+        - --context
+        - claude-code
+        - --project
+        - ~/Projects/Keyboard/TLTR
