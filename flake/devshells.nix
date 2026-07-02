@@ -37,7 +37,7 @@
           keymap-drawer = pkgs.writeScriptBin "keymap" ''
             exec ${pkgs.uv}/bin/uv tool run --from keymap-drawer keymap "$@"
           '';
-        };
+        } ++ lib.optional pkgs.stdenvNoCC.hostPlatform.isDarwin config.packages.macos-key-logger;
       };
     };
   };
