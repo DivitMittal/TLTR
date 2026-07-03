@@ -88,7 +88,8 @@
   sSft (one-shot-release $os_timeout ‹⇧)
   sMet (one-shot-release $os_timeout ‹◆)
   sFn (one-shot-release $os_timeout nop0)
-  sWin (multi @sAlt @sCtl @sMet)         ;; window-manager key
+  sWin f13                                  ;; window-manager key
+  mou f14
   sHyp (multi @sAlt @sCtl @sSft @sMet)   ;; hyper key
   ;; forks
   pguf (fork ⇞ (unshift ⤒) (‹⇧))
@@ -98,7 +99,7 @@
 ;; TL (Thumb Left) layer
 ;; for modifiers & navigation
 (deflayer TL
-  lrld   ⎋   @sWin @sFn   XX   XX       @pguf   @btb   ▲   ↹   XX  XX
+  lrld   ⎋   @sWin @mou   @sFn XX       @pguf   @btb   ▲   ↹   XX  XX
   _    @sAlt @sCtl @sSft @sMet XX       @pgdf    ◀     ▼   ▶   XX   _
         XX    XX    XX   @sHyp XX        XX      ⌫     ⌦   XX  _
                    XX  _                       _ @trtltr

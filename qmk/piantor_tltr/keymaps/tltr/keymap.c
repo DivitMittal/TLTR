@@ -193,7 +193,7 @@ enum custom_keycodes {
   KC_TRTLTR_KEY, // TR+TLTR activation (used in TL layer)
 
   // One-shot modifier combinations
-  KC_OS_WIN, // sWin: Alt+Ctrl+Meta (window manager)
+  KC_OS_WIN, // sWin: legacy Alt+Ctrl+Meta (window manager)
   KC_OS_HYP, // sHyp: Alt+Ctrl+Shift+Meta (hyper)
   KC_OS_FN,  // sFn: Function modifier
 
@@ -244,7 +244,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        KC_BOOT_HOLD, KC_ESC,      KC_OS_WIN,    KC_OS_FN,     KC_NO,       KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_BOOT_HOLD, KC_ESC,      KC_F13,       KC_F14,       KC_OS_FN,    KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
         KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_NO,       KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
                       KC_NO,       KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
                                                  KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY

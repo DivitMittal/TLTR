@@ -60,9 +60,9 @@ layers:
     - [
         { tap: "🔃", hold: "⬇️" },
         { tap: "⎋" },
-        { tap: "🪟", type: "sticky" },
+        { tap: "🪟", hold: "F13" },
+        { tap: "🖱️", hold: "F14" },
         { tap: "Fn", type: "sticky" },
-        null,
         null,
 
         { tap: "⇞", shifted: "⤒" },
