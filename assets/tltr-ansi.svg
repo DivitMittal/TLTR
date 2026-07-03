@@ -562,16 +562,19 @@ path.combo { stroke: #7f7f7f; }
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 <text x="0" y="0" class="key tap">⎋</text>
 </g>
-<g transform="translate(180, 165)" class="key sticky keypos-32">
-<rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key sticky"/>
-<text x="0" y="0" class="key sticky tap">🪟</text>
+<g transform="translate(180, 165)" class="key keypos-32">
+<rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
+<text x="0" y="0" class="key tap">🪟</text>
+<text x="0" y="26" class="key hold">F13</text>
 </g>
-<g transform="translate(240, 165)" class="key sticky keypos-33">
+<g transform="translate(240, 165)" class="key keypos-33">
+<rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
+<text x="0" y="0" class="key tap">🖱️</text>
+<text x="0" y="26" class="key hold">F14</text>
+</g>
+<g transform="translate(300, 165)" class="key sticky keypos-34">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key sticky"/>
 <text x="0" y="0" class="key sticky tap">Fn</text>
-</g>
-<g transform="translate(300, 165)" class="key keypos-34">
-<rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
 </g>
 <g transform="translate(360, 165)" class="key keypos-35">
 <rect rx="6" ry="6" x="-28" y="-28" width="56" height="56" class="key"/>
