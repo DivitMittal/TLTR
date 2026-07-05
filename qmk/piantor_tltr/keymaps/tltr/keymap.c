@@ -21,14 +21,15 @@
 #define SCROLL_INTERVAL_SLOW 64
 #define SCROLL_INTERVAL_PRECISE 100
 
-// Zoom uses smaller, slower wheel steps because apps treat Ctrl+scroll aggressively.
+// Zoom uses single wheel steps at a higher cadence so Ctrl+scroll feels
+// smoother.
 #define ZOOM_WHEEL_DEFAULT 1
 #define ZOOM_WHEEL_SLOW 1
 #define ZOOM_WHEEL_PRECISE 1
 
-#define ZOOM_INTERVAL_DEFAULT 96
-#define ZOOM_INTERVAL_SLOW 128
-#define ZOOM_INTERVAL_PRECISE 160
+#define ZOOM_INTERVAL_DEFAULT 24
+#define ZOOM_INTERVAL_SLOW 48
+#define ZOOM_INTERVAL_PRECISE 72
 
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
@@ -272,8 +273,10 @@ static void left_pedal_reset(tap_dance_state_t *state, void *user_data) {
 }
 
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_RIGHT_PEDAL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, right_pedal_finished, right_pedal_reset),
-    [TD_LEFT_PEDAL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, left_pedal_finished, left_pedal_reset),
+    [TD_RIGHT_PEDAL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, right_pedal_finished,
+                                                    right_pedal_reset),
+    [TD_LEFT_PEDAL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, left_pedal_finished,
+                                                   left_pedal_reset),
 };
 
 // clang-format off
@@ -352,9 +355,9 @@ static struct {
   uint16_t mod_ctrl_timer;
   uint16_t mod_shift_timer;
   uint16_t mod_meta_timer;
-} modifier_hold_state = {false, false, false, false, 0,
-                         0,     false, false, false, false, false,
-                         false, false, false, 0,     0,     0,     0};
+} modifier_hold_state = {false, false, false, false, 0,     0,
+                         false, false, false, false, false, false,
+                         false, false, 0,     0,     0,     0};
 
 static struct {
   bool held;
@@ -484,9 +487,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (record->event.pressed) {
-    if (modifier_hold_state.os_hyp_held ||
-        modifier_hold_state.os_fn_held || modifier_hold_state.mod_alt_held ||
-        modifier_hold_state.mod_ctrl_held ||
+    if (modifier_hold_state.os_hyp_held || modifier_hold_state.os_fn_held ||
+        modifier_hold_state.mod_alt_held || modifier_hold_state.mod_ctrl_held ||
         modifier_hold_state.mod_shift_held ||
         modifier_hold_state.mod_meta_held || screen_hold_state.held ||
         media_hold_state.held) {
@@ -1126,11 +1128,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (fn_oneshot_active && record->event.pressed) {
-    if (keycode != KC_OS_HYP && keycode != KC_OS_FN &&
-        keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
-        keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
-        keycode != KC_MSLW && keycode != KC_MPRE && keycode != KC_MSCR &&
-        keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
+    if (keycode != KC_OS_HYP && keycode != KC_OS_FN && keycode != KC_MOD_ALT &&
+        keycode != KC_MOD_CTRL && keycode != KC_MOD_SHIFT &&
+        keycode != KC_MOD_META && keycode != KC_MSLW && keycode != KC_MPRE &&
+        keycode != KC_MSCR && keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
         keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY &&
         keycode != KC_LSFT && keycode != KC_RSFT) {
       fn_modifier_active = false;
