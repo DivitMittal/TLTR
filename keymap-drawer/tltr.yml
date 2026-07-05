@@ -12,7 +12,7 @@ layout:
 layers:
   Custom-Colemak:
     - [
-        { tap: "⟳" },
+        { tap: "🎙️", hold: "⌃⇧🎙️" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },
@@ -60,9 +60,9 @@ layers:
     - [
         { tap: "🔃", hold: "⬇️" },
         { tap: "⎋" },
-        { tap: "🪟", hold: "F13" },
-        { tap: "🖱️", hold: "F14" },
-        { tap: "Fn", type: "sticky" },
+        { tap: "🪟", hold: "F16" },
+        { tap: "🖱️", hold: "F17" },
+        { tap: "F18" },
         null,
 
         { tap: "⇞", shifted: "⤒" },
@@ -78,7 +78,7 @@ layers:
         { tap: "⌃", type: "sticky" },
         { tap: "⇧", type: "sticky" },
         { tap: "⌘", type: "sticky" },
-        null,
+        { tap: "Fn", type: "sticky" },
 
         { tap: "⇟", shifted: "⤓" },
         { tap: "←" },
@@ -88,7 +88,7 @@ layers:
         { tap: "⏎" },
       ]
     - [
-        null,
+        { tap: "F19", hold: "⌃F19" },
         null,
         null,
         { tap: "✦" },

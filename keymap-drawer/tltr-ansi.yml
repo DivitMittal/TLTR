@@ -44,7 +44,7 @@ layers:
 
     # Top alpha row (14 keys) - Colemak with Wide mod
     - [
-        { tap: "⟳" },
+        { tap: "🎙️", hold: "⌃⇧🎙️" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },
@@ -152,9 +152,9 @@ layers:
     - [
         { tap: "🔃", hold: "⬇️" },
         { tap: "⎋" },
-        { tap: "🪟", hold: "F13" },
-        { tap: "🖱️", hold: "F14" },
-        { tap: "Fn", type: "sticky" },
+        { tap: "🪟", hold: "F16" },
+        { tap: "🖱️", hold: "F17" },
+        { tap: "F18" },
         null,
         null,
         { tap: "⇞", shifted: "⤒" },
@@ -173,7 +173,7 @@ layers:
         { tap: "⌃", type: "sticky" },
         { tap: "⇧", type: "sticky" },
         { tap: "⌘", type: "sticky" },
-        null,
+        { tap: "Fn", type: "sticky" },
         null,
         { tap: "⇟", shifted: "⤓" },
         { tap: "←" },
@@ -185,7 +185,7 @@ layers:
 
     # Bottom row (13 keys) - Hyper key
     - [
-        null,
+        { tap: "F19", hold: "⌃F19" },
         null,
         null,
         { tap: "✦", type: "sticky" },
