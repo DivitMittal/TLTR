@@ -15,6 +15,12 @@ result-*
 ## AI
 .serena/
 .omo/
+.claude/
+**/AGENTS.md
+**/agents.md
+.mcp.json
+.mcp.*.json
+mcp*.json
 *local.json
 
 ## Qmk
