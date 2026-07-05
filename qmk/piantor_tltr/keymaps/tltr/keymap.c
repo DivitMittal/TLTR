@@ -2,24 +2,24 @@
 #include "hardware/watchdog.h"
 
 // Speed level definitions
-#define MOUSE_MOVE_DEFAULT 60
+#define MOUSE_MOVE_DEFAULT 16
 #define MOUSE_WHEEL_DEFAULT 6
 
-#define MOUSE_MOVE_SLOW 10
+#define MOUSE_MOVE_SLOW 8
 #define MOUSE_WHEEL_SLOW 2
 
-#define MOUSE_MOVE_PRECISE 3
+#define MOUSE_MOVE_PRECISE 4
 #define MOUSE_WHEEL_PRECISE 1
 
 // Cursor movement intervals
-#define CURSOR_INTERVAL_DEFAULT 20
-#define CURSOR_INTERVAL_SLOW 20
-#define CURSOR_INTERVAL_PRECISE 20
+#define CURSOR_INTERVAL_DEFAULT 8
+#define CURSOR_INTERVAL_SLOW 12
+#define CURSOR_INTERVAL_PRECISE 16
 
 // Scroll intervals
-#define SCROLL_INTERVAL_DEFAULT 20
-#define SCROLL_INTERVAL_SLOW 20
-#define SCROLL_INTERVAL_PRECISE 20
+#define SCROLL_INTERVAL_DEFAULT 32
+#define SCROLL_INTERVAL_SLOW 64
+#define SCROLL_INTERVAL_PRECISE 100
 
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
@@ -193,7 +193,6 @@ enum custom_keycodes {
   KC_TRTLTR_KEY, // TR+TLTR activation (used in TL layer)
 
   // One-shot modifier combinations
-  KC_OS_WIN, // sWin: legacy Alt+Ctrl+Meta (window manager)
   KC_OS_HYP, // sHyp: Alt+Ctrl+Shift+Meta (hyper)
   KC_OS_FN,  // sFn: Function modifier
 
@@ -232,11 +231,45 @@ enum custom_keycodes {
   KC_SCRL_REV, // Toggle scroll direction (for natural scrolling compatibility)
 };
 
+enum tap_dance_codes { TD_RIGHT_PEDAL, TD_LEFT_PEDAL };
+
+static uint16_t right_pedal_chord = KC_NO;
+static uint16_t left_pedal_chord = KC_NO;
+
+static void right_pedal_finished(tap_dance_state_t *state, void *user_data) {
+  right_pedal_chord = state->count >= 2 ? C(S(KC_F13)) : C(KC_F13);
+  register_code16(right_pedal_chord);
+}
+
+static void right_pedal_reset(tap_dance_state_t *state, void *user_data) {
+  if (right_pedal_chord != KC_NO) {
+    unregister_code16(right_pedal_chord);
+    right_pedal_chord = KC_NO;
+  }
+}
+
+static void left_pedal_finished(tap_dance_state_t *state, void *user_data) {
+  left_pedal_chord = state->count >= 2 ? C(KC_F19) : KC_F19;
+  register_code16(left_pedal_chord);
+}
+
+static void left_pedal_reset(tap_dance_state_t *state, void *user_data) {
+  if (left_pedal_chord != KC_NO) {
+    unregister_code16(left_pedal_chord);
+    left_pedal_chord = KC_NO;
+  }
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_RIGHT_PEDAL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, right_pedal_finished, right_pedal_reset),
+    [TD_LEFT_PEDAL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, left_pedal_finished, left_pedal_reset),
+};
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // COLEMAK MOD-DH + WIDE + ANGLE (38-key TLTR layout)
     [_COLEMAK] = LAYOUT_split_2x6_1x5_2(
-        QK_REP,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,        KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT, KC_SCLN,
+        TD(TD_RIGHT_PEDAL), KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,        KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT, KC_SCLN,
         KC_DELF, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,        KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
                  KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,        KC_K,    KC_H,    KC_COMF, KC_DOTF, KC_SLAF,
                                    KC_TL_KEY, KC_LSFT,            KC_SPC,  KC_TR_KEY
@@ -244,9 +277,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        KC_BOOT_HOLD, KC_ESC,      KC_F13,       KC_F14,       KC_OS_FN,    KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
-        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_NO,       KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
-                      KC_NO,       KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
+        KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
+                      TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
                                                  KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
     ),
 
@@ -289,13 +322,10 @@ static struct {
 } oneshot_state = {false, 0, 0};
 
 static struct {
-  bool os_win_held;
   bool os_hyp_held;
   bool os_fn_held;
-  bool os_win_used;
   bool os_hyp_used;
   bool os_fn_used;
-  uint16_t os_win_timer;
   uint16_t os_hyp_timer;
   uint16_t os_fn_timer;
 
@@ -311,8 +341,8 @@ static struct {
   uint16_t mod_ctrl_timer;
   uint16_t mod_shift_timer;
   uint16_t mod_meta_timer;
-} modifier_hold_state = {false, false, false, false, false, false, 0,
-                         0,     0,     false, false, false, false, false,
+} modifier_hold_state = {false, false, false, false, 0,
+                         0,     false, false, false, false, false,
                          false, false, false, 0,     0,     0,     0};
 
 static struct {
@@ -419,14 +449,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (record->event.pressed) {
-    if (modifier_hold_state.os_win_held || modifier_hold_state.os_hyp_held ||
+    if (modifier_hold_state.os_hyp_held ||
         modifier_hold_state.os_fn_held || modifier_hold_state.mod_alt_held ||
         modifier_hold_state.mod_ctrl_held ||
         modifier_hold_state.mod_shift_held ||
         modifier_hold_state.mod_meta_held || screen_hold_state.held ||
         media_hold_state.held) {
 
-      if (keycode != KC_OS_WIN && keycode != KC_OS_HYP && keycode != KC_OS_FN &&
+      if (keycode != KC_OS_HYP && keycode != KC_OS_FN &&
           keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
           keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
           keycode != KC_SCRE && keycode != KC_MEDC && keycode != KC_MSLW &&
@@ -436,8 +466,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           keycode != KC_ZMOUT && keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
           keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY) {
 
-        if (modifier_hold_state.os_win_held)
-          modifier_hold_state.os_win_used = true;
         if (modifier_hold_state.os_hyp_held)
           modifier_hold_state.os_hyp_used = true;
         if (modifier_hold_state.os_fn_held)
@@ -508,24 +536,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       tr_pressed = false;
       layer_off(_TLTR);
       layer_off(_TR);
-    }
-    return false;
-
-  case KC_OS_WIN:
-    if (record->event.pressed) {
-      modifier_hold_state.os_win_held = true;
-      modifier_hold_state.os_win_used = false;
-      modifier_hold_state.os_win_timer = timer_read();
-      register_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI));
-    } else {
-      modifier_hold_state.os_win_held = false;
-      unregister_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LGUI));
-
-      if (!modifier_hold_state.os_win_used &&
-          timer_elapsed(modifier_hold_state.os_win_timer) < TAPHOLD_TIMEOUT) {
-        add_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
-                         MOD_BIT(KC_LGUI));
-      }
     }
     return false;
 
@@ -1081,7 +1091,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (fn_oneshot_active && record->event.pressed) {
-    if (keycode != KC_OS_WIN && keycode != KC_OS_HYP && keycode != KC_OS_FN &&
+    if (keycode != KC_OS_HYP && keycode != KC_OS_FN &&
         keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
         keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
         keycode != KC_MSLW && keycode != KC_MPRE && keycode != KC_MSCR &&
