@@ -62,6 +62,8 @@
   )
   ;; tap-dance shift: tap once = shift, tap twice = caps word
   sft (tap-dance 200 (‹⇧ @cw))
+  rf13 (tap-dance 200 (C-f13 C-S-f13))
+  lf19 (tap-dance 200 (f19 C-f19))
 )
 #|
  Custom Colemak with,
@@ -70,7 +72,7 @@
  3. angle mod (sliding keys to left & right on the bottom-most row with z being on lshft & / on rshft)
 |#
 (deflayer CUSTOM_COLEMAK
-  rpt   q  w  f  p  b      j   l  u     y    '     ;
+  @rf13 q  w  f  p  b      j   l  u     y    '     ;
   @delf a  r  s  t  g      m  n  e     i     o    _
        z  x  c  d  v        k  h @comf @dotf @slaf
            @tl @sft          spc  @tr
@@ -88,8 +90,8 @@
   sSft (one-shot-release $os_timeout ‹⇧)
   sMet (one-shot-release $os_timeout ‹◆)
   sFn (one-shot-release $os_timeout nop0)
-  sWin f13                                  ;; window-manager key
-  mou f14
+  sWin f16                                  ;; window-manager key (Hammerspoon pseudo-modifier)
+  mou f17                                   ;; pointer mode (Hammerspoon pseudo-modifier)
   sHyp (multi @sAlt @sCtl @sSft @sMet)   ;; hyper key
   ;; forks
   pguf (fork ⇞ (unshift ⤒) (‹⇧))
@@ -99,9 +101,9 @@
 ;; TL (Thumb Left) layer
 ;; for modifiers & navigation
 (deflayer TL
-  lrld   ⎋   @sWin @mou   @sFn XX       @pguf   @btb   ▲   ↹   XX  XX
-  _    @sAlt @sCtl @sSft @sMet XX       @pgdf    ◀     ▼   ▶   XX   _
-        XX    XX    XX   @sHyp XX        XX      ⌫     ⌦   XX  _
+  lrld   ⎋     f16   f17   f18   XX       @pguf   @btb   ▲   ↹   XX  XX
+  _    @sAlt @sCtl @sSft @sMet @sFn     @pgdf    ◀     ▼   ▶   XX   _
+      @lf19   XX    XX   @sHyp XX        XX      ⌫     ⌦   XX  _
                    XX  _                       _ @trtltr
 )
 
@@ -151,13 +153,8 @@
   thto 200
 )
 (platform (macos)
-  (defvar
-    open ("/usr/bin/open" "-a")
-  )
-)
-(platform (macos)
   (defalias
-    ss (cmd $open ScreenSaverEngine)
+    ss C-M-q
     zz (cmd /usr/bin/pmset sleepnow)
   )
 )
@@ -188,11 +185,6 @@
 ) |#
 
 ;; media control
-(platform (macos)
-  (defvar
-    osa ("/usr/bin/osascript" "-e")
-  )
-)
 #| (platform (macos)
   (defalias
     voli (tap-hold $thto $thto 🔊 (macro (cmd $osa "set volume output volume 100") 275 (unshift 🔊)))
@@ -216,19 +208,10 @@
     voll (tap-hold $thto $thto 🔉 (cmd nircmd setsysvolume 0))
   )
 ) |#
-(platform (win winiov2 wintercept linux)
-  (defalias
-    pl (unshift pp)
-    fo (unshift ▶▶)
-    ba (unshift ◀◀)
-  )
-)
-(platform (macos)
-  (defalias
-    pl (cmd $osa r#"tell application "Shortcuts Events" to run shortcut "Play/Pause""#)
-    fo (cmd $osa r#"tell application "Shortcuts Events" to run shortcut "Forward""#)
-    ba (cmd $osa r#"tell application "Shortcuts Events" to run shortcut "Back""#)
-  )
+(defalias
+  pl (unshift pp)
+  fo (unshift ▶▶)
+  ba (unshift ◀◀)
 )
 (defalias
   med (tap-hold $thto $thto @pl @fo)
