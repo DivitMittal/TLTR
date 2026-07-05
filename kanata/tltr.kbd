@@ -329,8 +329,8 @@
 ;; TLTR (Thumb Left & Thumb Right) layer
 ;; for non-keyboard functions like mouse, media, screen etc.
 (deflayer TLTR
-  XX @scre 🔆  @med  🔊  🖰3       @zmo @zmi @m△ XX  XX  XX
-  XX  @pre @slw @scr  🖰1 🖰2       XX @m◅ @m▽ @m▻ XX   XX
+  XX @scre 🔆  @med  🔊  🖰3       @zmi XX  @m△ XX  XX  XX
+  XX  @pre @slw @scr  🖰1 🖰2       @zmo @m◅ @m▽ @m▻ XX   XX
      🖰5   🔅   @ba   🔉  🖰4         XX XX  XX  XX  XX
                 XX _                    _ XX
 )

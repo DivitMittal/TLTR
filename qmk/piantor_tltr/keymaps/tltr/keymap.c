@@ -21,6 +21,15 @@
 #define SCROLL_INTERVAL_SLOW 64
 #define SCROLL_INTERVAL_PRECISE 100
 
+// Zoom uses smaller, slower wheel steps because apps treat Ctrl+scroll aggressively.
+#define ZOOM_WHEEL_DEFAULT 1
+#define ZOOM_WHEEL_SLOW 1
+#define ZOOM_WHEEL_PRECISE 1
+
+#define ZOOM_INTERVAL_DEFAULT 96
+#define ZOOM_INTERVAL_SLOW 128
+#define ZOOM_INTERVAL_PRECISE 160
+
 // Define layer names
 enum layer_names { _COLEMAK = 0, _TL, _TR, _TLTR };
 
@@ -46,7 +55,9 @@ static uint8_t mbtn2_oneshot_mods = 0;
 
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
+static inline int8_t get_zoom_wheel_speed(void);
 static inline uint16_t get_mouse_interval(void);
+static inline uint16_t get_zoom_interval(void);
 static inline void update_zoom_ctrl(void);
 
 void keyboard_post_init_user(void) {
@@ -84,7 +95,7 @@ void matrix_scan_user(void) {
       .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
 
   if (zoom_in_pressed || zoom_out_pressed) {
-    int8_t wheel_speed = get_wheel_speed();
+    int8_t wheel_speed = get_zoom_wheel_speed();
     if (zoom_in_pressed) {
       mouse_report.v = -wheel_speed;
     }
@@ -293,8 +304,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TLTR Layer - Mouse, Media & Display Controls
     [_TLTR] = LAYOUT_split_2x6_1x5_2(
-        KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_ZMOUT, KC_ZMIN, KC_MUP,  KC_NO,   KC_NO,   KC_NO,
-        KC_NO,   KC_MPRE, KC_MSLW, KC_MSCR,  KC_MBTN1, KC_MBTN2,    KC_NO,   KC_MLFT, KC_MDN,  KC_MRGT, KC_NO,   KC_NO,
+        KC_NO,   KC_SCRE, KC_BRIU, KC_MEDC,  KC_VOLU,  KC_NO,       KC_ZMIN, KC_NO,   KC_MUP,  KC_NO,   KC_NO,   KC_NO,
+        KC_NO,   KC_MPRE, KC_MSLW, KC_MSCR,  KC_MBTN1, KC_MBTN2,    KC_ZMOUT, KC_MLFT, KC_MDN,  KC_MRGT, KC_NO,   KC_NO,
                  KC_NO,   KC_BRID, KC_MPRV,  KC_VOLD,  KC_NO,       KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_SCRL_REV,
                                    KC_TRNS,  KC_TRNS,               KC_TRNS, KC_TRNS
     )
@@ -412,8 +423,22 @@ static inline int8_t get_wheel_speed(void) {
   }
 }
 
+static inline int8_t get_zoom_wheel_speed(void) {
+  if (mouse_precise_mode) {
+    return ZOOM_WHEEL_PRECISE;
+  } else if (mouse_slow_mode) {
+    return ZOOM_WHEEL_SLOW;
+  } else {
+    return ZOOM_WHEEL_DEFAULT;
+  }
+}
+
 static inline uint16_t get_mouse_interval(void) {
-  if (mouse_scroll_mode || zoom_in_pressed || zoom_out_pressed) {
+  if (zoom_in_pressed || zoom_out_pressed) {
+    return get_zoom_interval();
+  }
+
+  if (mouse_scroll_mode) {
     if (mouse_precise_mode) {
       return SCROLL_INTERVAL_PRECISE;
     } else if (mouse_slow_mode) {
@@ -421,14 +446,24 @@ static inline uint16_t get_mouse_interval(void) {
     } else {
       return SCROLL_INTERVAL_DEFAULT;
     }
+  }
+
+  if (mouse_precise_mode) {
+    return CURSOR_INTERVAL_PRECISE;
+  } else if (mouse_slow_mode) {
+    return CURSOR_INTERVAL_SLOW;
   } else {
-    if (mouse_precise_mode) {
-      return CURSOR_INTERVAL_PRECISE;
-    } else if (mouse_slow_mode) {
-      return CURSOR_INTERVAL_SLOW;
-    } else {
-      return CURSOR_INTERVAL_DEFAULT;
-    }
+    return CURSOR_INTERVAL_DEFAULT;
+  }
+}
+
+static inline uint16_t get_zoom_interval(void) {
+  if (mouse_precise_mode) {
+    return ZOOM_INTERVAL_PRECISE;
+  } else if (mouse_slow_mode) {
+    return ZOOM_INTERVAL_SLOW;
+  } else {
+    return ZOOM_INTERVAL_DEFAULT;
   }
 }
 
