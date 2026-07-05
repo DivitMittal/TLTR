@@ -154,11 +154,11 @@ int usb_hid_poll_interval = PEDAL_HID_POLL_INTERVAL_MS;
 #endif
 
 #ifndef PEDAL1_KEYCODE
-#define PEDAL1_KEYCODE KEY_F17
+#define PEDAL1_KEYCODE KEY_F19
 #endif
 
 #ifndef PEDAL2_KEYCODE
-#define PEDAL2_KEYCODE KEY_F18
+#define PEDAL2_KEYCODE KEY_F13
 #endif
 
 #if PEDAL1_KEYCODE <= 0 || PEDAL1_KEYCODE > 255 || PEDAL2_KEYCODE <= 0 || PEDAL2_KEYCODE > 255
@@ -171,31 +171,61 @@ int usb_hid_poll_interval = PEDAL_HID_POLL_INTERVAL_MS;
 
 constexpr uint8_t PEDAL_KEYCODES[] = {PEDAL1_KEYCODE, PEDAL2_KEYCODE};
 
-// Double-tap-and-hold sends an alternate function key instead of the primary
-// one. Each pedal keeps the same Ctrl modifier chord.
+// Double-tap-and-hold can reuse the primary function key with a different
+// modifier chord.
 #ifndef PEDAL1_ALT_KEYCODE
 #define PEDAL1_ALT_KEYCODE KEY_F19
 #endif
 
 #ifndef PEDAL2_ALT_KEYCODE
-#define PEDAL2_ALT_KEYCODE KEY_F20
+#define PEDAL2_ALT_KEYCODE KEY_F13
 #endif
 
 #if PEDAL1_ALT_KEYCODE <= 0 || PEDAL1_ALT_KEYCODE > 255 || PEDAL2_ALT_KEYCODE <= 0 || PEDAL2_ALT_KEYCODE > 255
 #error "PEDAL1_ALT_KEYCODE and PEDAL2_ALT_KEYCODE must be in the 1-255 range"
 #endif
 
-#if PEDAL1_ALT_KEYCODE == PEDAL1_KEYCODE || PEDAL2_ALT_KEYCODE == PEDAL2_KEYCODE
-#error "Each pedal's alternate keycode must differ from its primary keycode"
+#ifndef PEDAL1_MODIFIERS
+#define PEDAL1_MODIFIERS 0
+#endif
+
+#ifndef PEDAL1_ALT_MODIFIERS
+#define PEDAL1_ALT_MODIFIERS KEY_LEFT_CTRL
+#endif
+
+#ifndef PEDAL2_MODIFIERS
+#define PEDAL2_MODIFIERS KEY_LEFT_CTRL
+#endif
+
+#ifndef PEDAL2_ALT_MODIFIERS
+#define PEDAL2_ALT_MODIFIERS KEY_LEFT_CTRL, KEY_LEFT_SHIFT
 #endif
 
 constexpr uint8_t PEDAL_ALT_KEYCODES[] = {PEDAL1_ALT_KEYCODE, PEDAL2_ALT_KEYCODE};
+
+constexpr uint8_t PEDAL_MODIFIER_LISTS[][2] = {
+    {PEDAL1_MODIFIERS},
+    {PEDAL2_MODIFIERS},
+};
+constexpr uint8_t PEDAL_ALT_MODIFIER_LISTS[][2] = {
+    {PEDAL1_ALT_MODIFIERS},
+    {PEDAL2_ALT_MODIFIERS},
+};
+
+static_assert(PEDAL1_KEYCODE != PEDAL1_ALT_KEYCODE ||
+                  PEDAL_MODIFIER_LISTS[0][0] != PEDAL_ALT_MODIFIER_LISTS[0][0] ||
+                  PEDAL_MODIFIER_LISTS[0][1] != PEDAL_ALT_MODIFIER_LISTS[0][1],
+              "Pedal 1 primary and alternate chords must differ");
+static_assert(PEDAL2_KEYCODE != PEDAL2_ALT_KEYCODE ||
+                  PEDAL_MODIFIER_LISTS[1][0] != PEDAL_ALT_MODIFIER_LISTS[1][0] ||
+                  PEDAL_MODIFIER_LISTS[1][1] != PEDAL_ALT_MODIFIER_LISTS[1][1],
+              "Pedal 2 primary and alternate chords must differ");
 
 // A tap shorter than this becomes the first half of a double-tap; a press held
 // longer resolves as a single press-and-hold. It is also the maximum gap
 // between the first tap's release and the second press.
 #ifndef PEDAL_MULTI_TAP_WINDOW_MS
-#define PEDAL_MULTI_TAP_WINDOW_MS 250
+#define PEDAL_MULTI_TAP_WINDOW_MS 150
 #endif
 
 #if PEDAL_MULTI_TAP_WINDOW_MS <= 0 || PEDAL_MULTI_TAP_WINDOW_MS > 60000
@@ -229,8 +259,9 @@ enum PedalGesture : uint8_t {
 PedalGesture gestureState[PEDAL_COUNT];
 unsigned long gestureTimer[PEDAL_COUNT];  // press time in FIRST_DOWN, release time in WAIT_SECOND
 uint8_t activeKeycode[PEDAL_COUNT];       // keycode the gesture wants held now (0 = none)
+bool activeAlternate[PEDAL_COUNT];        // whether the active chord is the double-tap chord
 uint8_t reportedKeycode[PEDAL_COUNT];     // keycode currently reported to the host (0 = none)
-bool modifiersReported = false;           // whether Ctrl+Shift is currently held
+bool reportedAlternate[PEDAL_COUNT];      // whether the reported chord is the double-tap chord
 #else
 bool reportedCombinedPressed = false;
 #endif
@@ -259,15 +290,27 @@ void sendCombinedKeyboardState(bool pressed) {
 }
 
 #if PEDAL_SEPARATE_KEYS
-// Ctrl is held alongside the pedal function keys so downstream bindings
-// can key off a single, unambiguous chord (e.g. Ctrl+F17). This is a real
-// HID modifier keycode, so the behavior is identical across operating systems.
-void pressPedalModifiers() {
-  Keyboard.press(KEY_LEFT_CTRL);
+static inline const uint8_t* pedalModifiers(size_t pedalIndex, bool alternate) {
+  return alternate ? PEDAL_ALT_MODIFIER_LISTS[pedalIndex]
+                   : PEDAL_MODIFIER_LISTS[pedalIndex];
 }
 
-void releasePedalModifiers() {
-  Keyboard.release(KEY_LEFT_CTRL);
+void pressPedalModifiers(size_t pedalIndex, bool alternate) {
+  const uint8_t* modifiers = pedalModifiers(pedalIndex, alternate);
+  for (size_t i = 0; i < 2; ++i) {
+    if (modifiers[i] != 0) {
+      Keyboard.press(modifiers[i]);
+    }
+  }
+}
+
+void releasePedalModifiers(size_t pedalIndex, bool alternate) {
+  const uint8_t* modifiers = pedalModifiers(pedalIndex, alternate);
+  for (size_t i = 2; i > 0; --i) {
+    if (modifiers[i - 1] != 0) {
+      Keyboard.release(modifiers[i - 1]);
+    }
+  }
 }
 
 // Advance one pedal's tap/hold recognizer from its debounced pressed state and
@@ -291,6 +334,7 @@ void updatePedalGesture(size_t pedalIndex, bool pressed, unsigned long now) {
         // Held past the window with no release: a single press-and-hold.
         gestureState[pedalIndex] = GESTURE_PRIMARY_HOLD;
         activeKeycode[pedalIndex] = PEDAL_KEYCODES[pedalIndex];
+        activeAlternate[pedalIndex] = false;
       }
       break;
 
@@ -307,6 +351,7 @@ void updatePedalGesture(size_t pedalIndex, bool pressed, unsigned long now) {
         // Second press within the window: double-tap-and-hold.
         gestureState[pedalIndex] = GESTURE_ALT_HOLD;
         activeKeycode[pedalIndex] = PEDAL_ALT_KEYCODES[pedalIndex];
+        activeAlternate[pedalIndex] = true;
       }
       break;
 
@@ -314,6 +359,7 @@ void updatePedalGesture(size_t pedalIndex, bool pressed, unsigned long now) {
     case GESTURE_ALT_HOLD:
       if (!pressed) {
         activeKeycode[pedalIndex] = 0;
+        activeAlternate[pedalIndex] = false;
         gestureState[pedalIndex] = GESTURE_IDLE;
       }
       break;
@@ -347,7 +393,9 @@ void setup() {
     gestureState[i] = GESTURE_IDLE;
     gestureTimer[i] = lastChangeAt[i];
     activeKeycode[i] = 0;
+    activeAlternate[i] = false;
     reportedKeycode[i] = 0;
+    reportedAlternate[i] = false;
 #endif
   }
 
@@ -387,8 +435,8 @@ void loop() {
 #if PEDAL_SEPARATE_KEYS
     for (size_t i = 0; i < PEDAL_COUNT; ++i) {
       reportedKeycode[i] = 0;
+      reportedAlternate[i] = false;
     }
-    modifiersReported = false;
 #else
     reportedCombinedPressed = false;
 #endif
@@ -404,42 +452,43 @@ void loop() {
     updatePedalGesture(i, stablePressed[i], now);
   }
 
-  bool anyActive = false;
+  bool stateChanged = false;
   for (size_t i = 0; i < PEDAL_COUNT; ++i) {
-    if (activeKeycode[i] != 0) {
-      anyActive = true;
+    if (activeKeycode[i] != reportedKeycode[i] ||
+        activeAlternate[i] != reportedAlternate[i]) {
+      stateChanged = true;
       break;
     }
   }
 
-  // On the rising edge (nothing held -> something held) press Ctrl first
-  // so the modifier is already active when the host sees the function key.
-  if (anyActive && !modifiersReported) {
-    pressPedalModifiers();
-    modifiersReported = true;
+  if (!stateChanged) {
+    return;
   }
 
-  // Emit each pedal's key change: release the old key first, then press the new
-  // one, so a primary->alternate switch never overlaps the two function keys.
+  // Replay all active pedal chords together. Modifiers are report-global in USB
+  // keyboard HID, so replaying as a set avoids releasing Ctrl/Shift out from
+  // under another held pedal.
   for (size_t i = 0; i < PEDAL_COUNT; ++i) {
-    if (activeKeycode[i] == reportedKeycode[i]) {
-      continue;
-    }
-
     if (reportedKeycode[i] != 0) {
       Keyboard.release(reportedKeycode[i]);
     }
+  }
+  for (size_t i = 0; i < PEDAL_COUNT; ++i) {
+    if (reportedKeycode[i] != 0) {
+      releasePedalModifiers(i, reportedAlternate[i]);
+    }
+  }
+  for (size_t i = 0; i < PEDAL_COUNT; ++i) {
+    if (activeKeycode[i] != 0) {
+      pressPedalModifiers(i, activeAlternate[i]);
+    }
+  }
+  for (size_t i = 0; i < PEDAL_COUNT; ++i) {
     if (activeKeycode[i] != 0) {
       Keyboard.press(activeKeycode[i]);
     }
     reportedKeycode[i] = activeKeycode[i];
-  }
-
-  // On the falling edge (something held -> nothing held) release Ctrl
-  // last, only after every pedal function key has been released.
-  if (!anyActive && modifiersReported) {
-    releasePedalModifiers();
-    modifiersReported = false;
+    reportedAlternate[i] = activeAlternate[i];
   }
 #else
   const bool combinedPressed = anyStablePedalPressed();

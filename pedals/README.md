@@ -2,7 +2,7 @@
 
 Optional USB foot pedals for hands-free control. Works as a standalone accessory.
 
-![Pedal image placeholder](../assets/pedals-placeholder.png)
+![Dual foot pedal keymap](../assets/pedals.svg)
 
 ## Sketches
 
@@ -22,10 +22,10 @@ Both support compile-time tuning and validation, and both now include per-pedal 
 │                  │                  │
 ├──────────────────┼──────────────────┤
 │  Single Hold:    │  Single Hold:    │
-│  Ctrl+F17        │  Ctrl+F18        │
+│  F19             │  Ctrl+F13        │
 │                  │                  │
 │  Double-Tap:     │  Double-Tap:     │
-│  Ctrl+F19        │  Ctrl+F20        │
+│  Ctrl+F19        │  Ctrl+Shift+F13  │
 │                  │                  │
 └──────────────────┴──────────────────┘
 ```
@@ -37,7 +37,7 @@ Both support compile-time tuning and validation, and both now include per-pedal 
 Serial output for capture daemons or custom listeners.
 
 - **Default pins**: D2 (Pedal 1), D3 (Pedal 2)
-- **Output**: Serial events at 115200 baud
+- **Output**: Serial events at 115200 baud (host software maps these events to actions)
   - `EVT <sequence> P1 <timestamp>` — Pedal 1 primary hold
   - `EVT <sequence> P1_ALT <timestamp>` — Pedal 1 double-tap hold
   - `EVT <sequence> P1_UP <timestamp>` — Pedal 1 release
@@ -54,9 +54,9 @@ Native USB keyboard for direct OS integration—no daemon required.
 
 - **Default board**: Waveshare RP2040 Zero / Waveshare RP2040 One
 - **Default pins**: GP14 (Pedal 1), GP15 (Pedal 2)
-- **Output**: HID keyboard with Ctrl modifier
-  - Single hold: Ctrl+F17 (P1), Ctrl+F18 (P2)
-  - Double-tap: Ctrl+F19 (P1), Ctrl+F20 (P2)
+- **Output**: HID keyboard chords
+  - Single hold: F19 (P1), Ctrl+F13 (P2)
+  - Double-tap: Ctrl+F19 (P1), Ctrl+Shift+F13 (P2)
 - **Core**: `arduino-pico` (official RP2040 support)
 - **Best for**: Standalone USB keyboard integration without daemon overhead
 
@@ -75,8 +75,10 @@ Common overrides:
 - `PEDAL1_PIN`, `PEDAL2_PIN` — GPIO pin numbers
 - `PEDAL1_KEYCODE`, `PEDAL2_KEYCODE` — Primary keycodes (1–255)
 - `PEDAL1_ALT_KEYCODE`, `PEDAL2_ALT_KEYCODE` — Alternate keycodes (1–255)
+- `PEDAL1_MODIFIERS`, `PEDAL2_MODIFIERS` — Primary chord modifiers
+- `PEDAL1_ALT_MODIFIERS`, `PEDAL2_ALT_MODIFIERS` — Alternate chord modifiers
 - `PEDAL_DEBOUNCE_MS` — Debounce window (default 25ms)
-- `PEDAL_MULTI_TAP_WINDOW_MS` — Gesture window (default 250ms)
+- `PEDAL_MULTI_TAP_WINDOW_MS` — Gesture window (default 150ms)
 - `PEDAL_SEPARATE_KEYS` — Per-pedal mode or combined (default 1)
 
 See the `.ino` files for the full list of compile-time parameters and validation rules.

@@ -1,0 +1,88 @@
+<svg width="900" height="360" viewBox="0 0 900 360" class="pedal-map" xmlns="http://www.w3.org/2000/svg">
+<style>
+  svg.pedal-map {
+    font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+    font-size: 18px;
+    fill: #24292e;
+    background: transparent;
+  }
+
+  rect.pedal {
+    fill: #f6f8fa;
+    stroke: #c9cccf;
+    stroke-width: 2;
+  }
+
+  rect.action {
+    fill: #ffffff;
+    stroke: #c9cccf;
+    stroke-width: 1.5;
+  }
+
+  text {
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  text.title {
+    font-size: 26px;
+    font-weight: bold;
+  }
+
+  text.label {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  text.hint {
+    font-size: 15px;
+    fill: #57606a;
+  }
+
+  text.action-title {
+    font-size: 14px;
+    fill: #57606a;
+  }
+
+  text.action-key {
+    font-size: 21px;
+    font-weight: bold;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    svg.pedal-map { fill: #d1d6db; }
+    rect.pedal { fill: #3f4750; stroke: #60666c; }
+    rect.action { fill: #2f3740; stroke: #60666c; }
+    text.hint, text.action-title { fill: #9aa4af; }
+  }
+</style>
+
+<text x="450" y="40" class="title">Dual Foot Pedals</text>
+<text x="450" y="72" class="hint">single hold / double-tap-and-hold</text>
+
+<g transform="translate(70, 105)">
+  <rect x="0" y="0" width="340" height="210" rx="22" ry="22" class="pedal"/>
+  <text x="170" y="34" class="label">Left Pedal · P1</text>
+
+  <rect x="28" y="66" width="284" height="54" rx="10" ry="10" class="action"/>
+  <text x="170" y="82" class="action-title">Single hold</text>
+  <text x="170" y="105" class="action-key">F19</text>
+
+  <rect x="28" y="136" width="284" height="54" rx="10" ry="10" class="action"/>
+  <text x="170" y="152" class="action-title">Double-tap hold</text>
+  <text x="170" y="175" class="action-key">Ctrl+F19</text>
+</g>
+
+<g transform="translate(490, 105)">
+  <rect x="0" y="0" width="340" height="210" rx="22" ry="22" class="pedal"/>
+  <text x="170" y="34" class="label">Right Pedal · P2</text>
+
+  <rect x="28" y="66" width="284" height="54" rx="10" ry="10" class="action"/>
+  <text x="170" y="82" class="action-title">Single hold</text>
+  <text x="170" y="105" class="action-key">Ctrl+F13 🎙️</text>
+
+  <rect x="28" y="136" width="284" height="54" rx="10" ry="10" class="action"/>
+  <text x="170" y="152" class="action-title">Double-tap hold</text>
+  <text x="170" y="175" class="action-key">Ctrl+Shift+F13 🎙️</text>
+</g>
+</svg>

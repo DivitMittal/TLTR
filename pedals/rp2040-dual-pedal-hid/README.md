@@ -30,7 +30,7 @@ The sketch uses `INPUT_PULLUP` by default, so each switch reads:
 - not pressed -> `HIGH`
 - pressed -> `LOW`
 
-By default, either pedal counts as an active press. The sketch holds one keyboard key down while either pedal is pressed and releases it only after both pedals are released.
+By default, each pedal reports its own HID chord. Pedal 1 uses the left-pedal chord pair (`F19`, `Ctrl+F19`), and pedal 2 uses the right-pedal chord pair (`Ctrl+F13`, `Ctrl+Shift+F13`).
 
 Override the default pins at compile time for another RP2040 board if needed:
 
@@ -133,16 +133,22 @@ If you want the two pedals to act independently on the host, enable separate-key
 
 `PEDAL_SEPARATE_KEYS` must be set to `0` or `1`; other values are rejected at compile time.
 
-In that mode, pedal 1 defaults to `F13` and pedal 2 defaults to `F14`.
+In that mode, pedal 1 defaults to `F19` with no modifiers and `Ctrl+F19` on double-tap-and-hold. Pedal 2 defaults to `Ctrl+F13` and `Ctrl+Shift+F13` on double-tap-and-hold.
 
 Override those defaults if needed:
 
 ```c
 #define PEDAL1_KEYCODE HID_KEY_F15
+#define PEDAL1_ALT_KEYCODE HID_KEY_F15
+#define PEDAL1_MODIFIERS 0
+#define PEDAL1_ALT_MODIFIERS KEY_LEFT_CTRL
 #define PEDAL2_KEYCODE HID_KEY_F16
+#define PEDAL2_ALT_KEYCODE HID_KEY_F16
+#define PEDAL2_MODIFIERS KEY_LEFT_CTRL
+#define PEDAL2_ALT_MODIFIERS KEY_LEFT_CTRL, KEY_LEFT_SHIFT
 ```
 
-`PEDAL1_KEYCODE` and `PEDAL2_KEYCODE` must both stay in the `1` to `255` range, and they must be different from each other; zero, out-of-range, or duplicate key overrides are rejected at compile time. Those per-pedal overrides are only valid when `PEDAL_SEPARATE_KEYS=1`; otherwise the sketch rejects them instead of silently staying in merged-key mode.
+`PEDAL1_KEYCODE`, `PEDAL2_KEYCODE`, `PEDAL1_ALT_KEYCODE`, and `PEDAL2_ALT_KEYCODE` must stay in the `1` to `255` range. Primary and alternate gestures may reuse the same keycode when their modifier lists differ. Those per-pedal overrides are only valid when `PEDAL_SEPARATE_KEYS=1`; otherwise the sketch rejects them instead of silently staying in merged-key mode.
 
 Install the supported `arduino-pico` core for `arduino-cli` with the same package index the Arduino IDE uses. If you want that third-party index to persist for future `arduino-cli` commands, add it to the CLI config once first:
 
@@ -204,7 +210,8 @@ If the board is not detected after switching away from a previous TinyUSB-based 
 1. Open a key event viewer on the host.
 1. Hold a pedal while plugging in or resetting the board and verify the key appears once USB enumeration completes.
 1. While holding a pedal, trigger a USB re-enumeration event such as unplugging and reconnecting the USB cable or resetting the board, and verify the held key is replayed once the host sees the board again.
-1. In the default merged mode, press either pedal and verify that `F13` is held.
-1. In the default merged mode, release one pedal while keeping the other pressed and verify the key remains held.
-1. In the default merged mode, release both pedals and verify the key is released.
-1. If `PEDAL_SEPARATE_KEYS` is enabled, verify pedal 1 sends its configured key and pedal 2 sends its configured key independently.
+1. In the default separate-key mode, hold pedal 1 and verify `F19` is held.
+1. In the default separate-key mode, double-tap-and-hold pedal 1 and verify `Ctrl+F19` is held.
+1. In the default separate-key mode, hold pedal 2 and verify `Ctrl+F13` is held.
+1. In the default separate-key mode, double-tap-and-hold pedal 2 and verify `Ctrl+Shift+F13` is held.
+1. Release each gesture and verify all function keys and modifiers are released.
