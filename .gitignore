@@ -16,6 +16,8 @@ result-*
 .serena/
 .omo/
 .claude/
+.opencode/
+.codex/
 **/AGENTS.md
 **/agents.md
 .mcp.json
