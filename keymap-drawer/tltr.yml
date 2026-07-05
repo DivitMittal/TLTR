@@ -12,7 +12,7 @@ layout:
 layers:
   Custom-Colemak:
     - [
-        { tap: "🎙️", hold: "Ctrl+F13" },
+        { tap: "🎙️", hold: "⌃F13" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },

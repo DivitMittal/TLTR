@@ -70,7 +70,7 @@
 
   <rect x="28" y="136" width="284" height="54" rx="10" ry="10" class="action"/>
   <text x="170" y="152" class="action-title">Double-tap hold</text>
-  <text x="170" y="175" class="action-key">Ctrl+F19</text>
+  <text x="170" y="175" class="action-key">⌃F19</text>
 </g>
 
 <g transform="translate(490, 105)">
@@ -79,10 +79,10 @@
 
   <rect x="28" y="66" width="284" height="54" rx="10" ry="10" class="action"/>
   <text x="170" y="82" class="action-title">Single hold</text>
-  <text x="170" y="105" class="action-key">Ctrl+F13 🎙️</text>
+  <text x="170" y="105" class="action-key">⌃F13 🎙️</text>
 
   <rect x="28" y="136" width="284" height="54" rx="10" ry="10" class="action"/>
   <text x="170" y="152" class="action-title">Double-tap hold</text>
-  <text x="170" y="175" class="action-key">Ctrl+Shift+F13 🎙️</text>
+  <text x="170" y="175" class="action-key">⌃⇧F13 🎙️</text>
 </g>
 </svg>

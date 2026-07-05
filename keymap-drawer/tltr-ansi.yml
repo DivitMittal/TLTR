@@ -44,7 +44,7 @@ layers:
 
     # Top alpha row (14 keys) - Colemak with Wide mod
     - [
-        { tap: "🎙️", hold: "Ctrl+F13" },
+        { tap: "🎙️", hold: "⌃F13" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },
