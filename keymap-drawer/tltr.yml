@@ -12,7 +12,7 @@ layout:
 layers:
   Custom-Colemak:
     - [
-        { tap: "🎙️", hold: "⌃⇧🎙️" },
+        { tap: "🎙️" },
         { tap: "q", shifted: "Q" },
         { tap: "w", shifted: "W" },
         { tap: "f", shifted: "F" },

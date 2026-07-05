@@ -93,6 +93,10 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
 
 Hands-free control via USB or serial foot pedals. Includes both Arduino Uno (serial) and RP2040 (native USB HID) sketches with gesture recognition.
 
+<p align="center">
+    <img title="Dual Foot Pedal Keymap" src="./assets/pedals.svg" alt="Dual foot pedal keymap visualization"/>
+</p>
+
 See [pedals/README.md](./pedals/) for setup, keymap, and configuration.
 
 ---
