@@ -29,3 +29,21 @@ struct Debouncer {
     return stable;
   }
 };
+
+// Each logical input owns one key slot and only ever releases the key it
+// pressed itself. This is what keeps an IR swipe tap from releasing a held
+// pedal key (never use releaseAll() to end a single gesture).
+// `kbd` is the Arduino Keyboard object, or a fake in host tests.
+template <typename Kbd>
+void syncKeySlot(Kbd &kbd, uint8_t &reported, uint8_t desired) {
+  if (reported == desired) {
+    return;
+  }
+  if (reported != 0) {
+    kbd.release(reported);
+  }
+  if (desired != 0) {
+    kbd.press(desired);
+  }
+  reported = desired;
+}
