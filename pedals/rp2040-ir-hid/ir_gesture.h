@@ -10,15 +10,20 @@ enum IrState : uint8_t {
   IR_IDLE,
   IR_LEFT_PENDING,
   IR_RIGHT_PENDING,
+  IR_LEFT_HOLD,
+  IR_RIGHT_HOLD,
   IR_SWIPE,
   IR_WAIT_CLEAR,
 };
 
 struct IrGestureConfig {
+  uint32_t holdThresholdMs;
   uint32_t swipeWindowMs;
   uint32_t minSwipeSeparationMs;
   uint32_t rearmMs;
   uint32_t swipeTapMs;
+  uint8_t leftHoldKey;
+  uint8_t rightHoldKey;
   uint8_t swipeLeftToRightKey;
   uint8_t swipeRightToLeftKey;
 };
@@ -76,11 +81,25 @@ struct IrGesture {
           swipeKey =
               leftFirst ? cfg.swipeLeftToRightKey : cfg.swipeRightToLeftKey;
         }
+      } else if (!firstReleased && dt >= cfg.holdThresholdMs) {
+        state = leftFirst ? IR_LEFT_HOLD : IR_RIGHT_HOLD;
       } else if (firstReleased && dt > cfg.swipeWindowMs) {
         enterWaitClear(now);
       }
       break;
     }
+
+    case IR_LEFT_HOLD:
+      if (!left) {
+        enterWaitClear(now);
+      }
+      break;
+
+    case IR_RIGHT_HOLD:
+      if (!right) {
+        enterWaitClear(now);
+      }
+      break;
 
     case IR_SWIPE:
       if (now - since >= cfg.swipeTapMs) {
@@ -101,6 +120,10 @@ struct IrGesture {
   // Key the IR subsystem wants held right now (0 = none).
   uint8_t key() const {
     switch (state) {
+    case IR_LEFT_HOLD:
+      return cfg.leftHoldKey;
+    case IR_RIGHT_HOLD:
+      return cfg.rightHoldKey;
     case IR_SWIPE:
       return swipeKey;
     default:
