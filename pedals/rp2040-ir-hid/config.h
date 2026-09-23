@@ -86,6 +86,10 @@
 
 // ---- USB --------------------------------------------------------------------
 
+#ifndef HID_POLL_INTERVAL_MS
+#define HID_POLL_INTERVAL_MS 1
+#endif
+
 #ifndef USB_MANUFACTURER
 #define USB_MANUFACTURER "TLTR"
 #endif

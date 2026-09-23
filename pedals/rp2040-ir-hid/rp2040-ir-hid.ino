@@ -12,6 +12,9 @@
 #include "inputs.h"
 #include "ir_gesture.h"
 
+// Picked up by the arduino-pico USB descriptor builder.
+int usb_hid_poll_interval = HID_POLL_INTERVAL_MS;
+
 Debouncer irLeft;
 Debouncer irRight;
 IrGesture ir;
