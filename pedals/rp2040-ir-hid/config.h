@@ -83,3 +83,13 @@
 #ifndef IR_SWIPE_TAP_MS
 #define IR_SWIPE_TAP_MS 20
 #endif
+
+// ---- USB --------------------------------------------------------------------
+
+#ifndef USB_MANUFACTURER
+#define USB_MANUFACTURER "TLTR"
+#endif
+
+#ifndef USB_PRODUCT
+#define USB_PRODUCT "TLTR IR HID"
+#endif

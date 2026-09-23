@@ -27,6 +27,10 @@ bool readIrLeft() { return digitalRead(IR_LEFT_PIN) == IR_ACTIVE_STATE; }
 bool readIrRight() { return digitalRead(IR_RIGHT_PIN) == IR_ACTIVE_STATE; }
 
 void setup() {
+  USB.disconnect();
+  USB.setManufacturer(USB_MANUFACTURER);
+  USB.setProduct(USB_PRODUCT);
+  USB.connect();
 
   pinMode(IR_LEFT_PIN, IR_PIN_MODE);
   pinMode(IR_RIGHT_PIN, IR_PIN_MODE);
