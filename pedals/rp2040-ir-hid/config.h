@@ -97,3 +97,67 @@
 #ifndef USB_PRODUCT
 #define USB_PRODUCT "TLTR IR HID"
 #endif
+
+// ---- Validation -------------------------------------------------------------
+
+constexpr bool isValidPin(long pin) { return pin >= 0 && pin <= 29; }
+
+// Plain keyboard keys only: 0 means "no key", 0x80-0x87 are modifiers.
+constexpr bool isValidKey(long key) {
+  return key > 0 && key <= 255 &&
+         !(key >= KEY_LEFT_CTRL && key <= KEY_RIGHT_GUI);
+}
+
+template <size_t N> constexpr bool allDistinct(const long (&values)[N]) {
+  for (size_t i = 0; i < N; ++i) {
+    for (size_t j = i + 1; j < N; ++j) {
+      if (values[i] == values[j]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+constexpr long INPUT_PINS[] = {IR_LEFT_PIN, IR_RIGHT_PIN};
+constexpr long EVENT_KEYS[] = {IR_LEFT_HOLD_KEY, IR_RIGHT_HOLD_KEY,
+                               IR_SWIPE_LR_KEY, IR_SWIPE_RL_KEY};
+
+static_assert(isValidPin(IR_LEFT_PIN) && isValidPin(IR_RIGHT_PIN),
+              "IR pins must be RP2040 GPIOs 0-29");
+static_assert(allDistinct(INPUT_PINS),
+              "Input GPIO assignments must be distinct");
+static_assert(IR_PIN_MODE == INPUT || IR_PIN_MODE == INPUT_PULLUP ||
+                  IR_PIN_MODE == INPUT_PULLDOWN,
+              "IR_PIN_MODE must be INPUT, INPUT_PULLUP or INPUT_PULLDOWN");
+static_assert(IR_ACTIVE_STATE == LOW || IR_ACTIVE_STATE == HIGH,
+              "IR_ACTIVE_STATE must be LOW or HIGH");
+
+static_assert(isValidKey(IR_LEFT_HOLD_KEY) && isValidKey(IR_RIGHT_HOLD_KEY) &&
+                  isValidKey(IR_SWIPE_LR_KEY) && isValidKey(IR_SWIPE_RL_KEY),
+              "IR keys must be non-zero, non-modifier keycodes");
+static_assert(allDistinct(EVENT_KEYS),
+              "Every IR event must have its own HID key");
+
+static_assert(IR_DEBOUNCE_MS >= 0 && IR_DEBOUNCE_MS <= 100,
+              "IR_DEBOUNCE_MS must be in the 0-100 range");
+static_assert(IR_MIN_SWIPE_SEPARATION_MS >= 0 &&
+                  IR_MIN_SWIPE_SEPARATION_MS < IR_SWIPE_WINDOW_MS,
+              "IR_MIN_SWIPE_SEPARATION_MS must be below IR_SWIPE_WINDOW_MS");
+// A pending sensor turns into a hold at the threshold, after which the other
+// sensor can no longer make it a swipe, so a longer window would be dead.
+static_assert(IR_SWIPE_WINDOW_MS <= IR_HOLD_THRESHOLD_MS,
+              "IR_SWIPE_WINDOW_MS must not exceed IR_HOLD_THRESHOLD_MS");
+static_assert(IR_HOLD_THRESHOLD_MS <= 5000,
+              "IR_HOLD_THRESHOLD_MS must be at most 5000");
+static_assert(IR_REARM_MS >= 0 && IR_REARM_MS <= 5000,
+              "IR_REARM_MS must be in the 0-5000 range");
+// The press and release must land in separate HID polls.
+static_assert(
+    IR_SWIPE_TAP_MS >= 2 * HID_POLL_INTERVAL_MS && IR_SWIPE_TAP_MS <= 500,
+    "IR_SWIPE_TAP_MS must cover at least two HID polls and be at most 500");
+
+static_assert(HID_POLL_INTERVAL_MS >= 1 && HID_POLL_INTERVAL_MS <= 255,
+              "HID_POLL_INTERVAL_MS must be in the 1-255 range");
+static_assert(sizeof(USB_MANUFACTURER) > 1 && sizeof(USB_PRODUCT) > 1,
+              "USB descriptor strings must not be empty");
