@@ -25,6 +25,7 @@ constexpr IrGestureConfig IR_CONFIG = {
 };
 
 uint8_t reportedIrKey = 0; // key the host currently sees from the IR slot
+bool hostReady = false;
 
 bool readIrLeft() { return digitalRead(IR_LEFT_PIN) == IR_ACTIVE_STATE; }
 bool readIrRight() { return digitalRead(IR_RIGHT_PIN) == IR_ACTIVE_STATE; }
@@ -59,7 +60,17 @@ void loop() {
   // tud_ready() is mounted-and-not-suspended and, unlike USB.HIDReady(),
   // never blocks. Keyboard.press/release wait for the endpoint themselves.
   if (!tud_ready()) {
+    hostReady = false;
     return;
+  }
+
+  if (!hostReady) {
+    // After (re-)enumeration or resume the host has forgotten every key, but
+    // the Keyboard library's report still remembers them. Clear that report
+    // once, then let the slot below replay whatever is still held.
+    Keyboard.releaseAll();
+    reportedIrKey = 0;
+    hostReady = true;
   }
 
   syncKeySlot(Keyboard, reportedIrKey, ir.key());
