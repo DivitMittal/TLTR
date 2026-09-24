@@ -98,6 +98,11 @@
 #define USB_PRODUCT "TLTR IR HID"
 #endif
 
+// Optional state/key trace over USB CDC serial. HID never depends on it.
+#ifndef DEBUG_SERIAL
+#define DEBUG_SERIAL 0
+#endif
+
 // ---- Validation -------------------------------------------------------------
 
 constexpr bool isValidPin(long pin) { return pin >= 0 && pin <= 29; }
@@ -161,3 +166,5 @@ static_assert(HID_POLL_INTERVAL_MS >= 1 && HID_POLL_INTERVAL_MS <= 255,
               "HID_POLL_INTERVAL_MS must be in the 1-255 range");
 static_assert(sizeof(USB_MANUFACTURER) > 1 && sizeof(USB_PRODUCT) > 1,
               "USB descriptor strings must not be empty");
+static_assert(DEBUG_SERIAL == 0 || DEBUG_SERIAL == 1,
+              "DEBUG_SERIAL must be 0 or 1");

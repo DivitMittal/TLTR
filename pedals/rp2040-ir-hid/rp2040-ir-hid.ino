@@ -36,6 +36,10 @@ void setup() {
   USB.setProduct(USB_PRODUCT);
   USB.connect();
 
+#if DEBUG_SERIAL
+  Serial.begin(115200);
+#endif
+
   pinMode(IR_LEFT_PIN, IR_PIN_MODE);
   pinMode(IR_RIGHT_PIN, IR_PIN_MODE);
 
@@ -55,7 +59,16 @@ void loop() {
   const bool left = irLeft.update(readIrLeft(), now, IR_DEBOUNCE_MS);
   const bool right = irRight.update(readIrRight(), now, IR_DEBOUNCE_MS);
 
+#if DEBUG_SERIAL
+  const IrState before = ir.state;
+#endif
   ir.update(left, right, now);
+#if DEBUG_SERIAL
+  if (ir.state != before) {
+    Serial.printf("%lu ir L=%d R=%d state %d -> %d key=0x%02x\n",
+                  (unsigned long)now, left, right, before, ir.state, ir.key());
+  }
+#endif
 
   // tud_ready() is mounted-and-not-suspended and, unlike USB.HIDReady(),
   // never blocks. Keyboard.press/release wait for the endpoint themselves.
