@@ -255,6 +255,49 @@ int main() {
     CHECK(onlyTap(k, F17));
   });
 
+  test("simultaneous activation is ambiguous", [] {
+    Inputs in;
+    in.left = on(100, 500);
+    in.right = on(100, 500);
+    CHECK(simulate(in, 1000).log.empty());
+  });
+
+  test("near-simultaneous activation is ambiguous", [] {
+    Inputs in;
+    in.left = on(100, 500);
+    in.right = on(110, 500);
+    CHECK(simulate(in, 1000).log.empty());
+  });
+
+  test("ambiguous waits for clear, then re-arms", [] {
+    Inputs in;
+    in.left = both(on(100, 500), on(800, 1400));
+    in.right = on(105, 600);
+    FakeKeyboard k = simulate(in, 2000);
+    CHECK(onlyTap(k, F15));
+    CHECK(eventTime(k, F15, true) == 800 + IR_DEBOUNCE_MS + 300);
+  });
+
+  test("brief activation emits nothing", [] {
+    Inputs in;
+    in.left = on(100, 250);
+    CHECK(simulate(in, 1000).log.empty());
+  });
+
+  test("slow second sensor is not a swipe", [] {
+    Inputs in;
+    in.left = on(100, 200);
+    in.right = on(400, 500);
+    CHECK(simulate(in, 1000).log.empty());
+  });
+
+  test("slow second sensor while first still active", [] {
+    Inputs in;
+    in.left = on(100, 500);
+    in.right = on(370, 600); // onset gap 270 ms > window, before hold
+    CHECK(simulate(in, 1000).log.empty());
+  });
+
   if (failures != 0) {
     std::printf("%d check(s) failed\n", failures);
     return 1;
