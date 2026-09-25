@@ -198,6 +198,63 @@ int main() {
     CHECK(onlyTap(k, F13));
   });
 
+  test("left hold", [] {
+    Inputs in;
+    in.left = on(100, 1000);
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F15));
+    CHECK(eventTime(k, F15, true) == 100 + IR_DEBOUNCE_MS + 300);
+    CHECK(eventTime(k, F15, false) == 1000 + IR_DEBOUNCE_MS);
+  });
+
+  test("right hold", [] {
+    Inputs in;
+    in.right = on(100, 1000);
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F16));
+  });
+
+  test("left to right swipe, overlapping", [] {
+    Inputs in;
+    in.left = on(100, 300);
+    in.right = on(200, 400);
+    FakeKeyboard k = simulate(in, 1000);
+    CHECK(onlyTap(k, F17));
+    CHECK(eventTime(k, F17, false) - eventTime(k, F17, true) == 20);
+  });
+
+  test("left to right swipe, left clears before right", [] {
+    Inputs in;
+    in.left = on(100, 150);
+    in.right = on(200, 260);
+    FakeKeyboard k = simulate(in, 1000);
+    CHECK(onlyTap(k, F17));
+  });
+
+  test("right to left swipe", [] {
+    Inputs in;
+    in.right = on(100, 300);
+    in.left = on(180, 400);
+    FakeKeyboard k = simulate(in, 1000);
+    CHECK(onlyTap(k, F18));
+  });
+
+  test("swipe then hand rests on second sensor", [] {
+    Inputs in;
+    in.left = on(100, 250);
+    in.right = on(200, 2000);
+    FakeKeyboard k = simulate(in, 2500);
+    CHECK(onlyTap(k, F17));
+  });
+
+  test("swipe with both sensors staying active", [] {
+    Inputs in;
+    in.left = on(100, 900);
+    in.right = on(200, 900);
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F17));
+  });
+
   if (failures != 0) {
     std::printf("%d check(s) failed\n", failures);
     return 1;
