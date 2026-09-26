@@ -387,6 +387,25 @@ int main() {
     CHECK(k.log.size() == 6 && !k.overflow);
   });
 
+  test("sensor active at boot waits for clear", [] {
+    Inputs in;
+    in.left = both(on(0, 800), on(1000, 1500));
+    FakeKeyboard k = simulate(in, 2000);
+    CHECK(onlyTap(k, F15));
+    CHECK(eventTime(k, F15, true) == 1000 + IR_DEBOUNCE_MS + 300);
+  });
+
+  test("millis() wraparound", [] {
+    Inputs in;
+    in.p1 = on(100, 900);
+    in.left = on(100, 300);
+    in.right = on(200, 400);
+    in.right = both(in.right, on(1000, 1600));
+    FakeKeyboard k = simulate(in, 2000, UINT32_MAX - 500);
+    CHECK(presses(k, F13) == 1 && presses(k, F17) == 1 && presses(k, F16) == 1);
+    CHECK(k.log.size() == 6);
+  });
+
   if (failures != 0) {
     std::printf("%d check(s) failed\n", failures);
     return 1;
