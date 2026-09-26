@@ -306,6 +306,54 @@ int main() {
     CHECK(onlyTap(k, F16));
   });
 
+  test("committed hold ignores the other sensor", [] {
+    Inputs in;
+    in.left = on(100, 1000);
+    in.right = on(600, 1200); // still active when the hold ends
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F15));
+    CHECK(eventTime(k, F15, false) == 1000 + IR_DEBOUNCE_MS);
+  });
+
+  test("comparator chatter before a hold", [] {
+    Inputs in;
+    in.left = both(chatter(100, 200, 3), on(200, 1000));
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F15));
+  });
+
+  test("short glitch during a hold does not release", [] {
+    Inputs in;
+    in.left = both(on(100, 600), on(605, 1000));
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F15));
+  });
+
+  test("chatter alone emits nothing", [] {
+    Inputs in;
+    in.left = chatter(100, 1000, 4);
+    in.right = chatter(300, 700, 3);
+    CHECK(simulate(in, 1500).log.empty());
+  });
+
+  test("two separate swipes give two taps", [] {
+    Inputs in;
+    in.left = both(on(100, 200), on(700, 800));
+    in.right = both(on(180, 300), on(780, 900));
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(presses(k, F17) == 2 && k.log.size() == 4);
+  });
+
+  test("activity before re-arm is ignored", [] {
+    Inputs in;
+    // R clears at 310 (debounced); L returns at 360, inside the 150 ms re-arm
+    // interval, so even a long press must not become a hold.
+    in.left = both(on(100, 200), on(350, 1000));
+    in.right = on(180, 300);
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F17));
+  });
+
   if (failures != 0) {
     std::printf("%d check(s) failed\n", failures);
     return 1;
