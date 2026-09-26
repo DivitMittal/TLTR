@@ -354,6 +354,39 @@ int main() {
     CHECK(onlyTap(k, F17));
   });
 
+  test("pedal 1 stays held through a swipe", [] {
+    Inputs in;
+    in.p1 = on(50, 1500);
+    in.left = on(500, 650);
+    in.right = on(600, 700);
+    FakeKeyboard k = simulate(in, 2000);
+    CHECK(presses(k, F13) == 1 && presses(k, F17) == 1);
+    CHECK(eventTime(k, F17, false) < eventTime(k, F13, false));
+    CHECK(eventTime(k, F13, false) == 1500 + PEDAL_DEBOUNCE_MS);
+    CHECK(k.log.size() == 4);
+  });
+
+  test("pedal 2 stays held through an IR hold", [] {
+    Inputs in;
+    in.p2 = on(50, 1500);
+    in.right = on(300, 1000);
+    FakeKeyboard k = simulate(in, 2000);
+    CHECK(presses(k, F14) == 1 && presses(k, F16) == 1);
+    CHECK(eventTime(k, F16, false) < eventTime(k, F14, false));
+    CHECK(k.log.size() == 4);
+  });
+
+  test("both pedals held through a swipe", [] {
+    Inputs in;
+    in.p1 = on(50, 1500);
+    in.p2 = on(60, 1500);
+    in.right = on(500, 650);
+    in.left = on(600, 700);
+    FakeKeyboard k = simulate(in, 2000);
+    CHECK(presses(k, F13) == 1 && presses(k, F14) == 1 && presses(k, F18) == 1);
+    CHECK(k.log.size() == 6 && !k.overflow);
+  });
+
   if (failures != 0) {
     std::printf("%d check(s) failed\n", failures);
     return 1;
