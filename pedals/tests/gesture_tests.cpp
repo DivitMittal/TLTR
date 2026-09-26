@@ -298,6 +298,14 @@ int main() {
     CHECK(simulate(in, 1000).log.empty());
   });
 
+  test("failed hold does not swallow a later hold", [] {
+    Inputs in;
+    in.left = on(100, 200);
+    in.right = on(400, 1000);
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F16));
+  });
+
   if (failures != 0) {
     std::printf("%d check(s) failed\n", failures);
     return 1;

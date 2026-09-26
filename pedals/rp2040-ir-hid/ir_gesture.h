@@ -84,7 +84,13 @@ struct IrGesture {
       } else if (!firstReleased && dt >= cfg.holdThresholdMs) {
         state = leftFirst ? IR_LEFT_HOLD : IR_RIGHT_HOLD;
       } else if (firstReleased && dt > cfg.swipeWindowMs) {
-        enterWaitClear(now);
+        // Nothing was emitted, so there is nothing to re-arm from unless S
+        // came back (flicker) and still needs to clear.
+        if (first) {
+          enterWaitClear(now);
+        } else {
+          state = IR_IDLE;
+        }
       }
       break;
     }
