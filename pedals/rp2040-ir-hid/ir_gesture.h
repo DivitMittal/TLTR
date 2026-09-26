@@ -3,6 +3,39 @@
 // Two-sensor IR gesture classifier. Takes debounced sensor states and the
 // current time, and reports which key (if any) should be held right now.
 // No Arduino dependencies so pedals/tests/ can exercise it on the host.
+//
+// Vocabulary: left hold, right hold, left->right swipe, right->left swipe.
+// Every physical gesture gets exactly one classification; once committed it is
+// never reinterpreted, and the classifier then waits for both sensors to clear.
+//
+// State transitions (S = sensor that fired first, O = the other one,
+// dt = time since S became active):
+//
+//   IDLE
+//     L and R in the same tick ............................ -> WAIT_CLEAR
+//     L ................................................... -> LEFT_PENDING
+//     R ................................................... -> RIGHT_PENDING
+//
+//   LEFT_PENDING / RIGHT_PENDING (nothing emitted yet)
+//     O active, dt < minSwipeSeparation (ambiguous) ....... -> WAIT_CLEAR
+//     O active, dt <= swipeWindow ......................... -> SWIPE
+//     O active, dt > swipeWindow (too slow) ............... -> WAIT_CLEAR
+//     S continuously active, dt >= holdThreshold .......... -> LEFT/RIGHT_HOLD
+//     S released, dt > swipeWindow without O .............. -> IDLE
+//       (or WAIT_CLEAR if S has come back and must clear first)
+//     (S may clear before O fires: a hand passing over the sensors.)
+//
+//   LEFT_HOLD / RIGHT_HOLD (hold key down; O is ignored)
+//     S clears ............................................ -> WAIT_CLEAR
+//
+//   SWIPE (swipe key down)
+//     swipeTap elapsed .................................... -> WAIT_CLEAR
+//
+//   WAIT_CLEAR (nothing emitted)
+//     both clear continuously for rearm ................... -> IDLE
+//
+// All times are unsigned millisecond differences, so millis() wraparound is
+// harmless.
 
 #include <stdint.h>
 
