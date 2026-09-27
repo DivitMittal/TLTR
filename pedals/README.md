@@ -59,7 +59,7 @@ Native USB keyboard for direct OS integration—no daemon required.
 - **Output**: HID keyboard chords
   - Single hold: F19 (P1), Ctrl+F13 (P2)
   - Double-tap: Ctrl+F19 (P1), Ctrl+Shift+F13 (P2)
-- **Core**: `arduino-pico` (official RP2040 support)
+- **Core**: `arduino-pico` (community-maintained RP2040 core by Earle F. Philhower, III)
 - **Best for**: Standalone USB keyboard integration without daemon overhead
 
 See `rp2040-dual-pedal-hid/README.md` for Waveshare setup, pin configuration, USB identity customization, and re-enumeration behavior.
