@@ -157,26 +157,38 @@ template <size_t N> constexpr bool allDistinct(const long (&values)[N]) {
   return true;
 }
 
-constexpr long INPUT_PINS[] = {IR_LEFT_PIN, IR_RIGHT_PIN};
-constexpr long EVENT_KEYS[] = {IR_LEFT_HOLD_KEY, IR_RIGHT_HOLD_KEY,
-                               IR_SWIPE_LR_KEY, IR_SWIPE_RL_KEY};
+constexpr long INPUT_PINS[] = {PEDAL1_PIN, PEDAL2_PIN, IR_LEFT_PIN,
+                               IR_RIGHT_PIN};
+constexpr long EVENT_KEYS[] = {PEDAL1_KEY,       PEDAL2_KEY,
+                               IR_LEFT_HOLD_KEY, IR_RIGHT_HOLD_KEY,
+                               IR_SWIPE_LR_KEY,  IR_SWIPE_RL_KEY};
 
-static_assert(isValidPin(IR_LEFT_PIN) && isValidPin(IR_RIGHT_PIN),
-              "IR pins must be RP2040 GPIOs 0-29");
+static_assert(isValidPin(PEDAL1_PIN) && isValidPin(PEDAL2_PIN) &&
+                  isValidPin(IR_LEFT_PIN) && isValidPin(IR_RIGHT_PIN),
+              "Input pins must be RP2040 GPIOs 0-29");
 static_assert(allDistinct(INPUT_PINS),
               "Input GPIO assignments must be distinct");
+static_assert(PEDAL_PIN_MODE == INPUT || PEDAL_PIN_MODE == INPUT_PULLUP ||
+                  PEDAL_PIN_MODE == INPUT_PULLDOWN,
+              "PEDAL_PIN_MODE must be INPUT, INPUT_PULLUP or INPUT_PULLDOWN");
+static_assert(PEDAL_ACTIVE_STATE == LOW || PEDAL_ACTIVE_STATE == HIGH,
+              "PEDAL_ACTIVE_STATE must be LOW or HIGH");
 static_assert(IR_PIN_MODE == INPUT || IR_PIN_MODE == INPUT_PULLUP ||
                   IR_PIN_MODE == INPUT_PULLDOWN,
               "IR_PIN_MODE must be INPUT, INPUT_PULLUP or INPUT_PULLDOWN");
 static_assert(IR_ACTIVE_STATE == LOW || IR_ACTIVE_STATE == HIGH,
               "IR_ACTIVE_STATE must be LOW or HIGH");
 
+static_assert(isValidKey(PEDAL1_KEY) && isValidKey(PEDAL2_KEY),
+              "Pedal keys must be non-zero, non-modifier keycodes");
 static_assert(isValidKey(IR_LEFT_HOLD_KEY) && isValidKey(IR_RIGHT_HOLD_KEY) &&
                   isValidKey(IR_SWIPE_LR_KEY) && isValidKey(IR_SWIPE_RL_KEY),
               "IR keys must be non-zero, non-modifier keycodes");
 static_assert(allDistinct(EVENT_KEYS),
-              "Every IR event must have its own HID key");
+              "Every pedal and IR event must have its own HID key");
 
+static_assert(PEDAL_DEBOUNCE_MS >= 0 && PEDAL_DEBOUNCE_MS <= 100,
+              "PEDAL_DEBOUNCE_MS must be in the 0-100 range");
 static_assert(IR_DEBOUNCE_MS >= 0 && IR_DEBOUNCE_MS <= 100,
               "IR_DEBOUNCE_MS must be in the 0-100 range");
 static_assert(IR_MIN_SWIPE_SEPARATION_MS >= 0 &&
