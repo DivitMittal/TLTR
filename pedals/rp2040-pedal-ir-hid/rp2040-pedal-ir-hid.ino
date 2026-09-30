@@ -36,6 +36,7 @@ IrGesture ir;
 // Keys the host currently sees from each slot (0 = none).
 uint8_t reportedPedalKeys[PEDAL_COUNT] = {};
 uint8_t reportedIrKey = 0;
+bool hostReady = false;
 
 bool readPedal(size_t i) {
   return digitalRead(PEDAL_PINS[i]) == PEDAL_ACTIVE_STATE;
@@ -84,7 +85,20 @@ void loop() {
   // tud_ready() is mounted-and-not-suspended and, unlike USB.HIDReady(),
   // never blocks. Keyboard.press/release wait for the endpoint themselves.
   if (!tud_ready()) {
+    hostReady = false;
     return;
+  }
+
+  if (!hostReady) {
+    // After (re-)enumeration or resume the host has forgotten every key, but
+    // the Keyboard library's report still remembers them. Clear that report
+    // once, then let the slots below replay whatever is still held.
+    Keyboard.releaseAll();
+    for (size_t i = 0; i < PEDAL_COUNT; ++i) {
+      reportedPedalKeys[i] = 0;
+    }
+    reportedIrKey = 0;
+    hostReady = true;
   }
 
   for (size_t i = 0; i < PEDAL_COUNT; ++i) {
