@@ -8,6 +8,7 @@ Optional USB foot pedals for hands-free control. Works as a standalone accessory
 
 - **uno-dual-pedal/**: Arduino Uno-compatible serial sketch for capture daemons
 - **rp2040-dual-pedal-hid/**: RP2040 native-USB HID sketch for direct keyboard integration (Waveshare RP2040 Zero/One)
+- **rp2040-pedal-ir-hid/**: RP2040 native-USB HID sketch combining both pedals and both IR sensors, one unused function key per event
 - **rp2040-ir-hid/**: RP2040 native-USB HID sketch for two digital IR proximity sensors (hold and swipe gestures)
 - **tests/**: host-side tests for the shared RP2040 gesture code (`tests/run.sh`)
 
@@ -74,6 +75,20 @@ Two digital IR obstacle sensors as a native USB keyboard, for hands-free gesture
   - Hold: F15 (left), F16 (right)
   - Swipe: F17 (left -> right), F18 (right -> left)
 - **Best for**: tuning and testing the IR gesture state machine on its own
+
+### RP2040 pedal + IR HID
+
+The two pedals and the two IR sensors on one Waveshare RP2040-Zero, as a single native USB keyboard. Pedals are plain holds here (no double-tap chords), and every event has its own function key with no modifiers, so host remapping sees an unambiguous namespace.
+
+- **Default board**: Waveshare RP2040-Zero
+- **Default pins**: GP14 (Pedal 1), GP15 (Pedal 2), GP29 (IR left OUT), GP28 (IR right OUT)
+- **Output**:
+  - Pedal holds: F13 (P1), F14 (P2)
+  - IR holds: F15 (left), F16 (right)
+  - IR swipes: F17 (left -> right), F18 (right -> left)
+- **Best for**: the full hands-and-feet controller; pedals and IR work concurrently
+
+See `rp2040-pedal-ir-hid/README.md` for wiring, the timing model, sensor tuning, flashing, and verification.
 
 See `rp2040-ir-hid/README.md` for wiring, the timing model, sensor tuning, and flashing.
 
