@@ -105,3 +105,64 @@ arduino-cli compile --fqbn rp2040:rp2040:waveshare_rp2040_zero \
 The build fails with a `static_assert` if any two of the four input pins collide or fall outside GPIO 0-29, if two events share a key, if a key is `0` or a modifier, if an active state is not `LOW`/`HIGH`, if a pin mode is not an input mode, or if the timing values contradict each other.
 
 `DEBUG_SERIAL=1` prints IR state changes over the USB serial port. HID works the same with or without it.
+
+## Sensor tuning
+
+Each IR module's potentiometer sets its detection distance (the comparator threshold). Most modules also have an LED that lights while an object is detected.
+
+The exact module model is unverified, so the output polarity is a setting rather than an assumption:
+
+1. Build and flash with the default `IR_ACTIVE_STATE=LOW`.
+1. With nothing in front of the sensors, turn each potentiometer until its LED is reliably off, then back off a little from the point where it starts flickering. A flickering idle sensor will block re-arming.
+1. Hold a hand at the intended distance and check the LED turns on cleanly.
+1. Open a key viewer on the host (see below). Hold a hand over one sensor for about half a second: `F15`/`F16` should go down, and come back up when the hand leaves.
+1. If instead a key is held while nothing is in front of the sensor (or nothing ever fires), the output polarity is inverted: rebuild with `-DIR_ACTIVE_STATE=HIGH`. No rewiring is needed.
+
+## Build
+
+Install `arduino-cli` (`brew install arduino-cli`, or `nix shell nixpkgs#arduino-cli`) and the community-maintained [`arduino-pico`](https://github.com/earlephilhower/arduino-pico) core by Earle F. Philhower, III:
+
+```bash
+arduino-cli config add board_manager.additional_urls \
+  https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+arduino-cli core update-index
+arduino-cli core install rp2040:rp2040
+```
+
+Build from the repository root, writing the UF2 outside the sketch:
+
+```bash
+arduino-cli compile --fqbn rp2040:rp2040:waveshare_rp2040_zero \
+  --output-dir /tmp/tltr-pedal-ir-hid pedals/rp2040-pedal-ir-hid
+```
+
+This produces `/tmp/tltr-pedal-ir-hid/rp2040-pedal-ir-hid.ino.uf2`. Leave the core's USB stack on the default Pico SDK option; the built-in `Keyboard` library depends on it.
+
+## Flash
+
+1. Put the RP2040-Zero into the ROM bootloader: hold `BOOT` while plugging in USB, or with USB connected hold `BOOT`, press and release `RESET`, then release `BOOT`.
+1. A drive named `RPI-RP2` appears.
+1. Copy the UF2 onto it:
+
+   ```bash
+   cp /tmp/tltr-pedal-ir-hid/rp2040-pedal-ir-hid.ino.uf2 /Volumes/RPI-RP2/
+   ```
+
+1. The board reboots and enumerates as `TLTR Pedal + IR HID`.
+
+To go back to the pedal-only firmware, flash `../rp2040-dual-pedal-hid/` the same way.
+
+## Verify on macOS
+
+1. Open Karabiner-EventViewer (ships with Karabiner-Elements; allow Input Monitoring if asked). Any other key event viewer works too.
+1. Check System Information -> USB lists `TLTR Pedal + IR HID`. macOS may open the Keyboard Setup Assistant for the new keyboard; it can be closed.
+1. Pedals: press and hold pedal 1 -> `f13` down, release -> `f13` up. Pedal 2 -> `f14`. Hold both -> both down together.
+1. IR holds: hold over the left sensor -> `f15` down after about 0.3 s, up when the hand leaves. Right -> `f16`.
+1. IR swipes: sweep left to right -> exactly one `f17` down/up pair, no `f15`/`f16`. Right to left -> `f18`.
+1. Ambiguous: bring a flat hand straight down onto both sensors at once -> nothing.
+1. Concurrency: hold pedal 1 and swipe -> `f13` stays down throughout while `f17` taps. Hold pedal 2 and hold over the right sensor -> `f14` and `f16` both held.
+1. Re-enumeration: sleep and wake the Mac, and unplug/replug the board, with and without a pedal held. No key should stay stuck on the host; a pedal still physically down after wake is reported as held again and releases normally.
+
+## Host tests
+
+The gesture logic in `ir_gesture.h` and `inputs.h` has no Arduino dependencies. `../tests/run.sh` builds `../tests/gesture_tests.cpp` with the host compiler and replays pedal, IR and concurrency scenarios through the same debounce -> gesture -> key-slot pipeline this sketch uses. It also checks that the shared headers are identical across sketches.
