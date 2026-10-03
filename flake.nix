@@ -12,6 +12,8 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # nixpkgs 26.11 dropped x86_64-darwin; 26.05 is the last branch supporting it.
+    nixpkgs-x86_64-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     flake-parts.url = "github:hercules-ci/flake-parts";
     systems.url = "github:nix-systems/default";
     devshell = {
