@@ -31,3 +31,6 @@ qmk_firmware/
 
 ## APM — generated; do not edit directly
 apm_modules/
+
+## git worktrees
+.worktrees/
