@@ -1,7 +1,7 @@
-// RP2040 IR HID: two digital IR proximity sensors as a USB HID keyboard.
+// RP2040 IR HID: one digital IR proximity sensor as a USB HID keyboard.
 //
 // The firmware only classifies physical gestures and emits otherwise-unused
-// function keys (F15-F18 by default); the host decides what they mean.
+// function keys (F15-F16 by default); the host decides what they mean.
 // See README.md for wiring, timing model and tuning.
 
 #include <Keyboard.h>
@@ -15,20 +15,16 @@
 // Picked up by the arduino-pico USB descriptor builder.
 int usb_hid_poll_interval = HID_POLL_INTERVAL_MS;
 
-Debouncer irLeft;
-Debouncer irRight;
+Debouncer irSensor;
 IrGesture ir;
 constexpr IrGestureConfig IR_CONFIG = {
-    IR_HOLD_THRESHOLD_MS, IR_SWIPE_WINDOW_MS, IR_MIN_SWIPE_SEPARATION_MS,
-    IR_REARM_MS,          IR_SWIPE_TAP_MS,    IR_LEFT_HOLD_KEY,
-    IR_RIGHT_HOLD_KEY,    IR_SWIPE_LR_KEY,    IR_SWIPE_RL_KEY,
+    IR_HOLD_THRESHOLD_MS, IR_REARM_MS, IR_TAP_MS, IR_HOLD_KEY, IR_TAP_KEY,
 };
 
 uint8_t reportedIrKey = 0; // key the host currently sees from the IR slot
 bool hostReady = false;
 
-bool readIrLeft() { return digitalRead(IR_LEFT_PIN) == IR_ACTIVE_STATE; }
-bool readIrRight() { return digitalRead(IR_RIGHT_PIN) == IR_ACTIVE_STATE; }
+bool readIr() { return digitalRead(IR_PIN) == IR_ACTIVE_STATE; }
 
 void setup() {
   USB.disconnect();
@@ -40,13 +36,11 @@ void setup() {
   Serial.begin(115200);
 #endif
 
-  pinMode(IR_LEFT_PIN, IR_PIN_MODE);
-  pinMode(IR_RIGHT_PIN, IR_PIN_MODE);
+  pinMode(IR_PIN, IR_PIN_MODE);
 
   const uint32_t now = millis();
-  irLeft.reset(readIrLeft(), now);
-  irRight.reset(readIrRight(), now);
-  ir.begin(IR_CONFIG, irLeft.stable, irRight.stable, now);
+  irSensor.reset(readIr(), now);
+  ir.begin(IR_CONFIG, irSensor.stable, now);
 
   Keyboard.begin();
 }
@@ -56,17 +50,16 @@ void loop() {
 
   // Gesture recognition keeps running while the host is away so the state
   // machine never sees a time jump when USB comes back.
-  const bool left = irLeft.update(readIrLeft(), now, IR_DEBOUNCE_MS);
-  const bool right = irRight.update(readIrRight(), now, IR_DEBOUNCE_MS);
+  const bool active = irSensor.update(readIr(), now, IR_DEBOUNCE_MS);
 
 #if DEBUG_SERIAL
   const IrState before = ir.state;
 #endif
-  ir.update(left, right, now);
+  ir.update(active, now);
 #if DEBUG_SERIAL
   if (ir.state != before) {
-    Serial.printf("%lu ir L=%d R=%d state %d -> %d key=0x%02x\n",
-                  (unsigned long)now, left, right, before, ir.state, ir.key());
+    Serial.printf("%lu ir active=%d state %d -> %d key=0x%02x\n",
+                  (unsigned long)now, active, before, ir.state, ir.key());
   }
 #endif
 

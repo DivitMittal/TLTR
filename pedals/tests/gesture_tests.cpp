@@ -13,15 +13,13 @@
 #include "inputs.h"
 #include "ir_gesture.h"
 
-// Arduino Keyboard codes for F13..F18.
-constexpr uint8_t F13 = 0xF0, F14 = 0xF1, F15 = 0xF2, F16 = 0xF3, F17 = 0xF4,
-                  F18 = 0xF5;
+// Arduino Keyboard codes for F13..F16.
+constexpr uint8_t F13 = 0xF0, F14 = 0xF1, F15 = 0xF2, F16 = 0xF3;
 
 // Mirrors the defaults in config.h.
 constexpr uint32_t PEDAL_DEBOUNCE_MS = 20;
 constexpr uint32_t IR_DEBOUNCE_MS = 10;
-constexpr IrGestureConfig IR_CONFIG = {300, 250, 20,  150, 20,
-                                       F15, F16, F17, F18};
+constexpr IrGestureConfig IR_CONFIG = {300, 150, 20, F15, F16};
 
 struct KeyEvent {
   uint32_t t;
@@ -90,30 +88,28 @@ Signal chatter(uint32_t start, uint32_t end, uint32_t period) {
 }
 
 struct Inputs {
-  Signal p1 = off(), p2 = off(), left = off(), right = off();
+  Signal p1 = off(), p2 = off(), ir = off();
 };
 
 // Runs the combined-firmware pipeline from t0 for `duration` ms. Signal time
 // is relative to t0 so wraparound can be tested.
 FakeKeyboard simulate(const Inputs &in, uint32_t duration, uint32_t t0 = 0) {
   FakeKeyboard kbd;
-  Debouncer p1, p2, left, right;
+  Debouncer p1, p2, irSensor;
   IrGesture ir;
   uint8_t reportedP1 = 0, reportedP2 = 0, reportedIr = 0;
 
   p1.reset(in.p1(0), t0);
   p2.reset(in.p2(0), t0);
-  left.reset(in.left(0), t0);
-  right.reset(in.right(0), t0);
-  ir.begin(IR_CONFIG, left.stable, right.stable, t0);
+  irSensor.reset(in.ir(0), t0);
+  ir.begin(IR_CONFIG, irSensor.stable, t0);
 
   for (uint32_t t = 0; t <= duration; ++t) {
     const uint32_t now = t0 + t;
     kbd.now = t;
     const bool p1Down = p1.update(in.p1(t), now, PEDAL_DEBOUNCE_MS);
     const bool p2Down = p2.update(in.p2(t), now, PEDAL_DEBOUNCE_MS);
-    ir.update(left.update(in.left(t), now, IR_DEBOUNCE_MS),
-              right.update(in.right(t), now, IR_DEBOUNCE_MS), now);
+    ir.update(irSensor.update(in.ir(t), now, IR_DEBOUNCE_MS), now);
 
     syncKeySlot(kbd, reportedP1, p1Down ? F13 : 0);
     syncKeySlot(kbd, reportedP2, p2Down ? F14 : 0);
@@ -125,13 +121,13 @@ FakeKeyboard simulate(const Inputs &in, uint32_t duration, uint32_t t0 = 0) {
 int failures = 0;
 const char *currentTest = "";
 
-#define CHECK(cond)                                                            \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::printf("FAIL [%s] %s:%d: %s\n", currentTest, __FILE__, __LINE__,    \
-                  #cond);                                                      \
-      ++failures;                                                              \
-    }                                                                          \
+#define CHECK(cond)                                                          \
+  do {                                                                       \
+    if (!(cond)) {                                                           \
+      std::printf("FAIL [%s] %s:%d: %s\n", currentTest, __FILE__, __LINE__,  \
+                   #cond);                                                   \
+      ++failures;                                                            \
+    }                                                                        \
   } while (0)
 
 int presses(const FakeKeyboard &kbd, uint8_t key) {
@@ -198,170 +194,85 @@ int main() {
     CHECK(onlyTap(k, F13));
   });
 
-  test("left hold", [] {
+  test("IR hold", [] {
     Inputs in;
-    in.left = on(100, 1000);
+    in.ir = on(100, 1000);
     FakeKeyboard k = simulate(in, 1500);
     CHECK(onlyTap(k, F15));
     CHECK(eventTime(k, F15, true) == 100 + IR_DEBOUNCE_MS + 300);
     CHECK(eventTime(k, F15, false) == 1000 + IR_DEBOUNCE_MS);
   });
 
-  test("right hold", [] {
+  test("IR tap", [] {
     Inputs in;
-    in.right = on(100, 1000);
-    FakeKeyboard k = simulate(in, 1500);
+    in.ir = on(100, 250);
+    FakeKeyboard k = simulate(in, 1000);
+    CHECK(onlyTap(k, F16));
+    CHECK(eventTime(k, F16, true) == 250 + IR_DEBOUNCE_MS);
+    CHECK(eventTime(k, F16, false) - eventTime(k, F16, true) == 20);
+  });
+
+  test("brief flicker still taps", [] {
+    Inputs in;
+    in.ir = on(100, 115);
+    FakeKeyboard k = simulate(in, 1000);
     CHECK(onlyTap(k, F16));
   });
 
-  test("left to right swipe, overlapping", [] {
+  test("a tap does not stop a later hold", [] {
     Inputs in;
-    in.left = on(100, 300);
-    in.right = on(200, 400);
-    FakeKeyboard k = simulate(in, 1000);
-    CHECK(onlyTap(k, F17));
-    CHECK(eventTime(k, F17, false) - eventTime(k, F17, true) == 20);
-  });
-
-  test("left to right swipe, left clears before right", [] {
-    Inputs in;
-    in.left = on(100, 150);
-    in.right = on(200, 260);
-    FakeKeyboard k = simulate(in, 1000);
-    CHECK(onlyTap(k, F17));
-  });
-
-  test("right to left swipe", [] {
-    Inputs in;
-    in.right = on(100, 300);
-    in.left = on(180, 400);
-    FakeKeyboard k = simulate(in, 1000);
-    CHECK(onlyTap(k, F18));
-  });
-
-  test("swipe then hand rests on second sensor", [] {
-    Inputs in;
-    in.left = on(100, 250);
-    in.right = on(200, 2000);
-    FakeKeyboard k = simulate(in, 2500);
-    CHECK(onlyTap(k, F17));
-  });
-
-  test("swipe with both sensors staying active", [] {
-    Inputs in;
-    in.left = on(100, 900);
-    in.right = on(200, 900);
+    in.ir = both(on(100, 150), on(400, 1000));
     FakeKeyboard k = simulate(in, 1500);
-    CHECK(onlyTap(k, F17));
-  });
-
-  test("simultaneous activation is ambiguous", [] {
-    Inputs in;
-    in.left = on(100, 500);
-    in.right = on(100, 500);
-    CHECK(simulate(in, 1000).log.empty());
-  });
-
-  test("near-simultaneous activation is ambiguous", [] {
-    Inputs in;
-    in.left = on(100, 500);
-    in.right = on(110, 500);
-    CHECK(simulate(in, 1000).log.empty());
-  });
-
-  test("ambiguous waits for clear, then re-arms", [] {
-    Inputs in;
-    in.left = both(on(100, 500), on(800, 1400));
-    in.right = on(105, 600);
-    FakeKeyboard k = simulate(in, 2000);
-    CHECK(onlyTap(k, F15));
-    CHECK(eventTime(k, F15, true) == 800 + IR_DEBOUNCE_MS + 300);
-  });
-
-  test("brief activation emits nothing", [] {
-    Inputs in;
-    in.left = on(100, 250);
-    CHECK(simulate(in, 1000).log.empty());
-  });
-
-  test("slow second sensor is not a swipe", [] {
-    Inputs in;
-    in.left = on(100, 200);
-    in.right = on(400, 500);
-    CHECK(simulate(in, 1000).log.empty());
-  });
-
-  test("slow second sensor while first still active", [] {
-    Inputs in;
-    in.left = on(100, 500);
-    in.right = on(370, 600); // onset gap 270 ms > window, before hold
-    CHECK(simulate(in, 1000).log.empty());
-  });
-
-  test("failed hold does not swallow a later hold", [] {
-    Inputs in;
-    in.left = on(100, 200);
-    in.right = on(400, 1000);
-    FakeKeyboard k = simulate(in, 1500);
-    CHECK(onlyTap(k, F16));
-  });
-
-  test("committed hold ignores the other sensor", [] {
-    Inputs in;
-    in.left = on(100, 1000);
-    in.right = on(600, 1200); // still active when the hold ends
-    FakeKeyboard k = simulate(in, 1500);
-    CHECK(onlyTap(k, F15));
-    CHECK(eventTime(k, F15, false) == 1000 + IR_DEBOUNCE_MS);
-  });
-
-  test("comparator chatter before a hold", [] {
-    Inputs in;
-    in.left = both(chatter(100, 200, 3), on(200, 1000));
-    FakeKeyboard k = simulate(in, 1500);
-    CHECK(onlyTap(k, F15));
+    CHECK(presses(k, F16) == 1 && presses(k, F15) == 1);
+    CHECK(eventTime(k, F16, false) < eventTime(k, F15, true));
   });
 
   test("short glitch during a hold does not release", [] {
     Inputs in;
-    in.left = both(on(100, 600), on(605, 1000));
+    in.ir = both(on(100, 600), on(605, 1000));
+    FakeKeyboard k = simulate(in, 1500);
+    CHECK(onlyTap(k, F15));
+  });
+
+  test("comparator chatter before a hold", [] {
+    Inputs in;
+    in.ir = both(chatter(100, 200, 3), on(200, 1000));
     FakeKeyboard k = simulate(in, 1500);
     CHECK(onlyTap(k, F15));
   });
 
   test("chatter alone emits nothing", [] {
     Inputs in;
-    in.left = chatter(100, 1000, 4);
-    in.right = chatter(300, 700, 3);
+    in.ir = chatter(100, 1000, 4);
     CHECK(simulate(in, 1500).log.empty());
   });
 
-  test("two separate swipes give two taps", [] {
+  test("two separate taps", [] {
     Inputs in;
-    in.left = both(on(100, 200), on(700, 800));
-    in.right = both(on(180, 300), on(780, 900));
-    FakeKeyboard k = simulate(in, 1500);
-    CHECK(presses(k, F17) == 2 && k.log.size() == 4);
+    in.ir = both(on(100, 200), on(700, 800));
+    FakeKeyboard k = simulate(in, 1200);
+    CHECK(presses(k, F16) == 2 && k.log.size() == 4);
   });
 
-  test("activity before re-arm is ignored", [] {
+  test("a re-touch during re-arm is swallowed entirely", [] {
+    // IR clears at 160 (debounced) after the first tap; it returns at 200,
+    // inside the 150 ms re-arm interval, and then stays active far longer
+    // than the hold threshold. None of that produces a second event: the
+    // sensor must go fully clear and re-arm before it can be classified
+    // again.
     Inputs in;
-    // R clears at 310 (debounced); L returns at 360, inside the 150 ms re-arm
-    // interval, so even a long press must not become a hold.
-    in.left = both(on(100, 200), on(350, 1000));
-    in.right = on(180, 300);
+    in.ir = both(on(100, 150), on(200, 1000));
     FakeKeyboard k = simulate(in, 1500);
-    CHECK(onlyTap(k, F17));
+    CHECK(onlyTap(k, F16));
   });
 
-  test("pedal 1 stays held through a swipe", [] {
+  test("pedal 1 stays held through an IR tap", [] {
     Inputs in;
     in.p1 = on(50, 1500);
-    in.left = on(500, 650);
-    in.right = on(600, 700);
+    in.ir = on(500, 650);
     FakeKeyboard k = simulate(in, 2000);
-    CHECK(presses(k, F13) == 1 && presses(k, F17) == 1);
-    CHECK(eventTime(k, F17, false) < eventTime(k, F13, false));
+    CHECK(presses(k, F13) == 1 && presses(k, F16) == 1);
+    CHECK(eventTime(k, F16, false) < eventTime(k, F13, false));
     CHECK(eventTime(k, F13, false) == 1500 + PEDAL_DEBOUNCE_MS);
     CHECK(k.log.size() == 4);
   });
@@ -369,27 +280,27 @@ int main() {
   test("pedal 2 stays held through an IR hold", [] {
     Inputs in;
     in.p2 = on(50, 1500);
-    in.right = on(300, 1000);
+    in.ir = on(300, 1000);
     FakeKeyboard k = simulate(in, 2000);
-    CHECK(presses(k, F14) == 1 && presses(k, F16) == 1);
-    CHECK(eventTime(k, F16, false) < eventTime(k, F14, false));
+    CHECK(presses(k, F14) == 1 && presses(k, F15) == 1);
+    CHECK(eventTime(k, F15, false) < eventTime(k, F14, false));
     CHECK(k.log.size() == 4);
   });
 
-  test("both pedals held through a swipe", [] {
+  test("both pedals held through an IR tap", [] {
     Inputs in;
     in.p1 = on(50, 1500);
     in.p2 = on(60, 1500);
-    in.right = on(500, 650);
-    in.left = on(600, 700);
+    in.ir = on(500, 650);
     FakeKeyboard k = simulate(in, 2000);
-    CHECK(presses(k, F13) == 1 && presses(k, F14) == 1 && presses(k, F18) == 1);
+    CHECK(presses(k, F13) == 1 && presses(k, F14) == 1 &&
+          presses(k, F16) == 1);
     CHECK(k.log.size() == 6 && !k.overflow);
   });
 
   test("sensor active at boot waits for clear", [] {
     Inputs in;
-    in.left = both(on(0, 800), on(1000, 1500));
+    in.ir = both(on(0, 800), on(1000, 1500));
     FakeKeyboard k = simulate(in, 2000);
     CHECK(onlyTap(k, F15));
     CHECK(eventTime(k, F15, true) == 1000 + IR_DEBOUNCE_MS + 300);
@@ -398,11 +309,10 @@ int main() {
   test("millis() wraparound", [] {
     Inputs in;
     in.p1 = on(100, 900);
-    in.left = on(100, 300);
-    in.right = on(200, 400);
-    in.right = both(in.right, on(1000, 1600));
+    in.ir = both(on(100, 250), on(1000, 1600));
     FakeKeyboard k = simulate(in, 2000, UINT32_MAX - 500);
-    CHECK(presses(k, F13) == 1 && presses(k, F17) == 1 && presses(k, F16) == 1);
+    CHECK(presses(k, F13) == 1 && presses(k, F16) == 1 &&
+          presses(k, F15) == 1);
     CHECK(k.log.size() == 6);
   });
 
