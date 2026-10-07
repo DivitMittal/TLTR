@@ -1,10 +1,10 @@
-// RP2040 Pedal + IR HID: two foot pedals and two digital IR proximity sensors
+// RP2040 Pedal + IR HID: two foot pedals and one digital IR proximity sensor
 // as one USB HID keyboard.
 //
 // The firmware only recognises physical events and emits otherwise-unused
-// function keys (F13-F18 by default); the host decides what they mean.
-// Pedals and IR run independently: each owns its own key slot, so an IR swipe
-// tap never releases a held pedal key and vice versa.
+// function keys (F13-F16 by default); the host decides what they mean.
+// Pedals and IR run independently: each owns its own key slot, so an IR tap
+// never releases a held pedal key and vice versa.
 // See README.md for wiring, timing model and tuning.
 
 #include <Keyboard.h>
@@ -23,14 +23,11 @@ constexpr uint8_t PEDAL_KEYS[] = {PEDAL1_KEY, PEDAL2_KEY};
 constexpr size_t PEDAL_COUNT = sizeof(PEDAL_PINS) / sizeof(PEDAL_PINS[0]);
 
 constexpr IrGestureConfig IR_CONFIG = {
-    IR_HOLD_THRESHOLD_MS, IR_SWIPE_WINDOW_MS, IR_MIN_SWIPE_SEPARATION_MS,
-    IR_REARM_MS,          IR_SWIPE_TAP_MS,    IR_LEFT_HOLD_KEY,
-    IR_RIGHT_HOLD_KEY,    IR_SWIPE_LR_KEY,    IR_SWIPE_RL_KEY,
+    IR_HOLD_THRESHOLD_MS, IR_REARM_MS, IR_TAP_MS, IR_HOLD_KEY, IR_TAP_KEY,
 };
 
 Debouncer pedals[PEDAL_COUNT];
-Debouncer irLeft;
-Debouncer irRight;
+Debouncer irSensor;
 IrGesture ir;
 
 // Keys the host currently sees from each slot (0 = none).
@@ -41,8 +38,7 @@ bool hostReady = false;
 bool readPedal(size_t i) {
   return digitalRead(PEDAL_PINS[i]) == PEDAL_ACTIVE_STATE;
 }
-bool readIrLeft() { return digitalRead(IR_LEFT_PIN) == IR_ACTIVE_STATE; }
-bool readIrRight() { return digitalRead(IR_RIGHT_PIN) == IR_ACTIVE_STATE; }
+bool readIr() { return digitalRead(IR_PIN) == IR_ACTIVE_STATE; }
 
 void setup() {
   USB.disconnect();
@@ -57,16 +53,14 @@ void setup() {
   for (size_t i = 0; i < PEDAL_COUNT; ++i) {
     pinMode(PEDAL_PINS[i], PEDAL_PIN_MODE);
   }
-  pinMode(IR_LEFT_PIN, IR_PIN_MODE);
-  pinMode(IR_RIGHT_PIN, IR_PIN_MODE);
+  pinMode(IR_PIN, IR_PIN_MODE);
 
   const uint32_t now = millis();
   for (size_t i = 0; i < PEDAL_COUNT; ++i) {
     pedals[i].reset(readPedal(i), now);
   }
-  irLeft.reset(readIrLeft(), now);
-  irRight.reset(readIrRight(), now);
-  ir.begin(IR_CONFIG, irLeft.stable, irRight.stable, now);
+  irSensor.reset(readIr(), now);
+  ir.begin(IR_CONFIG, irSensor.stable, now);
 
   Keyboard.begin();
 }
@@ -81,17 +75,16 @@ void loop() {
     pedalDown[i] = pedals[i].update(readPedal(i), now, PEDAL_DEBOUNCE_MS);
   }
 
-  const bool left = irLeft.update(readIrLeft(), now, IR_DEBOUNCE_MS);
-  const bool right = irRight.update(readIrRight(), now, IR_DEBOUNCE_MS);
+  const bool active = irSensor.update(readIr(), now, IR_DEBOUNCE_MS);
 
 #if DEBUG_SERIAL
   const IrState before = ir.state;
 #endif
-  ir.update(left, right, now);
+  ir.update(active, now);
 #if DEBUG_SERIAL
   if (ir.state != before) {
-    Serial.printf("%lu ir L=%d R=%d state %d -> %d key=0x%02x\n",
-                  (unsigned long)now, left, right, before, ir.state, ir.key());
+    Serial.printf("%lu ir active=%d state %d -> %d key=0x%02x\n",
+                  (unsigned long)now, active, before, ir.state, ir.key());
   }
 #endif
 

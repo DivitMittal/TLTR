@@ -10,7 +10,7 @@
 #include <Arduino.h>
 #include <Keyboard.h>
 
-// ---- Pins (Waveshare RP2040-Zero; GP28/GP29 are real exposed GPIOs) --------
+// ---- Pins (Waveshare RP2040-Zero; GP28 is a real exposed GPIO) ------------
 
 #ifndef PEDAL1_PIN
 #define PEDAL1_PIN 14
@@ -32,15 +32,11 @@
 #define PEDAL_ACTIVE_STATE LOW
 #endif
 
-#ifndef IR_LEFT_PIN
-#define IR_LEFT_PIN 29
+#ifndef IR_PIN
+#define IR_PIN 28
 #endif
 
-#ifndef IR_RIGHT_PIN
-#define IR_RIGHT_PIN 28
-#endif
-
-// The IR modules actively drive OUT (comparator + on-board pull-up), so no
+// The IR module actively drives OUT (comparator + on-board pull-up), so no
 // internal pull is needed by default.
 #ifndef IR_PIN_MODE
 #define IR_PIN_MODE INPUT
@@ -62,20 +58,12 @@
 #define PEDAL2_KEY KEY_F14
 #endif
 
-#ifndef IR_LEFT_HOLD_KEY
-#define IR_LEFT_HOLD_KEY KEY_F15
+#ifndef IR_HOLD_KEY
+#define IR_HOLD_KEY KEY_F15
 #endif
 
-#ifndef IR_RIGHT_HOLD_KEY
-#define IR_RIGHT_HOLD_KEY KEY_F16
-#endif
-
-#ifndef IR_SWIPE_LR_KEY
-#define IR_SWIPE_LR_KEY KEY_F17
-#endif
-
-#ifndef IR_SWIPE_RL_KEY
-#define IR_SWIPE_RL_KEY KEY_F18
+#ifndef IR_TAP_KEY
+#define IR_TAP_KEY KEY_F16
 #endif
 
 // ---- Timing (milliseconds) --------------------------------------------------
@@ -85,36 +73,25 @@
 #define PEDAL_DEBOUNCE_MS 20
 #endif
 
-// Comparator chatter around the potentiometer threshold is filtered here. The
-// same delay applies to both sensors, so swipe ordering is preserved.
+// Comparator chatter around the potentiometer threshold is filtered here.
 #ifndef IR_DEBOUNCE_MS
 #define IR_DEBOUNCE_MS 10
 #endif
 
-// A lone sensor must stay active this long before it counts as a hold. Shorter
-// activations produce nothing, so a hand passing by is ignored.
+// The IR sensor must stay active this long to count as a hold rather than a
+// tap.
 #ifndef IR_HOLD_THRESHOLD_MS
 #define IR_HOLD_THRESHOLD_MS 300
 #endif
 
-// Maximum onset gap between the first and second sensor for a swipe.
-#ifndef IR_SWIPE_WINDOW_MS
-#define IR_SWIPE_WINDOW_MS 250
-#endif
-
-// Onset gaps shorter than this cannot be given a direction and are discarded.
-#ifndef IR_MIN_SWIPE_SEPARATION_MS
-#define IR_MIN_SWIPE_SEPARATION_MS 20
-#endif
-
-// Both sensors must stay clear this long after a gesture before the next one.
+// The IR sensor must stay clear this long after a gesture before the next.
 #ifndef IR_REARM_MS
 #define IR_REARM_MS 150
 #endif
 
-// How long a swipe key is held down for its single tap.
-#ifndef IR_SWIPE_TAP_MS
-#define IR_SWIPE_TAP_MS 20
+// How long the IR tap key is held down for its single tap.
+#ifndef IR_TAP_MS
+#define IR_TAP_MS 20
 #endif
 
 // ---- USB --------------------------------------------------------------------
@@ -157,14 +134,12 @@ template <size_t N> constexpr bool allDistinct(const long (&values)[N]) {
   return true;
 }
 
-constexpr long INPUT_PINS[] = {PEDAL1_PIN, PEDAL2_PIN, IR_LEFT_PIN,
-                               IR_RIGHT_PIN};
-constexpr long EVENT_KEYS[] = {PEDAL1_KEY,       PEDAL2_KEY,
-                               IR_LEFT_HOLD_KEY, IR_RIGHT_HOLD_KEY,
-                               IR_SWIPE_LR_KEY,  IR_SWIPE_RL_KEY};
+constexpr long INPUT_PINS[] = {PEDAL1_PIN, PEDAL2_PIN, IR_PIN};
+constexpr long EVENT_KEYS[] = {PEDAL1_KEY, PEDAL2_KEY, IR_HOLD_KEY,
+                               IR_TAP_KEY};
 
 static_assert(isValidPin(PEDAL1_PIN) && isValidPin(PEDAL2_PIN) &&
-                  isValidPin(IR_LEFT_PIN) && isValidPin(IR_RIGHT_PIN),
+                  isValidPin(IR_PIN),
               "Input pins must be RP2040 GPIOs 0-29");
 static_assert(allDistinct(INPUT_PINS),
               "Input GPIO assignments must be distinct");
@@ -181,8 +156,7 @@ static_assert(IR_ACTIVE_STATE == LOW || IR_ACTIVE_STATE == HIGH,
 
 static_assert(isValidKey(PEDAL1_KEY) && isValidKey(PEDAL2_KEY),
               "Pedal keys must be non-zero, non-modifier keycodes");
-static_assert(isValidKey(IR_LEFT_HOLD_KEY) && isValidKey(IR_RIGHT_HOLD_KEY) &&
-                  isValidKey(IR_SWIPE_LR_KEY) && isValidKey(IR_SWIPE_RL_KEY),
+static_assert(isValidKey(IR_HOLD_KEY) && isValidKey(IR_TAP_KEY),
               "IR keys must be non-zero, non-modifier keycodes");
 static_assert(allDistinct(EVENT_KEYS),
               "Every pedal and IR event must have its own HID key");
@@ -191,21 +165,13 @@ static_assert(PEDAL_DEBOUNCE_MS >= 0 && PEDAL_DEBOUNCE_MS <= 100,
               "PEDAL_DEBOUNCE_MS must be in the 0-100 range");
 static_assert(IR_DEBOUNCE_MS >= 0 && IR_DEBOUNCE_MS <= 100,
               "IR_DEBOUNCE_MS must be in the 0-100 range");
-static_assert(IR_MIN_SWIPE_SEPARATION_MS >= 0 &&
-                  IR_MIN_SWIPE_SEPARATION_MS < IR_SWIPE_WINDOW_MS,
-              "IR_MIN_SWIPE_SEPARATION_MS must be below IR_SWIPE_WINDOW_MS");
-// A pending sensor turns into a hold at the threshold, after which the other
-// sensor can no longer make it a swipe, so a longer window would be dead.
-static_assert(IR_SWIPE_WINDOW_MS <= IR_HOLD_THRESHOLD_MS,
-              "IR_SWIPE_WINDOW_MS must not exceed IR_HOLD_THRESHOLD_MS");
 static_assert(IR_HOLD_THRESHOLD_MS <= 5000,
               "IR_HOLD_THRESHOLD_MS must be at most 5000");
 static_assert(IR_REARM_MS >= 0 && IR_REARM_MS <= 5000,
               "IR_REARM_MS must be in the 0-5000 range");
 // The press and release must land in separate HID polls.
-static_assert(
-    IR_SWIPE_TAP_MS >= 2 * HID_POLL_INTERVAL_MS && IR_SWIPE_TAP_MS <= 500,
-    "IR_SWIPE_TAP_MS must cover at least two HID polls and be at most 500");
+static_assert(IR_TAP_MS >= 2 * HID_POLL_INTERVAL_MS && IR_TAP_MS <= 500,
+              "IR_TAP_MS must cover at least two HID polls and be at most 500");
 
 static_assert(HID_POLL_INTERVAL_MS >= 1 && HID_POLL_INTERVAL_MS <= 255,
               "HID_POLL_INTERVAL_MS must be in the 1-255 range");
