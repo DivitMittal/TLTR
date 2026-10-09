@@ -69,12 +69,9 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
         2. [InterceptionDriver](https://github.com/oblitum/Interception)
    3. \*nix
 
-2. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements) - macOS only
-   1. macOS
-
 ### Hardware-based (firmware flashed to keyboard):
 
-3. [QMK Firmware](https://qmk.fm/) - For programmable keyboards
+2. [QMK Firmware](https://qmk.fm/) - For programmable keyboards
    - Target keyboard: [Piantor](https://github.com/beekeeb/piantor) (RP2040-based Cantor variant)
    - Firmware location: `qmk/piantor_tltr/`
    - Build instructions: See [qmk/README.md](qmk/README.md)
