@@ -96,6 +96,23 @@ bool process_detected_host_os_user(os_variant_t detected_os) {
   return true;
 }
 
+// A mouse key held across suspend can miss its release, leaving the cursor
+// drifting after wake. QMK clears keys and mods on wake but not this state.
+void suspend_wakeup_init_user(void) {
+  mouse_up_pressed = false;
+  mouse_down_pressed = false;
+  mouse_left_pressed = false;
+  mouse_right_pressed = false;
+  zoom_in_pressed = false;
+  zoom_out_pressed = false;
+  mouse_slow_mode = false;
+  mouse_precise_mode = false;
+  mouse_scroll_mode = false;
+  mouse_buttons = 0;
+  mbtn1_oneshot_mods = 0;
+  mbtn2_oneshot_mods = 0;
+}
+
 void matrix_scan_user(void) {
   if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
       !mouse_right_pressed && !zoom_in_pressed && !zoom_out_pressed) {
