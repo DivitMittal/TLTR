@@ -68,7 +68,6 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
    1. macOS
       - Dependencies:
         1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice)
-        2. [Shortcuts](<https://www.wikipedia.com/en/articles/Shortcuts_(Apple)>)
    2. Windows
       - Dependencies:
         1. [nircmd](https://www.nirsoft.net/utils/nircmd.html)
