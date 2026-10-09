@@ -55,6 +55,10 @@ static uint16_t boot_hold_timer = 0;
 static uint8_t mbtn1_oneshot_mods = 0;
 static uint8_t mbtn2_oneshot_mods = 0;
 
+// Shift held off by a fork key sending its shifted alternate (see press_fork_unshifted)
+static uint8_t fork_suppressed_shift = 0;
+static uint8_t fork_unshifted_held = 0;
+
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
 static inline int8_t get_zoom_wheel_speed(void);
@@ -111,6 +115,8 @@ void suspend_wakeup_init_user(void) {
   mouse_buttons = 0;
   mbtn1_oneshot_mods = 0;
   mbtn2_oneshot_mods = 0;
+  fork_suppressed_shift = 0;
+  fork_unshifted_held = 0;
 }
 
 void matrix_scan_user(void) {
@@ -404,6 +410,29 @@ static inline void clear_shift_mods(void) {
   }
 }
 
+// Shift a fork key removed to send its alternate. It stays off while the key is
+// held, so key repeat doesn't become Shift+Del/Home/End, and comes back on
+// release unless the shift key itself was let go in the meantime.
+static void press_fork_unshifted(uint16_t key) {
+  fork_suppressed_shift |= get_mods() & MOD_MASK_SHIFT;
+  fork_unshifted_held++;
+  clear_shift_mods();
+  register_code(key);
+}
+
+static void release_fork(uint16_t *registered, uint16_t unshifted_key) {
+  if (*registered == KC_NO) {
+    return;
+  }
+  unregister_code(*registered);
+  if (*registered == unshifted_key && fork_unshifted_held > 0 &&
+      --fork_unshifted_held == 0) {
+    register_mods(fork_suppressed_shift);
+    fork_suppressed_shift = 0;
+  }
+  *registered = KC_NO;
+}
+
 // Caps Word sees the raw keymap keycode, so custom keys that type word
 // characters, delete, or switch layers must be listed or they end the word.
 bool caps_word_press_user(uint16_t keycode) {
@@ -527,6 +556,11 @@ static inline void update_zoom_ctrl(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if (!record->event.pressed &&
+      (keycode == KC_LSFT || keycode == KC_MOD_SHIFT)) {
+    fork_suppressed_shift &= ~MOD_BIT(KC_LSFT);
+  }
+
   if (oneshot_state.active) {
     if (timer_elapsed(oneshot_state.timer) > ONESHOT_TIMEOUT) {
       unregister_mods(oneshot_state.mods);
@@ -814,40 +848,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_DELF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_DEL);
-        set_mods(saved_mods);
+        press_fork_unshifted(KC_DEL);
         delf_registered_key = KC_DEL;
       } else {
         register_code(KC_BSPC);
         delf_registered_key = KC_BSPC;
       }
     } else {
-      if (delf_registered_key != KC_NO) {
-        unregister_code(delf_registered_key);
-        delf_registered_key = KC_NO;
-      }
+      release_fork(&delf_registered_key, KC_DEL);
     }
     return false;
 
   case KC_SLAF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_BSLS);
-        set_mods(saved_mods);
+        press_fork_unshifted(KC_BSLS);
         slaf_registered_key = KC_BSLS;
       } else {
         register_code(KC_SLSH);
         slaf_registered_key = KC_SLSH;
       }
     } else {
-      if (slaf_registered_key != KC_NO) {
-        unregister_code(slaf_registered_key);
-        slaf_registered_key = KC_NO;
-      }
+      release_fork(&slaf_registered_key, KC_BSLS);
     }
     return false;
 
@@ -888,40 +910,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_PGUF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_HOME);
-        set_mods(saved_mods);
+        press_fork_unshifted(KC_HOME);
         pguf_registered_key = KC_HOME;
       } else {
         register_code(KC_PGUP);
         pguf_registered_key = KC_PGUP;
       }
     } else {
-      if (pguf_registered_key != KC_NO) {
-        unregister_code(pguf_registered_key);
-        pguf_registered_key = KC_NO;
-      }
+      release_fork(&pguf_registered_key, KC_HOME);
     }
     return false;
 
   case KC_PGDF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_END);
-        set_mods(saved_mods);
+        press_fork_unshifted(KC_END);
         pgdf_registered_key = KC_END;
       } else {
         register_code(KC_PGDN);
         pgdf_registered_key = KC_PGDN;
       }
     } else {
-      if (pgdf_registered_key != KC_NO) {
-        unregister_code(pgdf_registered_key);
-        pgdf_registered_key = KC_NO;
-      }
+      release_fork(&pgdf_registered_key, KC_END);
     }
     return false;
 
