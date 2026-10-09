@@ -45,7 +45,7 @@ Defines the keyboard matrix and layout:
 - Physical layout coordinates
 - Matrix to key position mapping
 - USB device identification
-- Feature flags (mousekey, extrakey, bootmagic, etc.)
+- Feature flags (mousekey, extrakey, caps_word, etc.)
 
 ### keymaps/tltr/keymap.c
 
