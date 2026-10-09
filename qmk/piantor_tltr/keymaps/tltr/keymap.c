@@ -127,8 +127,12 @@ void matrix_scan_user(void) {
   report_mouse_t mouse_report = {
       .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
 
+  // HID wheel: +v scrolls up, +h scrolls right. The toggle flips every wheel
+  // direction, zoom included.
+  int8_t wheel_dir = scroll_direction_reversed ? -1 : 1;
+
   if (zoom_in_pressed || zoom_out_pressed) {
-    int8_t wheel_speed = get_zoom_wheel_speed();
+    int8_t wheel_speed = wheel_dir * get_zoom_wheel_speed();
     if (zoom_in_pressed) {
       mouse_report.v = -wheel_speed;
     }
@@ -136,20 +140,18 @@ void matrix_scan_user(void) {
       mouse_report.v = wheel_speed;
     }
   } else if (mouse_scroll_mode) {
-    int8_t wheel_speed = get_wheel_speed();
-    int8_t v_dir = scroll_direction_reversed ? 1 : -1;
-    int8_t h_dir = scroll_direction_reversed ? -1 : 1;
+    int8_t wheel_speed = wheel_dir * get_wheel_speed();
     if (mouse_up_pressed) {
-      mouse_report.v = v_dir * wheel_speed;
+      mouse_report.v = wheel_speed;
     }
     if (mouse_down_pressed) {
-      mouse_report.v = -v_dir * wheel_speed;
+      mouse_report.v = -wheel_speed;
     }
     if (mouse_left_pressed) {
-      mouse_report.h = h_dir * wheel_speed;
+      mouse_report.h = -wheel_speed;
     }
     if (mouse_right_pressed) {
-      mouse_report.h = -h_dir * wheel_speed;
+      mouse_report.h = wheel_speed;
     }
   } else {
     int8_t move_speed = get_mouse_speed();
