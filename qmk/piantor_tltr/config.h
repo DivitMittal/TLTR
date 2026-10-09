@@ -52,9 +52,6 @@
 // Optimize matrix scanning
 #define MATRIX_IO_DELAY 30 // Default is good for RP2040
 
-// Reduce debounce algorithm overhead (sym_defer_g is fastest)
-#define DEBOUNCE_TYPE sym_defer_g
-
 // Custom feature flags for TLTR implementation
 #define TLTR_CUSTOM_MOUSE_KEYS
 #define TLTR_CUSTOM_ONESHOTS

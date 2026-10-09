@@ -6,6 +6,9 @@ else ifneq ($(strip $(TLTR_HALF)),right)
     $(error Set TLTR_HALF=left or TLTR_HALF=right, e.g. qmk compile ... -e TLTR_HALF=left)
 endif
 
+# Eager on press (no added latency), deferred on release
+DEBOUNCE_TYPE = asym_eager_defer_pk
+
 # Enable OS detection for automatic Unicode input mode
 OS_DETECTION_ENABLE = yes
 
