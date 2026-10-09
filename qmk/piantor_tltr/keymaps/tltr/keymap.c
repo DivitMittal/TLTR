@@ -55,10 +55,6 @@ static uint16_t boot_hold_timer = 0;
 static uint8_t mbtn1_oneshot_mods = 0;
 static uint8_t mbtn2_oneshot_mods = 0;
 
-// Shift held off by a fork key sending its shifted alternate (see press_fork_unshifted)
-static uint8_t fork_suppressed_shift = 0;
-static uint8_t fork_unshifted_held = 0;
-
 static inline int8_t get_mouse_speed(void);
 static inline int8_t get_wheel_speed(void);
 static inline int8_t get_zoom_wheel_speed(void);
@@ -115,8 +111,6 @@ void suspend_wakeup_init_user(void) {
   mouse_buttons = 0;
   mbtn1_oneshot_mods = 0;
   mbtn2_oneshot_mods = 0;
-  fork_suppressed_shift = 0;
-  fork_unshifted_held = 0;
 }
 
 void matrix_scan_user(void) {
@@ -180,27 +174,9 @@ void matrix_scan_user(void) {
 
 enum custom_keycodes {
   // Fork keys (context-sensitive keys)
-  KC_DELF = SAFE_RANGE, // Delete/Backspace Fork
-  KC_SLAF,              // Slash/Backslash Fork
-  KC_COMF,              // Comma/Underscore Fork
-  KC_DOTF,              // Dot/Question Fork
-  KC_PGUF,              // Page Up/Home Fork
-  KC_PGDF,              // Page Down/End Fork
-  KC_EXCF,              // Exclamation/Grave Fork
-  KC_ATSF,              // At/Tilde Fork
-  KC_OCTF,              // Hash/Caret Fork
-  KC_DOLF,              // Dollar/Rupee Fork
-  KC_AMPF,              // Ampersand/Pipe Fork
-  KC_CURF,              // Curly Brackets Fork
-  KC_PARF,              // Parentheses Fork
-  KC_SQRF,              // Square Brackets Fork
+  KC_DOLF = SAFE_RANGE,              // Dollar/Rupee Fork
   KC_ASTF,              // Asterisk/F11 Fork
   KC_PERF,              // Percent/F12 Fork
-  KC_HPNF,              // Hyphen (unshifted minus)
-  KC_EQUF,              // Equals (unshifted)
-  KC_PLUF,              // Plus (shifted equals)
-  KC_ANOF,              // Angle Open (unshifted <)
-  KC_ANCF,              // Angle Close (unshifted >)
 
   // Function key forks (number/function based on Fn modifier)
   KC_1F,
@@ -300,24 +276,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // COLEMAK MOD-DH + WIDE + ANGLE (38-key TLTR layout)
     [_COLEMAK] = LAYOUT_split_2x6_1x5_2(
         TD(TD_RIGHT_PEDAL), KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,        KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT, KC_SCLN,
-        KC_DELF, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,        KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
-                 KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,        KC_K,    KC_H,    KC_COMF, KC_DOTF, KC_SLAF,
+        KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,        KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
+                 KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,        KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH,
                                    KC_TL_KEY, KC_LSFT,            KC_SPC,  KC_TR_KEY
     ),
 
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
-        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
+        KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDN,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
                       TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
                                                  KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
     ),
 
     // TR Layer - Numbers & Symbols
     [_TR] = LAYOUT_split_2x6_1x5_2(
-        KC_NO,       KC_EXCF, KC_ATSF, KC_OCTF, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUF, KC_EQUF,
-        KC_TRNS,     KC_AMPF, KC_SQRF, KC_CURF, KC_PARF, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_HPNF, KC_TRNS,
-                     KC_NO,   KC_NO,   KC_ANOF, KC_ANCF, KC_NO,       KC_0F,   KC_1F,   KC_2F,   KC_3F,   KC_SLAF,
+        KC_NO,       KC_EXLM, KC_AT,   KC_HASH, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUS, KC_EQL,
+        KC_TRNS,     KC_AMPR, KC_LBRC, KC_LCBR, KC_LPRN, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_MINS, KC_TRNS,
+                     KC_NO,   KC_NO,   KC_LT,   KC_GT,   KC_NO,       KC_0F,   KC_1F,   KC_2F,   KC_3F,   KC_SLSH,
                                        KC_TLTLTR_KEY, KC_TRNS,        KC_TRNS, KC_TRNS
     ),
 
@@ -331,6 +307,36 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
+// Shift alternates. Decided when the key goes down (pressing or releasing shift
+// mid-hold doesn't switch it), and shift stays suppressed while it's held.
+#define SHIFT_FORK(trigger, replacement)                                      \
+  ko_make_with_layers_negmods_and_options(                                    \
+      MOD_BIT(KC_LSFT), trigger, replacement, ~0, 0,                          \
+      ko_option_activation_trigger_down | ko_option_no_reregister_trigger)
+
+static const key_override_t delete_override = SHIFT_FORK(KC_BSPC, KC_DEL);
+static const key_override_t backslash_override = SHIFT_FORK(KC_SLSH, KC_BSLS);
+static const key_override_t underscore_override = SHIFT_FORK(KC_COMM, KC_UNDS);
+static const key_override_t question_override = SHIFT_FORK(KC_DOT, KC_QUES);
+static const key_override_t home_override = SHIFT_FORK(KC_PGUP, KC_HOME);
+static const key_override_t end_override = SHIFT_FORK(KC_PGDN, KC_END);
+static const key_override_t grave_override = SHIFT_FORK(KC_EXLM, KC_GRV);
+static const key_override_t tilde_override = SHIFT_FORK(KC_AT, KC_TILD);
+static const key_override_t caret_override = SHIFT_FORK(KC_HASH, KC_CIRC);
+static const key_override_t pipe_override = SHIFT_FORK(KC_AMPR, KC_PIPE);
+static const key_override_t rcbr_override = SHIFT_FORK(KC_LCBR, KC_RCBR);
+static const key_override_t rprn_override = SHIFT_FORK(KC_LPRN, KC_RPRN);
+static const key_override_t rbrc_override = SHIFT_FORK(KC_LBRC, KC_RBRC);
+static const key_override_t equal_override = SHIFT_FORK(KC_EQL, KC_EQL);
+
+const key_override_t *key_overrides[] = {
+    &delete_override,   &backslash_override, &underscore_override,
+    &question_override, &home_override,      &end_override,
+    &grave_override,    &tilde_override,     &caret_override,
+    &pipe_override,     &rcbr_override,      &rprn_override,
+    &rbrc_override,     &equal_override,
+};
+
 // Advanced state tracking
 static bool tl_pressed = false;
 static bool tr_pressed = false;
@@ -338,12 +344,6 @@ static bool tr_pressed = false;
 static bool fn_modifier_active = false;
 static bool fn_oneshot_active = false;
 
-static uint16_t delf_registered_key = KC_NO;
-static uint16_t pguf_registered_key = KC_NO;
-static uint16_t pgdf_registered_key = KC_NO;
-static uint16_t slaf_registered_key = KC_NO;
-static uint16_t comf_registered_key = KC_NO;
-static uint16_t dotf_registered_key = KC_NO;
 
 static struct {
   bool active;
@@ -410,39 +410,16 @@ static inline void clear_shift_mods(void) {
   }
 }
 
-// Shift a fork key removed to send its alternate. It stays off while the key is
-// held, so key repeat doesn't become Shift+Del/Home/End, and comes back on
-// release unless the shift key itself was let go in the meantime.
-static void press_fork_unshifted(uint16_t key) {
-  fork_suppressed_shift |= get_mods() & MOD_MASK_SHIFT;
-  fork_unshifted_held++;
-  clear_shift_mods();
-  register_code(key);
-}
-
-static void release_fork(uint16_t *registered, uint16_t unshifted_key) {
-  if (*registered == KC_NO) {
-    return;
-  }
-  unregister_code(*registered);
-  if (*registered == unshifted_key && fork_unshifted_held > 0 &&
-      --fork_unshifted_held == 0) {
-    register_mods(fork_suppressed_shift);
-    fork_suppressed_shift = 0;
-  }
-  *registered = KC_NO;
-}
-
 // Caps Word sees the raw keymap keycode, so custom keys that type word
 // characters, delete, or switch layers must be listed or they end the word.
 bool caps_word_press_user(uint16_t keycode) {
   switch (keycode) {
   case KC_A ... KC_Z:
-  case KC_MINS:
     add_weak_mods(MOD_BIT(KC_LSFT));
     return true;
 
   case KC_1 ... KC_0:
+  case KC_MINS: // hyphen stays a hyphen; underscore is Shift+comma
   case KC_BSPC:
   case KC_DEL:
   case KC_UNDS:
@@ -457,13 +434,11 @@ bool caps_word_press_user(uint16_t keycode) {
   case KC_TLTLTR_KEY:
   case KC_TRTLTR_KEY:
   case KC_MOD_SHIFT:
-  case KC_DELF:
-  case KC_HPNF:
   case KC_1F ... KC_0F:
     return true;
 
   // Shifted it types an underscore, which continues the word; a comma ends it.
-  case KC_COMF:
+  case KC_COMM:
     return is_left_shift_active();
 
   default:
@@ -556,11 +531,6 @@ static inline void update_zoom_ctrl(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (!record->event.pressed &&
-      (keycode == KC_LSFT || keycode == KC_MOD_SHIFT)) {
-    fork_suppressed_shift &= ~MOD_BIT(KC_LSFT);
-  }
-
   if (oneshot_state.active) {
     if (timer_elapsed(oneshot_state.timer) > ONESHOT_TIMEOUT) {
       unregister_mods(oneshot_state.mods);
@@ -845,135 +815,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_DELF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        press_fork_unshifted(KC_DEL);
-        delf_registered_key = KC_DEL;
-      } else {
-        register_code(KC_BSPC);
-        delf_registered_key = KC_BSPC;
-      }
-    } else {
-      release_fork(&delf_registered_key, KC_DEL);
-    }
-    return false;
-
-  case KC_SLAF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        press_fork_unshifted(KC_BSLS);
-        slaf_registered_key = KC_BSLS;
-      } else {
-        register_code(KC_SLSH);
-        slaf_registered_key = KC_SLSH;
-      }
-    } else {
-      release_fork(&slaf_registered_key, KC_BSLS);
-    }
-    return false;
-
-  case KC_COMF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        register_code(KC_MINS);
-        comf_registered_key = KC_MINS;
-      } else {
-        register_code(KC_COMM);
-        comf_registered_key = KC_COMM;
-      }
-    } else {
-      if (comf_registered_key != KC_NO) {
-        unregister_code(comf_registered_key);
-        comf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_DOTF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        register_code(KC_SLSH);
-        dotf_registered_key = KC_SLSH;
-      } else {
-        register_code(KC_DOT);
-        dotf_registered_key = KC_DOT;
-      }
-    } else {
-      if (dotf_registered_key != KC_NO) {
-        unregister_code(dotf_registered_key);
-        dotf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_PGUF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        press_fork_unshifted(KC_HOME);
-        pguf_registered_key = KC_HOME;
-      } else {
-        register_code(KC_PGUP);
-        pguf_registered_key = KC_PGUP;
-      }
-    } else {
-      release_fork(&pguf_registered_key, KC_HOME);
-    }
-    return false;
-
-  case KC_PGDF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        press_fork_unshifted(KC_END);
-        pgdf_registered_key = KC_END;
-      } else {
-        register_code(KC_PGDN);
-        pgdf_registered_key = KC_PGDN;
-      }
-    } else {
-      release_fork(&pgdf_registered_key, KC_END);
-    }
-    return false;
-
-  case KC_EXCF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code(KC_GRV);
-        set_mods(saved_mods);
-      } else {
-        tap_code16(KC_EXLM);
-      }
-    }
-    return false;
-
-  case KC_ATSF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_TILD);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_AT);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_OCTF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_CIRC);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_HASH);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
   case KC_DOLF:
     if (record->event.pressed) {
       if (is_left_shift_active()) {
@@ -983,58 +824,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         set_mods(saved_mods);
       } else {
         tap_code16(KC_DLR);
-      }
-    }
-    return false;
-
-  case KC_AMPF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_PIPE);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_AMPR);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_CURF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_RCBR);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_LCBR);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_PARF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_RPRN);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_LPRN);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_SQRF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code(KC_RBRC);
-        set_mods(saved_mods);
-      } else {
-        tap_code(KC_LBRC);
       }
     }
     return false;
@@ -1077,45 +866,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         tap_code16(KC_PERC);
       }
-    }
-    return false;
-
-  case KC_HPNF:
-    if (record->event.pressed) {
-      tap_code(KC_MINS);
-    }
-    return false;
-
-  case KC_EQUF:
-    if (record->event.pressed) {
-      uint8_t saved_mods = get_mods();
-      clear_shift_mods();
-      tap_code(KC_EQL);
-      set_mods(saved_mods);
-    }
-    return false;
-
-  case KC_PLUF:
-    if (record->event.pressed) {
-      tap_code16(KC_PLUS);
-    }
-    return false;
-
-  case KC_ANOF:
-    if (record->event.pressed) {
-      uint8_t saved_mods = get_mods();
-      clear_shift_mods();
-      tap_code16(KC_LT);
-      set_mods(saved_mods);
-    }
-    return false;
-
-  case KC_ANCF:
-    if (record->event.pressed) {
-      uint8_t saved_mods = get_mods();
-      clear_shift_mods();
-      tap_code16(KC_GT);
-      set_mods(saved_mods);
     }
     return false;
 

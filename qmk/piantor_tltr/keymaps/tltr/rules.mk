@@ -18,6 +18,9 @@ UNICODE_ENABLE = yes
 # Enable caps word
 CAPS_WORD_ENABLE = yes
 
+# Shift alternates for symbol/navigation keys
+KEY_OVERRIDE_ENABLE = yes
+
 # Enable tap dance for pedal-style double-tap chords
 TAP_DANCE_ENABLE = yes
 
