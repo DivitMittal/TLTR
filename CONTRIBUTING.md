@@ -13,8 +13,7 @@ This provides `keymap`, `kanata`, `alejandra`, and other tools needed for develo
 ## Guidelines
 
 - Nix files: format with `nix fmt`.
-- Karabiner JSON: format with `nix fmt` (prettier via treefmt).
-- Keep platform-specific logic isolated to its respective directory (`kanata/`, `karabiner/`, `qmk/`).
+- Keep platform-specific logic isolated to its respective directory (`kanata/`, `qmk/`).
 - Run `nix flake check` before submitting.
 - When changing key behaviors, update the keymap drawing source in `keymap-drawer/tltr.yml` to match.
 
@@ -28,7 +27,7 @@ This provides `keymap`, `kanata`, `alejandra`, and other tools needed for develo
 
 Open a GitHub issue with:
 
-- Deployment method (Kanata, Karabiner-Elements, or QMK).
+- Deployment method (Kanata or QMK).
 - OS and, if applicable, physical keyboard model.
 - Kanata or QMK version (`kanata --version`, `qmk --version`).
 - The layer and key sequence involved.
