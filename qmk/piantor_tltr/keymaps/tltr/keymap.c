@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "hardware/watchdog.h"
+#include "usb_util.h"
 
 // Speed level definitions
 #define MOUSE_MOVE_DEFAULT 16
@@ -61,9 +62,22 @@ static inline uint16_t get_mouse_interval(void);
 static inline uint16_t get_zoom_interval(void);
 static inline void update_zoom_ctrl(void);
 
-void keyboard_post_init_user(void) {
-  os_variant_t detected_os = detected_host_os();
+// Hardcoded split roles: the left half is always master, the right half always
+// slave. SPLIT_USB_DETECT only waited 2s for enumeration at boot, which lost the
+// race after macOS woke from Standby and left both halves acting as slave.
+// Handedness falls back to is_keyboard_master(), so left/right follow too.
+bool is_keyboard_master_impl(void) {
+#ifdef TLTR_HALF_LEFT
+  return true;
+#else
+  usb_disconnect();
+  return false;
+#endif
+}
 
+// Runs once the host OS has been fingerprinted. The master no longer waits for
+// enumeration before init, so keyboard_post_init_user is too early to ask.
+bool process_detected_host_os_user(os_variant_t detected_os) {
   switch (detected_os) {
   case OS_MACOS:
   case OS_IOS:
@@ -79,6 +93,7 @@ void keyboard_post_init_user(void) {
     set_unicode_input_mode(UNICODE_MODE_LINUX);
     break;
   }
+  return true;
 }
 
 void matrix_scan_user(void) {

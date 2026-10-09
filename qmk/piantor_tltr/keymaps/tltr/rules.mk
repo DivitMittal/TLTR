@@ -1,3 +1,11 @@
+# Which half this build is for; the left half is hardcoded as master.
+#   qmk compile -kb beekeeb/piantor_tltr -km tltr -e TLTR_HALF=left
+ifeq ($(strip $(TLTR_HALF)),left)
+    OPT_DEFS += -DTLTR_HALF_LEFT
+else ifneq ($(strip $(TLTR_HALF)),right)
+    $(error Set TLTR_HALF=left or TLTR_HALF=right, e.g. qmk compile ... -e TLTR_HALF=left)
+endif
+
 # Enable OS detection for automatic Unicode input mode
 OS_DETECTION_ENABLE = yes
 

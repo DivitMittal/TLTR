@@ -8,7 +8,8 @@
 #define SERIAL_USART_FULL_DUPLEX
 #define SERIAL_USART_TX_PIN GP0
 #define SERIAL_USART_RX_PIN GP1
-#define SPLIT_USB_DETECT
+// Master/slave roles are hardcoded per half (see TLTR_HALF in the keymap's
+// rules.mk), so the left half never depends on how fast the host enumerates.
 
 // Caps Word configuration
 #define CAPS_WORD_IDLE_TIMEOUT 3000
@@ -41,7 +42,6 @@
 
 // USB suspend/resume behavior
 // #define USB_SUSPEND_WAKEUP_DELAY 200 // 200ms delay after waking from suspend
-#define NO_USB_STARTUP_CHECK // keyboard after sleep macOS compatibility
 
 // Memory optimizations
 #define LAYER_STATE_8BIT // We only have 4 layers
