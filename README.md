@@ -15,6 +15,12 @@
     <a href="https://github.com/DivitMittal/TLTR/actions/workflows/flake-lock-update.yml">
         <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/flake-lock-update.yml/badge.svg" alt="update-flake-lock"/>
     </a>
+    <a href="https://github.com/DivitMittal/TLTR/actions/workflows/kanata-check.yml">
+        <img src="https://github.com/DivitMittal/TLTR/actions/workflows/kanata-check.yml/badge.svg" alt="kanata-check"/>
+    </a>
+    <a href="https://github.com/DivitMittal/TLTR/actions/workflows/qmk-build.yml">
+        <img src="https://github.com/DivitMittal/TLTR/actions/workflows/qmk-build.yml/badge.svg" alt="qmk-build"/>
+    </a>
 </div>
 
 ---
