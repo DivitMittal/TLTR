@@ -71,9 +71,10 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
         2. [Shortcuts](<https://www.wikipedia.com/en/articles/Shortcuts_(Apple)>)
    2. Windows
       - Dependencies:
-        1. [nircmd](https://www.nirsoft.net/utils/nircmd.html)
-        2. [InterceptionDriver](https://github.com/oblitum/Interception)
+        1. [InterceptionDriver](https://github.com/oblitum/Interception)
    3. \*nix
+      - Dependencies:
+        1. `xset` (X11) for the display-off key
 
 ### Hardware-based (firmware flashed to keyboard):
 

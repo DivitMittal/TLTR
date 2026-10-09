@@ -113,7 +113,7 @@ void suspend_wakeup_init_user(void) {
   mbtn2_oneshot_mods = 0;
 }
 
-void matrix_scan_user(void) {
+void housekeeping_task_user(void) {
   if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
       !mouse_right_pressed && !zoom_in_pressed && !zoom_out_pressed) {
     return;
@@ -177,6 +177,8 @@ enum custom_keycodes {
   KC_DOLF = SAFE_RANGE,              // Dollar/Rupee Fork
   KC_ASTF,              // Asterisk/F11 Fork
   KC_PERF,              // Percent/F12 Fork
+  KC_HPNF,              // Hyphen/En dash Fork
+  KC_EQLF,              // Equal/Em dash Fork
 
   // Function key forks (number/function based on Fn modifier)
   KC_1F,
@@ -225,7 +227,7 @@ enum custom_keycodes {
   KC_ZMOUT,
 
   // Media/Screen controls
-  KC_SCRE, // Screen control (tap=lock screen, hold=sleep)
+  KC_SCRE, // Screen control (tap=lock screen, hold=display off)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
 
   // Boot/Reboot control
@@ -291,8 +293,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TR Layer - Numbers & Symbols
     [_TR] = LAYOUT_split_2x6_1x5_2(
-        KC_NO,       KC_EXLM, KC_AT,   KC_HASH, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUS, KC_EQL,
-        KC_TRNS,     KC_AMPR, KC_LBRC, KC_LCBR, KC_LPRN, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_MINS, KC_TRNS,
+        KC_NO,       KC_EXLM, KC_AT,   KC_HASH, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUS, KC_EQLF,
+        KC_TRNS,     KC_AMPR, KC_LBRC, KC_LCBR, KC_LPRN, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_HPNF, KC_TRNS,
                      KC_NO,   KC_NO,   KC_LT,   KC_GT,   KC_NO,       KC_0F,   KC_1F,   KC_2F,   KC_3F,   KC_SLSH,
                                        KC_TLTLTR_KEY, KC_TRNS,        KC_TRNS, KC_TRNS
     ),
@@ -327,14 +329,13 @@ static const key_override_t pipe_override = SHIFT_FORK(KC_AMPR, KC_PIPE);
 static const key_override_t rcbr_override = SHIFT_FORK(KC_LCBR, KC_RCBR);
 static const key_override_t rprn_override = SHIFT_FORK(KC_LPRN, KC_RPRN);
 static const key_override_t rbrc_override = SHIFT_FORK(KC_LBRC, KC_RBRC);
-static const key_override_t equal_override = SHIFT_FORK(KC_EQL, KC_EQL);
 
 const key_override_t *key_overrides[] = {
     &delete_override,   &backslash_override, &underscore_override,
     &question_override, &home_override,      &end_override,
     &grave_override,    &tilde_override,     &caret_override,
     &pipe_override,     &rcbr_override,      &rprn_override,
-    &rbrc_override,     &equal_override,
+    &rbrc_override,
 };
 
 // Advanced state tracking
@@ -399,6 +400,49 @@ static inline bool is_shift_active(void) {
   return (get_mods() & MOD_MASK_SHIFT) || (get_oneshot_mods() & MOD_MASK_SHIFT);
 }
 
+// Modifiers, mouse speed/scroll modifiers, and layer keys. Pressing one doesn't
+// count as using a held modifier and doesn't consume a one-shot Fn.
+static bool is_modifier_like_key(uint16_t keycode) {
+  switch (keycode) {
+  case KC_OS_HYP:
+  case KC_OS_FN:
+  case KC_MOD_ALT:
+  case KC_MOD_CTRL:
+  case KC_MOD_SHIFT:
+  case KC_MOD_META:
+  case KC_MSLW:
+  case KC_MPRE:
+  case KC_MSCR:
+  case KC_TL_KEY:
+  case KC_TR_KEY:
+  case KC_TLTLTR_KEY:
+  case KC_TRTLTR_KEY:
+    return true;
+  default:
+    return false;
+  }
+}
+
+// Mouse, zoom, and the tap-hold screen/media keys: also don't mark a held
+// modifier as used.
+static bool is_pointer_or_hold_key(uint16_t keycode) {
+  switch (keycode) {
+  case KC_SCRE:
+  case KC_MEDC:
+  case KC_MUP:
+  case KC_MDN:
+  case KC_MLFT:
+  case KC_MRGT:
+  case KC_MBTN1:
+  case KC_MBTN2:
+  case KC_ZMIN:
+  case KC_ZMOUT:
+    return true;
+  default:
+    return false;
+  }
+}
+
 static inline void clear_shift_mods(void) {
   uint8_t mods = get_mods();
   if (mods & MOD_MASK_SHIFT) {
@@ -420,6 +464,7 @@ bool caps_word_press_user(uint16_t keycode) {
 
   case KC_1 ... KC_0:
   case KC_MINS: // hyphen stays a hyphen; underscore is Shift+comma
+  case KC_HPNF:
   case KC_BSPC:
   case KC_DEL:
   case KC_UNDS:
@@ -443,6 +488,52 @@ bool caps_word_press_user(uint16_t keycode) {
 
   default:
     return false;
+  }
+}
+
+// Shift fork whose shifted side is a Unicode character. Not a key override:
+// those keep shift suppressed in every report while active, which breaks the
+// Linux Ctrl+Shift+U input sequence.
+static bool handle_unicode_fork(keyrecord_t *record, uint16_t base_key,
+                                const char *shifted) {
+  if (record->event.pressed) {
+    if (is_left_shift_active()) {
+      uint8_t saved_mods = get_mods();
+      clear_shift_mods();
+      send_unicode_string(shifted);
+      set_mods(saved_mods);
+    } else {
+      register_code16(base_key);
+    }
+  } else {
+    unregister_code16(base_key);
+  }
+  return false;
+}
+
+// Tap locks the screen, hold turns the display off. Windows has no display-off
+// shortcut and Linux no common one, so hold locks there as well.
+static void lock_screen(void) {
+  switch (detected_host_os()) {
+  case OS_MACOS:
+  case OS_IOS:
+    tap_code16(LCTL(LGUI(KC_Q)));
+    break;
+  default: // Windows, and GNOME/KDE on Linux
+    tap_code16(LGUI(KC_L));
+    break;
+  }
+}
+
+static void turn_display_off(void) {
+  switch (detected_host_os()) {
+  case OS_MACOS:
+  case OS_IOS:
+    tap_code16(LCTL(LSFT(KC_PWR)));
+    break;
+  default:
+    lock_screen();
+    break;
   }
 }
 
@@ -545,15 +636,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         modifier_hold_state.mod_meta_held || screen_hold_state.held ||
         media_hold_state.held) {
 
-      if (keycode != KC_OS_HYP && keycode != KC_OS_FN &&
-          keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
-          keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
-          keycode != KC_SCRE && keycode != KC_MEDC && keycode != KC_MSLW &&
-          keycode != KC_MPRE && keycode != KC_MSCR && keycode != KC_MUP &&
-          keycode != KC_MDN && keycode != KC_MLFT && keycode != KC_MRGT &&
-          keycode != KC_MBTN1 && keycode != KC_MBTN2 && keycode != KC_ZMIN &&
-          keycode != KC_ZMOUT && keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
-          keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY) {
+      if (!is_modifier_like_key(keycode) && !is_pointer_or_hold_key(keycode)) {
 
         if (modifier_hold_state.os_hyp_held)
           modifier_hold_state.os_hyp_used = true;
@@ -816,17 +899,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return false;
 
   case KC_DOLF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        send_unicode_string("₹");
-        set_mods(saved_mods);
-      } else {
-        tap_code16(KC_DLR);
-      }
-    }
-    return false;
+    return handle_unicode_fork(record, KC_DLR, "₹");
+  case KC_HPNF:
+    return handle_unicode_fork(record, KC_MINS, "–");
+  case KC_EQLF:
+    return handle_unicode_fork(record, KC_EQL, "—");
 
   case KC_1F:
     return handle_fn_fork(record, KC_1, KC_F1);
@@ -880,17 +957,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
       if (!screen_hold_state.used) {
         if (elapsed < TAPHOLD_TIMEOUT) {
-          register_code(KC_LCTL);
-          register_code(KC_LGUI);
-          tap_code(KC_Q);
-          unregister_code(KC_LGUI);
-          unregister_code(KC_LCTL);
+          lock_screen();
         } else {
-          register_code(KC_LCTL);
-          register_code(KC_LSFT);
-          tap_code(KC_PWR);
-          unregister_code(KC_LSFT);
-          unregister_code(KC_LCTL);
+          turn_display_off();
         }
       }
     }
@@ -936,12 +1005,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (fn_oneshot_active && record->event.pressed) {
-    if (keycode != KC_OS_HYP && keycode != KC_OS_FN && keycode != KC_MOD_ALT &&
-        keycode != KC_MOD_CTRL && keycode != KC_MOD_SHIFT &&
-        keycode != KC_MOD_META && keycode != KC_MSLW && keycode != KC_MPRE &&
-        keycode != KC_MSCR && keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
-        keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY &&
-        keycode != KC_LSFT && keycode != KC_RSFT) {
+    if (!is_modifier_like_key(keycode) && keycode != KC_LSFT &&
+        keycode != KC_RSFT) {
       fn_modifier_active = false;
       fn_oneshot_active = false;
     }
