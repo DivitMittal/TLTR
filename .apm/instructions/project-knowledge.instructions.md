@@ -49,6 +49,6 @@ keymap draw keymap-drawer/tltr.yml
 ## Project Structure Notes
 
 - Physical keyboard targets Cantor (Piantor) with Cherry MX1A Red switches
-- Kanata configs support macOS (Karabiner-DriverKit), Windows (nircmd/InterceptionDriver), and Linux
+- Kanata configs support macOS (Karabiner-DriverKit), Windows (InterceptionDriver), and Linux
 - GitHub Actions automatically update flake.lock and generate keymap drawings
 - QMK implementation is work-in-progress (see qmk/README.md)

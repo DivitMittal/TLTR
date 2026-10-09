@@ -148,26 +148,33 @@
               @tltltr _                      _ XX
 )
 
-;; screen control
+;; screen control: tap locks the screen, hold turns the display off
+;; (same keys as the QMK firmware where a shortcut exists)
 (defvar
   thto 200
 )
+;; HID keyboard Power (0x66), same as QMK's KC_PWR; kanata only names it on Linux
+(deflocalkeys-macos
+  power 116
+)
 (platform (macos)
   (defalias
-    ss C-M-q
-    zz (cmd /usr/bin/pmset sleepnow)
+    ss C-M-q        ;; Lock Screen
+    zz C-S-power    ;; display sleep
   )
 )
 (platform (linux)
   (defalias
-    ss (cmd /usr/bin/xscreensaver-command -activate)
-    zz (cmd /usr/bin/xset dpms force off)
+    ss M-l                        ;; lock screen on GNOME/KDE
+    zz (cmd xset dpms force off)  ;; X11 only; there's no common shortcut
   )
 )
 (platform (win winiov2 wintercept)
   (defalias
-    ss (cmd nircmd screensaver)
-    zz (cmd nircmd standby)
+    ;; Win+L sent via SendInput doesn't lock, so call LockWorkStation directly
+    ss (cmd rundll32.exe user32.dll,LockWorkStation)
+    ;; no shortcut exists; broadcast SC_MONITORPOWER (off) with built-in PowerShell
+    zz (cmd powershell -NoProfile -WindowStyle Hidden -Command r#"(Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern bool PostMessage(int h, int m, int w, int l);' -Name M -Namespace W -PassThru)::PostMessage(0xFFFF, 0x0112, 0xF170, 2)"#)
   )
 )
 (defalias
@@ -246,6 +253,9 @@
     sd (🖱☸↓ $rd $so)
     sr (🖱☸→ $rd $so)
     sl (🖱☸← $rd $so)
+    ;; zoom (Ctrl+wheel), same direction as the QMK firmware
+    zmi (multi ‹⌃ (🖱☸↓ $rd $so))
+    zmo (multi ‹⌃ (🖱☸↑ $rd $so))
   )
 )
 (environment (KANATA_RSCROLL "1")
@@ -265,6 +275,9 @@
     sd (🖱☸↑ $rd $so)
     sr (🖱☸← $rd $so)
     sl (🖱☸→ $rd $so)
+    ;; zoom
+    zmi (multi ‹⌃ (🖱☸↑ $rd $so))
+    zmo (multi ‹⌃ (🖱☸↓ $rd $so))
   )
 )
 (defalias
@@ -283,8 +296,6 @@
   md (🖱↓ $rd $mo)
   mr (🖱→ $rd $mo)
   ml (🖱← $rd $mo)
-  zmi (multi ‹⌃ (🖱☸↑ $rd $so))
-  zmo (multi ‹⌃ (🖱☸↓ $rd $so))
 )
 (defalias
   slw nop1
