@@ -5,17 +5,18 @@
     inherit (inputs.flake-parts.lib) mkFlake;
     specialArgs.customLib = builtins.import (inputs.OS-nixCfg + "/lib/custom.nix") {inherit (inputs.nixpkgs) lib;};
   in
-    mkFlake {inherit inputs specialArgs;} ({inputs, ...}: {
-      systems = builtins.import inputs.systems;
+    mkFlake {inherit inputs specialArgs;} {
+      # Listed here rather than imported from nix-systems/default, which dropped
+      # x86_64-darwin; that system is still served by nixpkgs-x86_64-darwin.
+      systems = ["aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux"];
       imports = [./flake];
-    });
+    };
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     # nixpkgs 26.11 dropped x86_64-darwin; 26.05 is the last branch supporting it.
     nixpkgs-x86_64-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    systems.url = "github:nix-systems/default";
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
