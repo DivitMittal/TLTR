@@ -2,7 +2,7 @@
 
 // Bootloader configuration
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
-#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 1000U
+#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 200U // short, so plug-in power bounce isn't a double tap
 
 // Split keyboard communication
 #define SERIAL_USART_FULL_DUPLEX
