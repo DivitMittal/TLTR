@@ -172,30 +172,6 @@ void matrix_scan_user(void) {
   host_mouse_send(&mouse_report);
 }
 
-bool caps_word_press_user(uint16_t keycode) {
-  switch (keycode) {
-  case KC_A ... KC_Z:
-  case KC_MINS:
-    add_weak_mods(MOD_BIT(KC_LSFT));
-    return true;
-
-  case KC_1 ... KC_0:
-  case KC_BSPC:
-  case KC_DEL:
-  case KC_UNDS:
-  case KC_UP:
-  case KC_DOWN:
-  case KC_LEFT:
-  case KC_RGHT:
-  case KC_LSFT:
-  case KC_RSFT:
-    return true;
-
-  default:
-    return false;
-  }
-}
-
 enum custom_keycodes {
   // Fork keys (context-sensitive keys)
   KC_DELF = SAFE_RANGE, // Delete/Backspace Fork
@@ -425,6 +401,44 @@ static inline void clear_shift_mods(void) {
   uint8_t oneshot_mods = get_oneshot_mods();
   if (oneshot_mods & MOD_MASK_SHIFT) {
     clear_oneshot_mods();
+  }
+}
+
+// Caps Word sees the raw keymap keycode, so custom keys that type word
+// characters, delete, or switch layers must be listed or they end the word.
+bool caps_word_press_user(uint16_t keycode) {
+  switch (keycode) {
+  case KC_A ... KC_Z:
+  case KC_MINS:
+    add_weak_mods(MOD_BIT(KC_LSFT));
+    return true;
+
+  case KC_1 ... KC_0:
+  case KC_BSPC:
+  case KC_DEL:
+  case KC_UNDS:
+  case KC_UP:
+  case KC_DOWN:
+  case KC_LEFT:
+  case KC_RGHT:
+  case KC_LSFT:
+  case KC_RSFT:
+  case KC_TL_KEY:
+  case KC_TR_KEY:
+  case KC_TLTLTR_KEY:
+  case KC_TRTLTR_KEY:
+  case KC_MOD_SHIFT:
+  case KC_DELF:
+  case KC_HPNF:
+  case KC_1F ... KC_0F:
+    return true;
+
+  // Shifted it types an underscore, which continues the word; a comma ends it.
+  case KC_COMF:
+    return is_left_shift_active();
+
+  default:
+    return false;
   }
 }
 
