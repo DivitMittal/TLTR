@@ -344,6 +344,7 @@ static bool tr_pressed = false;
 
 static bool fn_modifier_active = false;
 static bool fn_oneshot_active = false;
+static uint16_t fn_oneshot_timer = 0;
 
 
 static struct {
@@ -537,10 +538,22 @@ static void turn_display_off(void) {
   }
 }
 
+// Whether Fn applies to this key press. A tapped (one-shot) Fn is used up by
+// the press and, like kanata's, expires ONESHOT_TIMEOUT after the tap.
+static bool consume_fn(void) {
+  if (fn_oneshot_active) {
+    bool fresh = timer_elapsed(fn_oneshot_timer) < ONESHOT_TIMEOUT;
+    fn_modifier_active = false;
+    fn_oneshot_active = false;
+    return fresh;
+  }
+  return fn_modifier_active;
+}
+
 static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
                            uint16_t function_key) {
   if (record->event.pressed) {
-    if (fn_modifier_active) {
+    if (consume_fn()) {
       tap_code(function_key);
     } else {
       tap_code(number_key);
@@ -744,6 +757,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (!modifier_hold_state.os_fn_used &&
           timer_elapsed(modifier_hold_state.os_fn_timer) < TAPHOLD_TIMEOUT) {
         fn_oneshot_active = true;
+        fn_oneshot_timer = timer_read();
       } else {
         fn_modifier_active = false;
         fn_oneshot_active = false;
@@ -928,7 +942,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_ASTF:
     if (record->event.pressed) {
-      if (fn_modifier_active) {
+      if (consume_fn()) {
         tap_code(KC_F11);
       } else {
         tap_code16(KC_ASTR);
@@ -938,7 +952,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_PERF:
     if (record->event.pressed) {
-      if (fn_modifier_active) {
+      if (consume_fn()) {
         tap_code(KC_F12);
       } else {
         tap_code16(KC_PERC);
