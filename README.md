@@ -68,7 +68,6 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
    1. macOS
       - Dependencies:
         1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice)
-        2. [Hammerspoon](https://www.hammerspoon.org/) (optional) for the window-manager (F16) and pointer-mode (F17) keys
    2. Windows
       - Dependencies:
         1. [InterceptionDriver](https://github.com/oblitum/Interception)
