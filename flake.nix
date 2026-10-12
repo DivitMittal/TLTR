@@ -37,6 +37,12 @@
         git-hooks.follows = "git-hooks";
       };
     };
+    # Built from its nix/package.nix with the caller's pkgs, since its flake
+    # outputs no longer cover x86_64-darwin.
+    kanata-tray = {
+      url = "github:rszyma/kanata-tray";
+      flake = false;
+    };
     OS-nixCfg = {
       url = "github:DivitMittal/OS-nixCfg";
       flake = false;
