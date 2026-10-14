@@ -174,7 +174,7 @@ cd pedals/rp2040-ir-ultrasonic-hid/circuit
 pnpm dlx --package=tscircuit tsci export index.circuit.tsx -f schematic-svg -o wiring.schematic.svg
 ```
 
-If you're iterating on the circuit (so you want editor type-checking against `tscircuit.config.json`/`tsconfig.json`), install the devDependencies locally instead and run the plain `tsci` binary that puts in `node_modules/.bin`:
+If you're iterating on the circuit (so you want editor type-checking against `tscircuit.config.json`/`tsconfig.json`), install the devDependencies locally instead and run the `tsci` binary that install puts in `node_modules/.bin`:
 
 ```bash
 npm install   # or bun install
