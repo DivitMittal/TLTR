@@ -167,12 +167,18 @@ The gesture logic in `ir_gesture.h`, `volume_gesture.h` and `inputs.h` has no Ar
 
 ## Circuit diagram
 
-`circuit/index.circuit.tsx` is a [tscircuit](https://tscircuit.com) schematic of the wiring above (`MCU`/`IR`/`US` are generic footprints standing in for the real parts, not a fabricatable board). Regenerate `circuit/wiring.schematic.svg` after editing it:
+`circuit/index.circuit.tsx` is a [tscircuit](https://tscircuit.com) schematic of the wiring above (`MCU`/`IR`/`US` are generic footprints standing in for the real parts, not a fabricatable board). Regenerate `circuit/wiring.schematic.svg` after editing it, without installing anything locally:
 
 ```bash
 cd pedals/rp2040-ir-ultrasonic-hid/circuit
+pnpm dlx --package=tscircuit tsci export index.circuit.tsx -f schematic-svg -o wiring.schematic.svg
+```
+
+If you're iterating on the circuit (so you want editor type-checking against `tscircuit.config.json`/`tsconfig.json`), install the devDependencies locally instead and run the plain `tsci` binary that puts in `node_modules/.bin`:
+
+```bash
 npm install   # or bun install
 npx tsci export index.circuit.tsx -f schematic-svg -o wiring.schematic.svg   # or bunx tsci ...
 ```
 
-`npm install`/`bun install` first is required: `npx tsci`/`bunx tsci` without a local install resolves to an unrelated npm package also named `tsci` (a 2023 tool, not tscircuit's CLI) instead of fetching `@tscircuit/cli`.
+Either way, `npm install`/`bun install` must come first if you go the `npx`/`bunx` route: **without** a local install, both `npx tsci` and `bunx tsci` resolve to an unrelated npm package also named `tsci` (a 2023 tool, not tscircuit's CLI) instead of fetching `@tscircuit/cli`. `pnpm dlx --package=tscircuit tsci ...` sidesteps this entirely by naming the package explicitly rather than guessing it from the binary name.
