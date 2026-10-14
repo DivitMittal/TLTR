@@ -13,8 +13,23 @@
 #include "inputs.h"
 #include "ir_gesture.h"
 
-// Arduino Keyboard codes for F13..F16.
+// volume_gesture.h only exists in sketches that pair the IR sensor with an
+// ultrasonic ranger (e.g. rp2040-ir-ultrasonic-hid); __has_include lets this
+// one shared test file skip those scenarios for sketches without it (e.g.
+// rp2040-ir-hid) instead of needing a second copy of the whole file.
+#if __has_include("volume_gesture.h")
+#include "volume_gesture.h"
+#define HAVE_VOLUME_GESTURE 1
+#else
+#define HAVE_VOLUME_GESTURE 0
+#endif
+
+// Arduino Keyboard codes for F13..F16, and F20/F21 where volume_gesture.h
+// exists.
 constexpr uint8_t F13 = 0xF0, F14 = 0xF1, F15 = 0xF2, F16 = 0xF3;
+#if HAVE_VOLUME_GESTURE
+constexpr uint8_t F20 = 0xF7, F21 = 0xF8;
+#endif
 
 // Mirrors the defaults in config.h.
 constexpr uint32_t PEDAL_DEBOUNCE_MS = 20;
@@ -117,6 +132,48 @@ FakeKeyboard simulate(const Inputs &in, uint32_t duration, uint32_t t0 = 0) {
   }
   return kbd;
 }
+
+#if HAVE_VOLUME_GESTURE
+using DistanceSignal = std::function<uint16_t(uint32_t)>;
+
+DistanceSignal constantDistance(uint16_t cm) {
+  return [=](uint32_t) { return cm; };
+}
+
+// Distance holds at the first step's value, then changes at each later step.
+DistanceSignal stepDistance(std::vector<std::pair<uint32_t, uint16_t>> steps) {
+  return [=](uint32_t t) {
+    uint16_t value = DISTANCE_OUT_OF_RANGE;
+    for (const auto &step : steps) {
+      if (t >= step.first) {
+        value = step.second;
+      }
+    }
+    return value;
+  };
+}
+
+// Mirrors the defaults in config.h.
+constexpr VolumeGestureConfig VOL_CONFIG = {10, 14, 25, 21, 40, 150, 30, F20,
+                                            F21};
+
+FakeKeyboard simulateVolume(const DistanceSignal &distance, uint32_t duration,
+                            uint32_t t0 = 0) {
+  FakeKeyboard kbd;
+  VolumeGesture vol;
+  uint8_t reported = 0;
+
+  vol.begin(VOL_CONFIG, t0);
+
+  for (uint32_t t = 0; t <= duration; ++t) {
+    const uint32_t now = t0 + t;
+    kbd.now = t;
+    vol.update(distance(t), now);
+    syncKeySlot(kbd, reported, vol.key());
+  }
+  return kbd;
+}
+#endif
 
 int failures = 0;
 const char *currentTest = "";
@@ -315,6 +372,75 @@ int main() {
           presses(k, F15) == 1);
     CHECK(k.log.size() == 6);
   });
+
+#if HAVE_VOLUME_GESTURE
+  test("near zone repeats volume-up taps", [] {
+    FakeKeyboard k = simulateVolume(constantDistance(5), 1000);
+    CHECK(presses(k, F20) >= 5);
+    CHECK(presses(k, F21) == 0);
+    CHECK(eventTime(k, F20, true) == 150);
+    CHECK(eventTime(k, F20, false) - eventTime(k, F20, true) == 30);
+  });
+
+  test("far zone repeats volume-down taps", [] {
+    FakeKeyboard k = simulateVolume(constantDistance(30), 1000);
+    CHECK(presses(k, F21) >= 5);
+    CHECK(presses(k, F20) == 0);
+  });
+
+  test("dead zone between near and far emits nothing", [] {
+    CHECK(simulateVolume(constantDistance(18), 1000).log.empty());
+  });
+
+  test("exactly at the far threshold enters the far zone", [] {
+    FakeKeyboard k = simulateVolume(constantDistance(25), 1000);
+    CHECK(presses(k, F21) >= 1);
+  });
+
+  test("missing echo emits nothing", [] {
+    CHECK(
+        simulateVolume(constantDistance(DISTANCE_OUT_OF_RANGE), 1000)
+            .log.empty());
+  });
+
+  test("beyond max range emits nothing", [] {
+    CHECK(simulateVolume(constantDistance(45), 1000).log.empty());
+  });
+
+  test("near zone hysteresis tolerates creeping back towards the threshold",
+       [] {
+         DistanceSignal d = stepDistance({{0, 8}, {400, 12}});
+         FakeKeyboard k = simulateVolume(d, 800);
+         CHECK(presses(k, F20) >= 1);
+         CHECK(presses(k, F21) == 0);
+       });
+
+  test("leaving the near zone's hysteresis band stops the taps", [] {
+    DistanceSignal d = stepDistance({{0, 8}, {400, 16}});
+    FakeKeyboard k = simulateVolume(d, 1000);
+    int pressesAfterExit = 0;
+    for (const KeyEvent &e : k.log) {
+      if (e.down && e.t > 430) {
+        ++pressesAfterExit;
+      }
+    }
+    CHECK(pressesAfterExit == 0);
+  });
+
+  test("far zone hysteresis tolerates creeping back towards the threshold",
+       [] {
+         DistanceSignal d = stepDistance({{0, 26}, {400, 23}});
+         FakeKeyboard k = simulateVolume(d, 800);
+         CHECK(presses(k, F21) >= 1);
+         CHECK(presses(k, F20) == 0);
+       });
+
+  test("volume millis() wraparound", [] {
+    FakeKeyboard k =
+        simulateVolume(constantDistance(5), 500, UINT32_MAX - 250);
+    CHECK(presses(k, F20) >= 1);
+  });
+#endif
 
   if (failures != 0) {
     std::printf("%d check(s) failed\n", failures);
