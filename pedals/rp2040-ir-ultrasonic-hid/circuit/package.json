@@ -1,0 +1,15 @@
+{
+  "name": "rp2040-ir-ultrasonic-hid-circuit",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Wiring diagram for the RP2040 IR + ultrasonic HID sketch",
+  "scripts": {
+    "dev": "tsci dev",
+    "export": "tsci export index.circuit.tsx -f schematic-svg -o wiring.schematic.svg"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "tscircuit": "^0.0.2890",
+    "typescript": "^5.0.0"
+  }
+}
