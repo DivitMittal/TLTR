@@ -172,5 +172,7 @@ The gesture logic in `ir_gesture.h`, `volume_gesture.h` and `inputs.h` has no Ar
 ```bash
 cd pedals/rp2040-ir-ultrasonic-hid/circuit
 npm install   # or bun install
-npx tsci export index.circuit.tsx -f schematic-svg -o wiring.schematic.svg
+npx tsci export index.circuit.tsx -f schematic-svg -o wiring.schematic.svg   # or bunx tsci ...
 ```
+
+`npm install`/`bun install` first is required: `npx tsci`/`bunx tsci` without a local install resolves to an unrelated npm package also named `tsci` (a 2023 tool, not tscircuit's CLI) instead of fetching `@tscircuit/cli`.
