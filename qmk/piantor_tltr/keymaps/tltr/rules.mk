@@ -24,6 +24,9 @@ KEY_OVERRIDE_ENABLE = yes
 # Enable tap dance for pedal-style double-tap chords
 TAP_DANCE_ENABLE = yes
 
+# Hold TL + TR for the TLTR layer
+TRI_LAYER_ENABLE = yes
+
 # Enable mouse keys
 MOUSEKEY_ENABLE = yes
 
