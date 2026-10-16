@@ -132,6 +132,10 @@ void housekeeping_task_user(void) {
   int8_t wheel_dir = scroll_direction_reversed ? -1 : 1;
 
   if (zoom_in_pressed || zoom_out_pressed) {
+    // Any key press clears weak mods; restore Ctrl before scrolling.
+    if (!(get_weak_mods() & MOD_BIT(KC_LCTL))) {
+      update_zoom_ctrl();
+    }
     int8_t wheel_speed = wheel_dir * get_zoom_wheel_speed();
     if (zoom_in_pressed) {
       mouse_report.v = -wheel_speed;
@@ -613,12 +617,15 @@ static inline uint16_t get_zoom_interval(void) {
   }
 }
 
+// Zoom's Ctrl is a weak mod, so ending a zoom never releases a Ctrl the user is
+// holding (and releasing that Ctrl mid-zoom doesn't end the zoom's).
 static inline void update_zoom_ctrl(void) {
   if (zoom_in_pressed || zoom_out_pressed) {
-    register_code(KC_LCTL);
+    add_weak_mods(MOD_BIT(KC_LCTL));
   } else {
-    unregister_code(KC_LCTL);
+    del_weak_mods(MOD_BIT(KC_LCTL));
   }
+  send_keyboard_report();
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
