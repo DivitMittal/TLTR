@@ -8,7 +8,7 @@
     mkFlake {inherit inputs specialArgs;} {
       # Listed here rather than imported from nix-systems/default, which dropped
       # x86_64-darwin; that system is still served by nixpkgs-x86_64-darwin.
-      systems = ["aarch64-darwin" "aarch64-linux" "x86_64-darwin" "x86_64-linux"];
+      systems = import inputs.systems;
       imports = [./flake];
     };
 
@@ -17,6 +17,9 @@
     # nixpkgs 26.11 dropped x86_64-darwin; 26.05 is the last branch supporting it.
     nixpkgs-x86_64-darwin.url = "github:nixos/nixpkgs/nixpkgs-26.05-darwin";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    # nix-systems/default dropped x86_64-darwin in c29398b5; pin the last
+    # revision that still lists it so lock bumps keep x86_64-darwin outputs.
+    systems.url = "github:nix-systems/default/da67096a3b9bf56a91d16901293e51ba5b49a27e";
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
