@@ -15,6 +15,12 @@
     <a href="https://github.com/DivitMittal/TLTR/actions/workflows/flake-lock-update.yml">
         <img src="https://github.com/DivitMittal/TLTR/actions/workflows/.github/workflows/flake-lock-update.yml/badge.svg" alt="update-flake-lock"/>
     </a>
+    <a href="https://github.com/DivitMittal/TLTR/actions/workflows/kanata-check.yml">
+        <img src="https://github.com/DivitMittal/TLTR/actions/workflows/kanata-check.yml/badge.svg" alt="kanata-check"/>
+    </a>
+    <a href="https://github.com/DivitMittal/TLTR/actions/workflows/qmk-build.yml">
+        <img src="https://github.com/DivitMittal/TLTR/actions/workflows/qmk-build.yml/badge.svg" alt="qmk-build"/>
+    </a>
 </div>
 
 ---
@@ -62,19 +68,16 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
    1. macOS
       - Dependencies:
         1. [Karabiner-DriverKit](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice)
-        2. [Shortcuts](<https://www.wikipedia.com/en/articles/Shortcuts_(Apple)>)
    2. Windows
       - Dependencies:
-        1. [nircmd](https://www.nirsoft.net/utils/nircmd.html)
-        2. [InterceptionDriver](https://github.com/oblitum/Interception)
+        1. [InterceptionDriver](https://github.com/oblitum/Interception)
    3. \*nix
-
-2. [Karabiner-Elements](https://github.com/pqrs-org/Karabiner-Elements) - macOS only
-   1. macOS
+      - Dependencies:
+        1. `xset` (X11) for the display-off key
 
 ### Hardware-based (firmware flashed to keyboard):
 
-3. [QMK Firmware](https://qmk.fm/) - For programmable keyboards
+2. [QMK Firmware](https://qmk.fm/) - For programmable keyboards
    - Target keyboard: [Piantor](https://github.com/beekeeb/piantor) (RP2040-based Cantor variant)
    - Firmware location: `qmk/piantor_tltr/`
    - Build instructions: See [qmk/README.md](qmk/README.md)

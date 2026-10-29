@@ -2,13 +2,14 @@
 
 // Bootloader configuration
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
-#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 1000U
+#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 200U // short, so plug-in power bounce isn't a double tap
 
 // Split keyboard communication
 #define SERIAL_USART_FULL_DUPLEX
 #define SERIAL_USART_TX_PIN GP0
 #define SERIAL_USART_RX_PIN GP1
-#define SPLIT_USB_DETECT
+// Master/slave roles are hardcoded per half (see TLTR_HALF in the keymap's
+// rules.mk), so the left half never depends on how fast the host enumerates.
 
 // Caps Word configuration
 #define CAPS_WORD_IDLE_TIMEOUT 3000
@@ -41,7 +42,6 @@
 
 // USB suspend/resume behavior
 // #define USB_SUSPEND_WAKEUP_DELAY 200 // 200ms delay after waking from suspend
-#define NO_USB_STARTUP_CHECK // keyboard after sleep macOS compatibility
 
 // Memory optimizations
 #define LAYER_STATE_8BIT // We only have 4 layers
@@ -51,9 +51,6 @@
 
 // Optimize matrix scanning
 #define MATRIX_IO_DELAY 30 // Default is good for RP2040
-
-// Reduce debounce algorithm overhead (sym_defer_g is fastest)
-#define DEBOUNCE_TYPE sym_defer_g
 
 // Custom feature flags for TLTR implementation
 #define TLTR_CUSTOM_MOUSE_KEYS
