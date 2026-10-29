@@ -44,34 +44,43 @@ qmk/
 
 ### Compilation
 
+Each half gets its own build. The left half is hardcoded as master, so it is
+the one that must be plugged into USB.
+
 ```bash
-qmk compile -kb beekeeb/piantor_tltr -km tltr
+qmk compile -kb beekeeb/piantor_tltr -km tltr -e TLTR_HALF=left  -e TARGET=beekeeb_piantor_tltr_tltr_left
+qmk compile -kb beekeeb/piantor_tltr -km tltr -e TLTR_HALF=right -e TARGET=beekeeb_piantor_tltr_tltr_right
 ```
 
 Or using make (from the `qmk_firmware` directory):
 
 ```bash
-make beekeeb/piantor_tltr:tltr
+make beekeeb/piantor_tltr:tltr TLTR_HALF=left  TARGET=beekeeb_piantor_tltr_tltr_left
+make beekeeb/piantor_tltr:tltr TLTR_HALF=right TARGET=beekeeb_piantor_tltr_tltr_right
 ```
 
 The compiled firmware will be at:
 
 ```
-.build/beekeeb_piantor_tltr_tltr.uf2
+.build/beekeeb_piantor_tltr_tltr_left.uf2
+.build/beekeeb_piantor_tltr_tltr_right.uf2
 ```
 
 ### Flashing
 
-1. Put the keyboard into bootloader mode:
+Flash each half separately, with only that half connected over USB:
+
+1. Put the half into bootloader mode:
    - Press the BOOT button while plugging in the USB cable, OR
-   - Use the `QK_BOOT` key on the TLTR layer
+   - Use the `QK_BOOT` key on the TLTR layer (only reaches the half that is plugged in)
 
-2. The keyboard will appear as a USB mass storage device
+2. The half will appear as a USB mass storage device
 
-3. Copy the `.uf2` file to the mounted drive:
+3. Copy the matching `.uf2` file to the mounted drive:
 
    ```bash
-   cp .build/beekeeb_piantor_tltr_tltr.uf2 /Volumes/RPI-RP2/
+   cp .build/beekeeb_piantor_tltr_tltr_left.uf2 /Volumes/RPI-RP2/   # left half
+   cp .build/beekeeb_piantor_tltr_tltr_right.uf2 /Volumes/RPI-RP2/  # right half
    ```
 
-4. The keyboard will automatically reboot with the new firmware
+4. The half will automatically reboot with the new firmware

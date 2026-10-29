@@ -19,7 +19,6 @@ The project is organized by deployment method:
 ### Core Layers
 
 - **kanata/**: Kanata configuration files (`.kbd` format) for cross-platform deployment
-- **karabiner/**: Karabiner-Elements configuration (JSON) for macOS-specific deployment
 - **qmk/**: QMK firmware for physical split keyboard implementation (Cantor/Piantor)
 
 ### Build System
@@ -33,7 +32,7 @@ The project is organized by deployment method:
 
 ### Deployment Targets
 
-1. **Software-based**: Kanata (cross-platform) or Karabiner-Elements (macOS)
+1. **Software-based**: Kanata (cross-platform)
 2. **Hardware-based**: QMK firmware for Cantor/Piantor split keyboards
 
 ## Common Commands
@@ -50,6 +49,6 @@ keymap draw keymap-drawer/tltr.yml
 ## Project Structure Notes
 
 - Physical keyboard targets Cantor (Piantor) with Cherry MX1A Red switches
-- Kanata configs support macOS (Karabiner-DriverKit), Windows (nircmd/InterceptionDriver), and Linux
+- Kanata configs support macOS (Karabiner-DriverKit), Windows (InterceptionDriver), and Linux
 - GitHub Actions automatically update flake.lock and generate keymap drawings
 - QMK implementation is work-in-progress (see qmk/README.md)

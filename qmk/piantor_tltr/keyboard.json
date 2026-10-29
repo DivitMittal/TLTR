@@ -3,7 +3,6 @@
   "keyboard_name": "piantor_tltr",
   "tags": ["split", "column-staggered", "ortho"],
   "features": {
-    "bootmagic": true,
     "caps_word": true,
     "extrakey": true,
     "mousekey": true,
@@ -16,9 +15,6 @@
     "device_version": "1.0.0",
     "pid": "0x0001",
     "vid": "0xBEEB"
-  },
-  "bootmagic": {
-    "matrix": [0, 5]
   },
   "matrix_pins": {
     "direct": [
