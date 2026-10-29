@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "hardware/watchdog.h"
+#include "usb_util.h"
 
 // Speed level definitions
 #define MOUSE_MOVE_DEFAULT 16
@@ -61,9 +62,22 @@ static inline uint16_t get_mouse_interval(void);
 static inline uint16_t get_zoom_interval(void);
 static inline void update_zoom_ctrl(void);
 
-void keyboard_post_init_user(void) {
-  os_variant_t detected_os = detected_host_os();
+// Hardcoded split roles: the left half is always master, the right half always
+// slave. SPLIT_USB_DETECT only waited 2s for enumeration at boot, which lost the
+// race after macOS woke from Standby and left both halves acting as slave.
+// Handedness falls back to is_keyboard_master(), so left/right follow too.
+bool is_keyboard_master_impl(void) {
+#ifdef TLTR_HALF_LEFT
+  return true;
+#else
+  usb_disconnect();
+  return false;
+#endif
+}
 
+// Runs once the host OS has been fingerprinted. The master no longer waits for
+// enumeration before init, so keyboard_post_init_user is too early to ask.
+bool process_detected_host_os_user(os_variant_t detected_os) {
   switch (detected_os) {
   case OS_MACOS:
   case OS_IOS:
@@ -79,9 +93,27 @@ void keyboard_post_init_user(void) {
     set_unicode_input_mode(UNICODE_MODE_LINUX);
     break;
   }
+  return true;
 }
 
-void matrix_scan_user(void) {
+// A mouse key held across suspend can miss its release, leaving the cursor
+// drifting after wake. QMK clears keys and mods on wake but not this state.
+void suspend_wakeup_init_user(void) {
+  mouse_up_pressed = false;
+  mouse_down_pressed = false;
+  mouse_left_pressed = false;
+  mouse_right_pressed = false;
+  zoom_in_pressed = false;
+  zoom_out_pressed = false;
+  mouse_slow_mode = false;
+  mouse_precise_mode = false;
+  mouse_scroll_mode = false;
+  mouse_buttons = 0;
+  mbtn1_oneshot_mods = 0;
+  mbtn2_oneshot_mods = 0;
+}
+
+void housekeeping_task_user(void) {
   if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
       !mouse_right_pressed && !zoom_in_pressed && !zoom_out_pressed) {
     return;
@@ -95,8 +127,12 @@ void matrix_scan_user(void) {
   report_mouse_t mouse_report = {
       .buttons = mouse_buttons, .x = 0, .y = 0, .v = 0, .h = 0};
 
+  // HID wheel: +v scrolls up, +h scrolls right. The toggle flips every wheel
+  // direction, zoom included.
+  int8_t wheel_dir = scroll_direction_reversed ? -1 : 1;
+
   if (zoom_in_pressed || zoom_out_pressed) {
-    int8_t wheel_speed = get_zoom_wheel_speed();
+    int8_t wheel_speed = wheel_dir * get_zoom_wheel_speed();
     if (zoom_in_pressed) {
       mouse_report.v = -wheel_speed;
     }
@@ -104,20 +140,18 @@ void matrix_scan_user(void) {
       mouse_report.v = wheel_speed;
     }
   } else if (mouse_scroll_mode) {
-    int8_t wheel_speed = get_wheel_speed();
-    int8_t v_dir = scroll_direction_reversed ? 1 : -1;
-    int8_t h_dir = scroll_direction_reversed ? -1 : 1;
+    int8_t wheel_speed = wheel_dir * get_wheel_speed();
     if (mouse_up_pressed) {
-      mouse_report.v = v_dir * wheel_speed;
+      mouse_report.v = wheel_speed;
     }
     if (mouse_down_pressed) {
-      mouse_report.v = -v_dir * wheel_speed;
+      mouse_report.v = -wheel_speed;
     }
     if (mouse_left_pressed) {
-      mouse_report.h = h_dir * wheel_speed;
+      mouse_report.h = -wheel_speed;
     }
     if (mouse_right_pressed) {
-      mouse_report.h = -h_dir * wheel_speed;
+      mouse_report.h = wheel_speed;
     }
   } else {
     int8_t move_speed = get_mouse_speed();
@@ -138,53 +172,13 @@ void matrix_scan_user(void) {
   host_mouse_send(&mouse_report);
 }
 
-bool caps_word_press_user(uint16_t keycode) {
-  switch (keycode) {
-  case KC_A ... KC_Z:
-  case KC_MINS:
-    add_weak_mods(MOD_BIT(KC_LSFT));
-    return true;
-
-  case KC_1 ... KC_0:
-  case KC_BSPC:
-  case KC_DEL:
-  case KC_UNDS:
-  case KC_UP:
-  case KC_DOWN:
-  case KC_LEFT:
-  case KC_RGHT:
-  case KC_LSFT:
-  case KC_RSFT:
-    return true;
-
-  default:
-    return false;
-  }
-}
-
 enum custom_keycodes {
   // Fork keys (context-sensitive keys)
-  KC_DELF = SAFE_RANGE, // Delete/Backspace Fork
-  KC_SLAF,              // Slash/Backslash Fork
-  KC_COMF,              // Comma/Underscore Fork
-  KC_DOTF,              // Dot/Question Fork
-  KC_PGUF,              // Page Up/Home Fork
-  KC_PGDF,              // Page Down/End Fork
-  KC_EXCF,              // Exclamation/Grave Fork
-  KC_ATSF,              // At/Tilde Fork
-  KC_OCTF,              // Hash/Caret Fork
-  KC_DOLF,              // Dollar/Rupee Fork
-  KC_AMPF,              // Ampersand/Pipe Fork
-  KC_CURF,              // Curly Brackets Fork
-  KC_PARF,              // Parentheses Fork
-  KC_SQRF,              // Square Brackets Fork
+  KC_DOLF = SAFE_RANGE,              // Dollar/Rupee Fork
   KC_ASTF,              // Asterisk/F11 Fork
   KC_PERF,              // Percent/F12 Fork
-  KC_HPNF,              // Hyphen (unshifted minus)
-  KC_EQUF,              // Equals (unshifted)
-  KC_PLUF,              // Plus (shifted equals)
-  KC_ANOF,              // Angle Open (unshifted <)
-  KC_ANCF,              // Angle Close (unshifted >)
+  KC_HPNF,              // Hyphen/En dash Fork
+  KC_EQLF,              // Equal/Em dash Fork
 
   // Function key forks (number/function based on Fn modifier)
   KC_1F,
@@ -233,7 +227,7 @@ enum custom_keycodes {
   KC_ZMOUT,
 
   // Media/Screen controls
-  KC_SCRE, // Screen control (tap=lock screen, hold=sleep)
+  KC_SCRE, // Screen control (tap=lock screen, hold=display off)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
 
   // Boot/Reboot control
@@ -284,24 +278,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // COLEMAK MOD-DH + WIDE + ANGLE (38-key TLTR layout)
     [_COLEMAK] = LAYOUT_split_2x6_1x5_2(
         TD(TD_RIGHT_PEDAL), KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,        KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT, KC_SCLN,
-        KC_DELF, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,        KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
-                 KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,        KC_K,    KC_H,    KC_COMF, KC_DOTF, KC_SLAF,
+        KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,        KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
+                 KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,        KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH,
                                    KC_TL_KEY, KC_LSFT,            KC_SPC,  KC_TR_KEY
     ),
 
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUF,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
-        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDF,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
+        KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDN,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
                       TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
                                                  KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
     ),
 
     // TR Layer - Numbers & Symbols
     [_TR] = LAYOUT_split_2x6_1x5_2(
-        KC_NO,       KC_EXCF, KC_ATSF, KC_OCTF, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUF, KC_EQUF,
-        KC_TRNS,     KC_AMPF, KC_SQRF, KC_CURF, KC_PARF, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_HPNF, KC_TRNS,
-                     KC_NO,   KC_NO,   KC_ANOF, KC_ANCF, KC_NO,       KC_0F,   KC_1F,   KC_2F,   KC_3F,   KC_SLAF,
+        KC_NO,       KC_EXLM, KC_AT,   KC_HASH, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUS, KC_EQLF,
+        KC_TRNS,     KC_AMPR, KC_LBRC, KC_LCBR, KC_LPRN, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_HPNF, KC_TRNS,
+                     KC_NO,   KC_NO,   KC_LT,   KC_GT,   KC_NO,       KC_0F,   KC_1F,   KC_2F,   KC_3F,   KC_SLSH,
                                        KC_TLTLTR_KEY, KC_TRNS,        KC_TRNS, KC_TRNS
     ),
 
@@ -315,6 +309,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
+// Shift alternates. Decided when the key goes down (pressing or releasing shift
+// mid-hold doesn't switch it), and shift stays suppressed while it's held.
+#define SHIFT_FORK(trigger, replacement)                                      \
+  ko_make_with_layers_negmods_and_options(                                    \
+      MOD_BIT(KC_LSFT), trigger, replacement, ~0, 0,                          \
+      ko_option_activation_trigger_down | ko_option_no_reregister_trigger)
+
+static const key_override_t delete_override = SHIFT_FORK(KC_BSPC, KC_DEL);
+static const key_override_t backslash_override = SHIFT_FORK(KC_SLSH, KC_BSLS);
+static const key_override_t underscore_override = SHIFT_FORK(KC_COMM, KC_UNDS);
+static const key_override_t question_override = SHIFT_FORK(KC_DOT, KC_QUES);
+static const key_override_t home_override = SHIFT_FORK(KC_PGUP, KC_HOME);
+static const key_override_t end_override = SHIFT_FORK(KC_PGDN, KC_END);
+static const key_override_t grave_override = SHIFT_FORK(KC_EXLM, KC_GRV);
+static const key_override_t tilde_override = SHIFT_FORK(KC_AT, KC_TILD);
+static const key_override_t caret_override = SHIFT_FORK(KC_HASH, KC_CIRC);
+static const key_override_t pipe_override = SHIFT_FORK(KC_AMPR, KC_PIPE);
+static const key_override_t rcbr_override = SHIFT_FORK(KC_LCBR, KC_RCBR);
+static const key_override_t rprn_override = SHIFT_FORK(KC_LPRN, KC_RPRN);
+static const key_override_t rbrc_override = SHIFT_FORK(KC_LBRC, KC_RBRC);
+
+const key_override_t *key_overrides[] = {
+    &delete_override,   &backslash_override, &underscore_override,
+    &question_override, &home_override,      &end_override,
+    &grave_override,    &tilde_override,     &caret_override,
+    &pipe_override,     &rcbr_override,      &rprn_override,
+    &rbrc_override,
+};
+
 // Advanced state tracking
 static bool tl_pressed = false;
 static bool tr_pressed = false;
@@ -322,12 +345,6 @@ static bool tr_pressed = false;
 static bool fn_modifier_active = false;
 static bool fn_oneshot_active = false;
 
-static uint16_t delf_registered_key = KC_NO;
-static uint16_t pguf_registered_key = KC_NO;
-static uint16_t pgdf_registered_key = KC_NO;
-static uint16_t slaf_registered_key = KC_NO;
-static uint16_t comf_registered_key = KC_NO;
-static uint16_t dotf_registered_key = KC_NO;
 
 static struct {
   bool active;
@@ -383,6 +400,49 @@ static inline bool is_shift_active(void) {
   return (get_mods() & MOD_MASK_SHIFT) || (get_oneshot_mods() & MOD_MASK_SHIFT);
 }
 
+// Modifiers, mouse speed/scroll modifiers, and layer keys. Pressing one doesn't
+// count as using a held modifier and doesn't consume a one-shot Fn.
+static bool is_modifier_like_key(uint16_t keycode) {
+  switch (keycode) {
+  case KC_OS_HYP:
+  case KC_OS_FN:
+  case KC_MOD_ALT:
+  case KC_MOD_CTRL:
+  case KC_MOD_SHIFT:
+  case KC_MOD_META:
+  case KC_MSLW:
+  case KC_MPRE:
+  case KC_MSCR:
+  case KC_TL_KEY:
+  case KC_TR_KEY:
+  case KC_TLTLTR_KEY:
+  case KC_TRTLTR_KEY:
+    return true;
+  default:
+    return false;
+  }
+}
+
+// Mouse, zoom, and the tap-hold screen/media keys: also don't mark a held
+// modifier as used.
+static bool is_pointer_or_hold_key(uint16_t keycode) {
+  switch (keycode) {
+  case KC_SCRE:
+  case KC_MEDC:
+  case KC_MUP:
+  case KC_MDN:
+  case KC_MLFT:
+  case KC_MRGT:
+  case KC_MBTN1:
+  case KC_MBTN2:
+  case KC_ZMIN:
+  case KC_ZMOUT:
+    return true;
+  default:
+    return false;
+  }
+}
+
 static inline void clear_shift_mods(void) {
   uint8_t mods = get_mods();
   if (mods & MOD_MASK_SHIFT) {
@@ -391,6 +451,89 @@ static inline void clear_shift_mods(void) {
   uint8_t oneshot_mods = get_oneshot_mods();
   if (oneshot_mods & MOD_MASK_SHIFT) {
     clear_oneshot_mods();
+  }
+}
+
+// Caps Word sees the raw keymap keycode, so custom keys that type word
+// characters, delete, or switch layers must be listed or they end the word.
+bool caps_word_press_user(uint16_t keycode) {
+  switch (keycode) {
+  case KC_A ... KC_Z:
+    add_weak_mods(MOD_BIT(KC_LSFT));
+    return true;
+
+  case KC_1 ... KC_0:
+  case KC_MINS: // hyphen stays a hyphen; underscore is Shift+comma
+  case KC_HPNF:
+  case KC_BSPC:
+  case KC_DEL:
+  case KC_UNDS:
+  case KC_UP:
+  case KC_DOWN:
+  case KC_LEFT:
+  case KC_RGHT:
+  case KC_LSFT:
+  case KC_RSFT:
+  case KC_TL_KEY:
+  case KC_TR_KEY:
+  case KC_TLTLTR_KEY:
+  case KC_TRTLTR_KEY:
+  case KC_MOD_SHIFT:
+  case KC_1F ... KC_0F:
+    return true;
+
+  // Shifted it types an underscore, which continues the word; a comma ends it.
+  case KC_COMM:
+    return is_left_shift_active();
+
+  default:
+    return false;
+  }
+}
+
+// Shift fork whose shifted side is a Unicode character. Not a key override:
+// those keep shift suppressed in every report while active, which breaks the
+// Linux Ctrl+Shift+U input sequence.
+static bool handle_unicode_fork(keyrecord_t *record, uint16_t base_key,
+                                const char *shifted) {
+  if (record->event.pressed) {
+    if (is_left_shift_active()) {
+      uint8_t saved_mods = get_mods();
+      clear_shift_mods();
+      send_unicode_string(shifted);
+      set_mods(saved_mods);
+    } else {
+      register_code16(base_key);
+    }
+  } else {
+    unregister_code16(base_key);
+  }
+  return false;
+}
+
+// Tap locks the screen, hold turns the display off. Windows has no display-off
+// shortcut and Linux no common one, so hold locks there as well.
+static void lock_screen(void) {
+  switch (detected_host_os()) {
+  case OS_MACOS:
+  case OS_IOS:
+    tap_code16(LCTL(LGUI(KC_Q)));
+    break;
+  default: // Windows, and GNOME/KDE on Linux
+    tap_code16(LGUI(KC_L));
+    break;
+  }
+}
+
+static void turn_display_off(void) {
+  switch (detected_host_os()) {
+  case OS_MACOS:
+  case OS_IOS:
+    tap_code16(LCTL(LSFT(KC_PWR)));
+    break;
+  default:
+    lock_screen();
+    break;
   }
 }
 
@@ -493,15 +636,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         modifier_hold_state.mod_meta_held || screen_hold_state.held ||
         media_hold_state.held) {
 
-      if (keycode != KC_OS_HYP && keycode != KC_OS_FN &&
-          keycode != KC_MOD_ALT && keycode != KC_MOD_CTRL &&
-          keycode != KC_MOD_SHIFT && keycode != KC_MOD_META &&
-          keycode != KC_SCRE && keycode != KC_MEDC && keycode != KC_MSLW &&
-          keycode != KC_MPRE && keycode != KC_MSCR && keycode != KC_MUP &&
-          keycode != KC_MDN && keycode != KC_MLFT && keycode != KC_MRGT &&
-          keycode != KC_MBTN1 && keycode != KC_MBTN2 && keycode != KC_ZMIN &&
-          keycode != KC_ZMOUT && keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
-          keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY) {
+      if (!is_modifier_like_key(keycode) && !is_pointer_or_hold_key(keycode)) {
 
         if (modifier_hold_state.os_hyp_held)
           modifier_hold_state.os_hyp_used = true;
@@ -763,223 +898,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_DELF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_DEL);
-        set_mods(saved_mods);
-        delf_registered_key = KC_DEL;
-      } else {
-        register_code(KC_BSPC);
-        delf_registered_key = KC_BSPC;
-      }
-    } else {
-      if (delf_registered_key != KC_NO) {
-        unregister_code(delf_registered_key);
-        delf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_SLAF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_BSLS);
-        set_mods(saved_mods);
-        slaf_registered_key = KC_BSLS;
-      } else {
-        register_code(KC_SLSH);
-        slaf_registered_key = KC_SLSH;
-      }
-    } else {
-      if (slaf_registered_key != KC_NO) {
-        unregister_code(slaf_registered_key);
-        slaf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_COMF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        register_code(KC_MINS);
-        comf_registered_key = KC_MINS;
-      } else {
-        register_code(KC_COMM);
-        comf_registered_key = KC_COMM;
-      }
-    } else {
-      if (comf_registered_key != KC_NO) {
-        unregister_code(comf_registered_key);
-        comf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_DOTF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        register_code(KC_SLSH);
-        dotf_registered_key = KC_SLSH;
-      } else {
-        register_code(KC_DOT);
-        dotf_registered_key = KC_DOT;
-      }
-    } else {
-      if (dotf_registered_key != KC_NO) {
-        unregister_code(dotf_registered_key);
-        dotf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_PGUF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_HOME);
-        set_mods(saved_mods);
-        pguf_registered_key = KC_HOME;
-      } else {
-        register_code(KC_PGUP);
-        pguf_registered_key = KC_PGUP;
-      }
-    } else {
-      if (pguf_registered_key != KC_NO) {
-        unregister_code(pguf_registered_key);
-        pguf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_PGDF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        register_code(KC_END);
-        set_mods(saved_mods);
-        pgdf_registered_key = KC_END;
-      } else {
-        register_code(KC_PGDN);
-        pgdf_registered_key = KC_PGDN;
-      }
-    } else {
-      if (pgdf_registered_key != KC_NO) {
-        unregister_code(pgdf_registered_key);
-        pgdf_registered_key = KC_NO;
-      }
-    }
-    return false;
-
-  case KC_EXCF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code(KC_GRV);
-        set_mods(saved_mods);
-      } else {
-        tap_code16(KC_EXLM);
-      }
-    }
-    return false;
-
-  case KC_ATSF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_TILD);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_AT);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_OCTF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_CIRC);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_HASH);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
   case KC_DOLF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        send_unicode_string("₹");
-        set_mods(saved_mods);
-      } else {
-        tap_code16(KC_DLR);
-      }
-    }
-    return false;
-
-  case KC_AMPF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_PIPE);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_AMPR);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_CURF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_RCBR);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_LCBR);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_PARF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        tap_code16(KC_RPRN);
-      } else {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code16(KC_LPRN);
-        set_mods(saved_mods);
-      }
-    }
-    return false;
-
-  case KC_SQRF:
-    if (record->event.pressed) {
-      if (is_left_shift_active()) {
-        uint8_t saved_mods = get_mods();
-        clear_shift_mods();
-        tap_code(KC_RBRC);
-        set_mods(saved_mods);
-      } else {
-        tap_code(KC_LBRC);
-      }
-    }
-    return false;
+    return handle_unicode_fork(record, KC_DLR, "₹");
+  case KC_HPNF:
+    return handle_unicode_fork(record, KC_MINS, "–");
+  case KC_EQLF:
+    return handle_unicode_fork(record, KC_EQL, "—");
 
   case KC_1F:
     return handle_fn_fork(record, KC_1, KC_F1);
@@ -1022,45 +946,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_HPNF:
-    if (record->event.pressed) {
-      tap_code(KC_MINS);
-    }
-    return false;
-
-  case KC_EQUF:
-    if (record->event.pressed) {
-      uint8_t saved_mods = get_mods();
-      clear_shift_mods();
-      tap_code(KC_EQL);
-      set_mods(saved_mods);
-    }
-    return false;
-
-  case KC_PLUF:
-    if (record->event.pressed) {
-      tap_code16(KC_PLUS);
-    }
-    return false;
-
-  case KC_ANOF:
-    if (record->event.pressed) {
-      uint8_t saved_mods = get_mods();
-      clear_shift_mods();
-      tap_code16(KC_LT);
-      set_mods(saved_mods);
-    }
-    return false;
-
-  case KC_ANCF:
-    if (record->event.pressed) {
-      uint8_t saved_mods = get_mods();
-      clear_shift_mods();
-      tap_code16(KC_GT);
-      set_mods(saved_mods);
-    }
-    return false;
-
   case KC_SCRE:
     if (record->event.pressed) {
       screen_hold_state.held = true;
@@ -1072,17 +957,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
       if (!screen_hold_state.used) {
         if (elapsed < TAPHOLD_TIMEOUT) {
-          register_code(KC_LCTL);
-          register_code(KC_LGUI);
-          tap_code(KC_Q);
-          unregister_code(KC_LGUI);
-          unregister_code(KC_LCTL);
+          lock_screen();
         } else {
-          register_code(KC_LCTL);
-          register_code(KC_LSFT);
-          tap_code(KC_PWR);
-          unregister_code(KC_LSFT);
-          unregister_code(KC_LCTL);
+          turn_display_off();
         }
       }
     }
@@ -1128,12 +1005,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (fn_oneshot_active && record->event.pressed) {
-    if (keycode != KC_OS_HYP && keycode != KC_OS_FN && keycode != KC_MOD_ALT &&
-        keycode != KC_MOD_CTRL && keycode != KC_MOD_SHIFT &&
-        keycode != KC_MOD_META && keycode != KC_MSLW && keycode != KC_MPRE &&
-        keycode != KC_MSCR && keycode != KC_TL_KEY && keycode != KC_TR_KEY &&
-        keycode != KC_TLTLTR_KEY && keycode != KC_TRTLTR_KEY &&
-        keycode != KC_LSFT && keycode != KC_RSFT) {
+    if (!is_modifier_like_key(keycode) && keycode != KC_LSFT &&
+        keycode != KC_RSFT) {
       fn_modifier_active = false;
       fn_oneshot_active = false;
     }

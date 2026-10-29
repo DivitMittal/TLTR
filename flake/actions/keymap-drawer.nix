@@ -3,7 +3,10 @@ _: {
     on = rec {
       push = {
         branches = ["master"];
-        paths = ["keymap-drawer/**"];
+        paths = [
+          "keymap-drawer/**"
+          ".github/workflows/keymap-drawer.yml"
+        ];
       };
       pull_request = push;
       workflow_dispatch = {};
@@ -40,13 +43,20 @@ _: {
           run = "keymap draw ./keymap-drawer/tltr-ansi.yml 1> assets/tltr-ansi.svg";
         }
         {
+          # Commits that already include the regenerated SVGs leave nothing to
+          # commit, and a bare `git commit` exits 1 on that. PRs only render.
           name = "Push to repo";
+          "if" = "github.event_name != 'pull_request'";
           run = ''
+            git add assets/tltr.svg assets/tltr-ansi.svg
+            if git diff --cached --quiet; then
+              echo "Keymap drawings already up to date."
+              exit 0
+            fi
             git config --global user.name "GitHub Actions Bot"
             git config --global user.email bot@github.com
-            git add .
             git commit -m "chore: update keymap-drawer assets"
-            git push origin master
+            git push origin HEAD:master
           '';
           env = {
             GITHUB_TOKEN = "\${{ secrets.GITHUB_TOKEN }}";
