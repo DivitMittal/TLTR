@@ -9,6 +9,7 @@ Optional USB foot pedals for hands-free control. Works as a standalone accessory
 - **uno-dual-pedal/**: Arduino Uno-compatible serial sketch for capture daemons
 - **rp2040-dual-pedal-hid/**: RP2040 native-USB HID sketch for direct keyboard integration (Waveshare RP2040 Zero/One)
 - **rp2040-ir-hid/**: RP2040 native-USB HID sketch for one digital IR proximity sensor (tap and hold gestures)
+- **rp2040-ir-ultrasonic-hid/**: RP2040 native-USB HID sketch combining the IR sensor with an ultrasonic distance sensor for volume control
 - **tests/**: host-side tests for the shared RP2040 gesture code (`tests/run.sh`)
 
 Both support compile-time tuning and validation, and both now include per-pedal gesture recognition:
@@ -76,6 +77,19 @@ One digital IR obstacle sensor as a native USB keyboard, for hands-free gestures
 - **Best for**: tuning and testing the IR gesture state machine on its own
 
 See `rp2040-ir-hid/README.md` for wiring, the timing model, sensor tuning, and flashing.
+
+### RP2040 IR + ultrasonic HID
+
+The IR sensor plus an HC-SR04-style ultrasonic distance sensor on one Waveshare RP2040-Zero, for hands-free gestures and a distance-based volume knob.
+
+- **Default board**: Waveshare RP2040-Zero
+- **Default pins**: GP28 (IR OUT), GP29 (ultrasonic TRIG), GP27 (ultrasonic ECHO)
+- **Output**: one unused function key per gesture, no modifiers
+  - IR hold: F15, IR tap: F16
+  - Volume up (near): F20, volume down (far): F21, each repeating while a hand holds a zone
+- **Best for**: adding a continuous, distance-based gesture (volume) alongside the IR tap/hold sensor
+
+See `rp2040-ir-ultrasonic-hid/README.md` for wiring (including the ECHO voltage caveat), the timing model, sensor tuning, flashing, and a tscircuit wiring diagram.
 
 ## Build-time configuration
 
