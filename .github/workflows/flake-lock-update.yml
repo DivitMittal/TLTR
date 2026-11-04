@@ -12,16 +12,27 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repo
+    - id: gate
+      name: Gate to first Sunday of the month
+      run: |-
+        if [ "$GITHUB_EVENT_NAME" != schedule ] || [ "$(date -u +%u)" = 7 ]; then
+          echo "run=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "run=false" >> "$GITHUB_OUTPUT"
+        fi
+    - if: steps.gate.outputs.run == 'true'
+      name: Checkout repo
       uses: actions/checkout@main
       with:
         fetch-depth: 1
         persist-credentials: false
-    - uses: DeterminateSystems/nix-installer-action@v21
-    - name: Update flake.lock
+    - if: steps.gate.outputs.run == 'true'
+      uses: DeterminateSystems/nix-installer-action@v21
+    - if: steps.gate.outputs.run == 'true'
+      name: Update flake.lock
       uses: DeterminateSystems/update-flake-lock@main
     timeout-minutes: 30
 'on':
   schedule:
-  - cron: 0 0 1-7 * 0
+  - cron: 0 0 1-7 * *
   workflow_dispatch: {}
