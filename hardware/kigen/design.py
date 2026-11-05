@@ -63,6 +63,7 @@ class Design:
     corner_radius: float = 3.0
     parts: list[Part] = field(default_factory=list)
     tracks: list[Track] = field(default_factory=list)
+    vias: list[tuple[str, tuple[float, float]]] = field(default_factory=list)  # (net, (x, y)), through vias
     zones: list[Zone] = field(default_factory=list)
     texts: list[Text] = field(default_factory=list)
     custom_symbols: dict = field(default_factory=dict)  # "Lib:Name" -> symbol S-expression (list)

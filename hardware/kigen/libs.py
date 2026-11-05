@@ -114,7 +114,8 @@ def symbol_pin_names(sym: list) -> dict[str, str]:
 def unconnected_net_name(ref: str, pin_number: str, pin_name: str) -> str:
     """The net name eeschema gives a lone no-connect pin, mirrored on the board for parity."""
     if pin_name:
-        return f"unconnected-({ref}-{pin_name}-Pad{pin_number})"
+        # eeschema escapes '/' in net names; it would otherwise read as a sheet path
+        return f"unconnected-({ref}-{pin_name.replace('/', '{slash}')}-Pad{pin_number})"
     return f"unconnected-({ref}-Pad{pin_number})"
 
 

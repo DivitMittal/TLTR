@@ -19,6 +19,7 @@ from .schematic import resolve_symbol
 
 ORIGIN = (50.0, 50.0)
 SHEET = "/"  # local labels on the root sheet become "/<name>" nets
+VIA_DIAMETER, VIA_DRILL = 0.8, 0.4  # hobby-fab friendly (JLCPCB/PCBWay standard)
 
 
 def _v(x: float, y: float) -> "pcbnew.VECTOR2I":
@@ -109,6 +110,14 @@ def build_board(design: Design, pcb_path: Path) -> None:
             tr.SetNet(nets[t.net])
             board.Add(tr)
 
+    for net_name, (x, y) in design.vias:
+        via = pcbnew.PCB_VIA(board)
+        via.SetPosition(_v(x, y))
+        via.SetWidth(pcbnew.FromMM(VIA_DIAMETER))
+        via.SetDrill(pcbnew.FromMM(VIA_DRILL))
+        via.SetNet(nets[net_name])
+        board.Add(via)
+
     for z in design.zones:
         _zone(board, design, z, nets[z.net])
 
@@ -130,6 +139,9 @@ def build_board(design: Design, pcb_path: Path) -> None:
     for i, c in enumerate(design.comments):
         tb.SetComment(i, c)
 
+    # Island removal consults the connectivity graph; without a fresh build
+    # every B.Cu fill fragment looks unconnected and is discarded.
+    board.BuildConnectivity()
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     pcbnew.SaveBoard(str(pcb_path), board)
 
@@ -182,7 +194,11 @@ def _outline(board, design: Design) -> None:
 
 def _zone(board, design: Design, z, net) -> None:
     zone = pcbnew.ZONE(board)
-    zone.SetLayer(_layer(board, z.layer))
+    # SetLayer() alone leaves a fresh zone's fill bookkeeping on F.Cu, so a
+    # B.Cu zone "fills" to zero area; an explicit layer set avoids that.
+    layers = pcbnew.LSET()
+    layers.AddLayer(_layer(board, z.layer))
+    zone.SetLayerSet(layers)
     zone.SetNet(net)
     zone.SetAssignedPriority(z.priority)
     zone.SetMinThickness(pcbnew.FromMM(z.min_width))
