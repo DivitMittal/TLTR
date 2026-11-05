@@ -114,7 +114,7 @@ def build() -> Design:
             "lid_text": "TLTR",
             "tallest_component_above_pcb": 13.5,  # NMJ6HCD2 body
             "lead_protrusion_below_pcb": 2.0,
-            "vents": False,
+            "vents": [],
         },
         "cutouts": [
             {"ref": "U1", "edge": "back", "pos": MODULE[0], "z_above_pcb": 5.1, "shape": "slot",

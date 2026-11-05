@@ -33,7 +33,7 @@
     "lid_text": "TLTR",
     "tallest_component_above_pcb": 13.5,
     "lead_protrusion_below_pcb": 2.0,
-    "vents": false
+    "vents": []
   },
   "cutouts": [
     {

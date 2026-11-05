@@ -107,8 +107,9 @@ def build(mech: dict, p: Params = Params()):
     for c in mech.get("cutouts", []):
         tray -= _cutout(c, p, bw, bh, pcb_z + bt, ix0, ix1, iy0, iy1)
 
-    if enc.get("vents"):
-        tray -= _vents(p, ix0, ix1, oy0, od, pcb_z, inner_top)
+    vents = enc.get("vents") or []
+    if vents:
+        tray -= _vents(p, vents, ix0, ix1, oy0, od, pcb_z, inner_top)
 
     # rubber feet recesses, inset from the outer corners
     inset = p.feet_d / 2 + 3
@@ -182,14 +183,18 @@ def _cutout(c, p: Params, bw, bh, pcb_top, ix0, ix1, iy0, iy1):
     return loc * fillet(body.edges().filter_by(axis), radius=r)
 
 
-def _vents(p: Params, ix0, ix1, oy0, od, pcb_z, inner_top):
-    """Horizontal slots in both side walls, above the PCB."""
+def _vents(p: Params, sides, ix0, ix1, oy0, od, pcb_z, inner_top):
+    """Horizontal slots in the named side walls ("left"/"right"), above the PCB."""
+    walls = {"left": ix0 - p.wall / 2, "right": ix1 + p.wall / 2}
+    unknown = set(sides) - set(walls)
+    if unknown:
+        raise ValueError(f"vents: unsupported walls {sorted(unknown)}; use 'left' and/or 'right'")
     slots = []
     n = 6
     z0 = pcb_z + 3
     pitch = (inner_top - 3 - z0) / n
     span = od - 2 * (p.corner_r + p.wall + 4)
-    for side_x in (ix0 - p.wall / 2, ix1 + p.wall / 2):
+    for side_x in (walls[s] for s in sides):
         for i in range(n):
             s = Box(p.wall + 2, span, 1.6)
             s = fillet(s.edges().filter_by(Axis.X), radius=0.79)
