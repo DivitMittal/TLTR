@@ -61,6 +61,7 @@ static inline int8_t get_zoom_wheel_speed(void);
 static inline uint16_t get_mouse_interval(void);
 static inline uint16_t get_zoom_interval(void);
 static inline void update_zoom_ctrl(void);
+static void fire_due_holds(void);
 
 // Hardcoded split roles: the left half is always master, the right half always
 // slave. SPLIT_USB_DETECT only waited 2s for enumeration at boot, which lost the
@@ -114,6 +115,8 @@ void suspend_wakeup_init_user(void) {
 }
 
 void housekeeping_task_user(void) {
+  fire_due_holds();
+
   if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
       !mouse_right_pressed && !zoom_in_pressed && !zoom_out_pressed) {
     return;
@@ -618,6 +621,22 @@ static inline void update_zoom_ctrl(void) {
     register_code(KC_LCTL);
   } else {
     unregister_code(KC_LCTL);
+  }
+}
+
+// Fire the screen/media hold actions once TAPHOLD_TIMEOUT passes, like kanata's
+// tap-hold, instead of waiting for the release. Marking the key used stops the
+// release from firing anything else.
+static void fire_due_holds(void) {
+  if (screen_hold_state.held && !screen_hold_state.used &&
+      timer_elapsed(screen_hold_state.timer) >= TAPHOLD_TIMEOUT) {
+    screen_hold_state.used = true;
+    turn_display_off();
+  }
+  if (media_hold_state.held && !media_hold_state.used &&
+      timer_elapsed(media_hold_state.timer) >= TAPHOLD_TIMEOUT) {
+    media_hold_state.used = true;
+    tap_code(KC_MNXT);
   }
 }
 
