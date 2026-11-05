@@ -198,15 +198,8 @@ enum custom_keycodes {
   KC_TLTLTR_KEY, // TL+TLTR activation (used in TR layer)
   KC_TRTLTR_KEY, // TR+TLTR activation (used in TL layer)
 
-  // One-shot modifier combinations
-  KC_OS_HYP, // sHyp: Alt+Ctrl+Shift+Meta (hyper)
-  KC_OS_FN,  // sFn: Function modifier
-
-  // Individual modifiers with tap-hold behavior (tap=oneshot, hold=regular)
-  KC_MOD_ALT,   // Alt modifier (tap for oneshot, hold for regular)
-  KC_MOD_CTRL,  // Ctrl modifier (tap for oneshot, hold for regular)
-  KC_MOD_SHIFT, // Shift modifier (tap for oneshot, hold for regular)
-  KC_MOD_META,  // Meta/GUI modifier (tap for oneshot, hold for regular)
+  // One-shot Fn (the other modifiers are QMK OSM keys)
+  KC_OS_FN, // sFn: Function modifier
 
   // Mouse control modifiers
   KC_MSLW, // Mouse slow modifier
@@ -286,8 +279,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
         KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
-        KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDN,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
-                      TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
+        KC_TRNS,      OS_LALT,     OS_LCTL,      OS_LSFT,      OS_LGUI,     KC_OS_FN,    KC_PGDN,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
+                      TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        OS_HYPR,     KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
                                                  KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
     ),
 
@@ -353,28 +346,10 @@ static struct {
 } oneshot_state = {false, 0, 0};
 
 static struct {
-  bool os_hyp_held;
   bool os_fn_held;
-  bool os_hyp_used;
   bool os_fn_used;
-  uint16_t os_hyp_timer;
   uint16_t os_fn_timer;
-
-  bool mod_alt_held;
-  bool mod_ctrl_held;
-  bool mod_shift_held;
-  bool mod_meta_held;
-  bool mod_alt_used;
-  bool mod_ctrl_used;
-  bool mod_shift_used;
-  bool mod_meta_used;
-  uint16_t mod_alt_timer;
-  uint16_t mod_ctrl_timer;
-  uint16_t mod_shift_timer;
-  uint16_t mod_meta_timer;
-} modifier_hold_state = {false, false, false, false, 0,     0,
-                         false, false, false, false, false, false,
-                         false, false, 0,     0,     0,     0};
+} modifier_hold_state = {false, false, 0};
 
 static struct {
   bool held;
@@ -404,12 +379,8 @@ static inline bool is_shift_active(void) {
 // count as using a held modifier and doesn't consume a one-shot Fn.
 static bool is_modifier_like_key(uint16_t keycode) {
   switch (keycode) {
-  case KC_OS_HYP:
+  case QK_ONE_SHOT_MOD ... QK_ONE_SHOT_MOD_MAX:
   case KC_OS_FN:
-  case KC_MOD_ALT:
-  case KC_MOD_CTRL:
-  case KC_MOD_SHIFT:
-  case KC_MOD_META:
   case KC_MSLW:
   case KC_MPRE:
   case KC_MSCR:
@@ -478,7 +449,7 @@ bool caps_word_press_user(uint16_t keycode) {
   case KC_TR_KEY:
   case KC_TLTLTR_KEY:
   case KC_TRTLTR_KEY:
-  case KC_MOD_SHIFT:
+  case OS_LSFT:
   case KC_1F ... KC_0F:
     return true;
 
@@ -630,26 +601,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   if (record->event.pressed) {
-    if (modifier_hold_state.os_hyp_held || modifier_hold_state.os_fn_held ||
-        modifier_hold_state.mod_alt_held || modifier_hold_state.mod_ctrl_held ||
-        modifier_hold_state.mod_shift_held ||
-        modifier_hold_state.mod_meta_held || screen_hold_state.held ||
+    if (modifier_hold_state.os_fn_held || screen_hold_state.held ||
         media_hold_state.held) {
 
       if (!is_modifier_like_key(keycode) && !is_pointer_or_hold_key(keycode)) {
 
-        if (modifier_hold_state.os_hyp_held)
-          modifier_hold_state.os_hyp_used = true;
         if (modifier_hold_state.os_fn_held)
           modifier_hold_state.os_fn_used = true;
-        if (modifier_hold_state.mod_alt_held)
-          modifier_hold_state.mod_alt_used = true;
-        if (modifier_hold_state.mod_ctrl_held)
-          modifier_hold_state.mod_ctrl_used = true;
-        if (modifier_hold_state.mod_shift_held)
-          modifier_hold_state.mod_shift_used = true;
-        if (modifier_hold_state.mod_meta_held)
-          modifier_hold_state.mod_meta_used = true;
         if (screen_hold_state.held)
           screen_hold_state.used = true;
         if (media_hold_state.held)
@@ -711,26 +669,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return false;
 
-  case KC_OS_HYP:
-    if (record->event.pressed) {
-      modifier_hold_state.os_hyp_held = true;
-      modifier_hold_state.os_hyp_used = false;
-      modifier_hold_state.os_hyp_timer = timer_read();
-      register_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT) |
-                    MOD_BIT(KC_LGUI));
-    } else {
-      modifier_hold_state.os_hyp_held = false;
-      unregister_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) | MOD_BIT(KC_LSFT) |
-                      MOD_BIT(KC_LGUI));
-
-      if (!modifier_hold_state.os_hyp_used &&
-          timer_elapsed(modifier_hold_state.os_hyp_timer) < TAPHOLD_TIMEOUT) {
-        add_oneshot_mods(MOD_BIT(KC_LALT) | MOD_BIT(KC_LCTL) |
-                         MOD_BIT(KC_LSFT) | MOD_BIT(KC_LGUI));
-      }
-    }
-    return false;
-
   case KC_OS_FN:
     if (record->event.pressed) {
       fn_modifier_active = true;
@@ -747,71 +685,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         fn_modifier_active = false;
         fn_oneshot_active = false;
-      }
-    }
-    return false;
-
-  case KC_MOD_ALT:
-    if (record->event.pressed) {
-      modifier_hold_state.mod_alt_held = true;
-      modifier_hold_state.mod_alt_used = false;
-      modifier_hold_state.mod_alt_timer = timer_read();
-      register_mods(MOD_BIT(KC_LALT));
-    } else {
-      modifier_hold_state.mod_alt_held = false;
-      unregister_mods(MOD_BIT(KC_LALT));
-      if (!modifier_hold_state.mod_alt_used &&
-          timer_elapsed(modifier_hold_state.mod_alt_timer) < TAPHOLD_TIMEOUT) {
-        add_oneshot_mods(MOD_BIT(KC_LALT));
-      }
-    }
-    return false;
-
-  case KC_MOD_CTRL:
-    if (record->event.pressed) {
-      modifier_hold_state.mod_ctrl_held = true;
-      modifier_hold_state.mod_ctrl_used = false;
-      modifier_hold_state.mod_ctrl_timer = timer_read();
-      register_mods(MOD_BIT(KC_LCTL));
-    } else {
-      modifier_hold_state.mod_ctrl_held = false;
-      unregister_mods(MOD_BIT(KC_LCTL));
-      if (!modifier_hold_state.mod_ctrl_used &&
-          timer_elapsed(modifier_hold_state.mod_ctrl_timer) < TAPHOLD_TIMEOUT) {
-        add_oneshot_mods(MOD_BIT(KC_LCTL));
-      }
-    }
-    return false;
-
-  case KC_MOD_SHIFT:
-    if (record->event.pressed) {
-      modifier_hold_state.mod_shift_held = true;
-      modifier_hold_state.mod_shift_used = false;
-      modifier_hold_state.mod_shift_timer = timer_read();
-      register_mods(MOD_BIT(KC_LSFT));
-    } else {
-      modifier_hold_state.mod_shift_held = false;
-      unregister_mods(MOD_BIT(KC_LSFT));
-      if (!modifier_hold_state.mod_shift_used &&
-          timer_elapsed(modifier_hold_state.mod_shift_timer) <
-              TAPHOLD_TIMEOUT) {
-        add_oneshot_mods(MOD_BIT(KC_LSFT));
-      }
-    }
-    return false;
-
-  case KC_MOD_META:
-    if (record->event.pressed) {
-      modifier_hold_state.mod_meta_held = true;
-      modifier_hold_state.mod_meta_used = false;
-      modifier_hold_state.mod_meta_timer = timer_read();
-      register_mods(MOD_BIT(KC_LGUI));
-    } else {
-      modifier_hold_state.mod_meta_held = false;
-      unregister_mods(MOD_BIT(KC_LGUI));
-      if (!modifier_hold_state.mod_meta_used &&
-          timer_elapsed(modifier_hold_state.mod_meta_timer) < TAPHOLD_TIMEOUT) {
-        add_oneshot_mods(MOD_BIT(KC_LGUI));
       }
     }
     return false;
