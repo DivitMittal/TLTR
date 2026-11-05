@@ -43,6 +43,12 @@
 // USB suspend/resume behavior
 // #define USB_SUSPEND_WAKEUP_DELAY 200 // 200ms delay after waking from suspend
 
+// Tri-layer: holding both thumb layer keys (TL_LOWR + TL_UPPR) enables TLTR.
+// Numbers match the keymap's layer enum.
+#define TRI_LAYER_LOWER_LAYER 1  // _TL
+#define TRI_LAYER_UPPER_LAYER 2  // _TR
+#define TRI_LAYER_ADJUST_LAYER 3 // _TLTR
+
 // Memory optimizations
 #define LAYER_STATE_8BIT // We only have 4 layers
 

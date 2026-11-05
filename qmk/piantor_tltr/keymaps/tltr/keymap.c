@@ -192,12 +192,6 @@ enum custom_keycodes {
   KC_9F,
   KC_0F,
 
-  // Advanced thumb key combinations
-  KC_TL_KEY,     // Left thumb key with TLTR logic
-  KC_TR_KEY,     // Right thumb key with TLTR logic
-  KC_TLTLTR_KEY, // TL+TLTR activation (used in TR layer)
-  KC_TRTLTR_KEY, // TR+TLTR activation (used in TL layer)
-
   // One-shot modifier combinations
   KC_OS_HYP, // sHyp: Alt+Ctrl+Shift+Meta (hyper)
   KC_OS_FN,  // sFn: Function modifier
@@ -280,7 +274,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         TD(TD_RIGHT_PEDAL), KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,        KC_J,    KC_L,    KC_U,    KC_Y,    KC_QUOT, KC_SCLN,
         KC_BSPC, KC_A,    KC_R,    KC_S,    KC_T,    KC_G,        KC_M,    KC_N,    KC_E,    KC_I,    KC_O,    KC_ENT,
                  KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,        KC_K,    KC_H,    KC_COMM, KC_DOT,  KC_SLSH,
-                                   KC_TL_KEY, KC_LSFT,            KC_SPC,  KC_TR_KEY
+                                   TL_LOWR,   KC_LSFT,            KC_SPC,  TL_UPPR
     ),
 
     // TL Layer - Modifiers & Navigation
@@ -288,7 +282,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
         KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDN,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
                       TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
-                                                 KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
+                                                 KC_TRNS,      KC_TRNS,                  KC_TRNS,   TL_UPPR
     ),
 
     // TR Layer - Numbers & Symbols
@@ -296,7 +290,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NO,       KC_EXLM, KC_AT,   KC_HASH, KC_DOLF, KC_NO,       KC_PERF, KC_7F,   KC_8F,   KC_9F,   KC_PLUS, KC_EQLF,
         KC_TRNS,     KC_AMPR, KC_LBRC, KC_LCBR, KC_LPRN, KC_NO,       KC_ASTF, KC_4F,   KC_5F,   KC_6F,   KC_HPNF, KC_TRNS,
                      KC_NO,   KC_NO,   KC_LT,   KC_GT,   KC_NO,       KC_0F,   KC_1F,   KC_2F,   KC_3F,   KC_SLSH,
-                                       KC_TLTLTR_KEY, KC_TRNS,        KC_TRNS, KC_TRNS
+                                       TL_LOWR,       KC_TRNS,        KC_TRNS, KC_TRNS
     ),
 
     // TLTR Layer - Mouse, Media & Display Controls
@@ -337,10 +331,6 @@ const key_override_t *key_overrides[] = {
     &pipe_override,     &rcbr_override,      &rprn_override,
     &rbrc_override,
 };
-
-// Advanced state tracking
-static bool tl_pressed = false;
-static bool tr_pressed = false;
 
 static bool fn_modifier_active = false;
 static bool fn_oneshot_active = false;
@@ -413,10 +403,8 @@ static bool is_modifier_like_key(uint16_t keycode) {
   case KC_MSLW:
   case KC_MPRE:
   case KC_MSCR:
-  case KC_TL_KEY:
-  case KC_TR_KEY:
-  case KC_TLTLTR_KEY:
-  case KC_TRTLTR_KEY:
+  case TL_LOWR:
+  case TL_UPPR:
     return true;
   default:
     return false;
@@ -474,10 +462,6 @@ bool caps_word_press_user(uint16_t keycode) {
   case KC_RGHT:
   case KC_LSFT:
   case KC_RSFT:
-  case KC_TL_KEY:
-  case KC_TR_KEY:
-  case KC_TLTLTR_KEY:
-  case KC_TRTLTR_KEY:
   case KC_MOD_SHIFT:
   case KC_1F ... KC_0F:
     return true;
@@ -659,58 +643,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 
   switch (keycode) {
-  case KC_TL_KEY:
-    if (record->event.pressed) {
-      tl_pressed = true;
-      layer_on(_TL);
-      if (tr_pressed) {
-        layer_on(_TLTR);
-      }
-    } else {
-      tl_pressed = false;
-      layer_off(_TLTR);
-      layer_off(_TL);
-    }
-    return false;
-
-  case KC_TR_KEY:
-    if (record->event.pressed) {
-      tr_pressed = true;
-      layer_on(_TR);
-      if (tl_pressed) {
-        layer_on(_TLTR);
-      }
-    } else {
-      tr_pressed = false;
-      layer_off(_TLTR);
-      layer_off(_TR);
-    }
-    return false;
-
-  case KC_TLTLTR_KEY:
-    if (record->event.pressed) {
-      tl_pressed = true;
-      layer_on(_TL);
-      layer_on(_TLTR);
-    } else {
-      tl_pressed = false;
-      layer_off(_TLTR);
-      layer_off(_TL);
-    }
-    return false;
-
-  case KC_TRTLTR_KEY:
-    if (record->event.pressed) {
-      tr_pressed = true;
-      layer_on(_TR);
-      layer_on(_TLTR);
-    } else {
-      tr_pressed = false;
-      layer_off(_TLTR);
-      layer_off(_TR);
-    }
-    return false;
-
   case KC_OS_HYP:
     if (record->event.pressed) {
       modifier_hold_state.os_hyp_held = true;
