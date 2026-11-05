@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Regenerate every board under hardware/ and its enclosure under cad/.
+#
+#   scripts/hardware            KiCad projects + ERC/DRC + docs/STEP + enclosures
+#   scripts/hardware --no-cad   skip the build123d enclosures
+#
+# KiCad runs natively when available, otherwise in the kicad/kicad:10.0
+# container (see scripts/kicad). Enclosures need uv.
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
+
+cad=1
+[ "${1:-}" = "--no-cad" ] && cad=0
+
+status=0
+for gen in hardware/*/generate.py; do
+  echo "==> ${gen%/generate.py}"
+  scripts/kicad python3 "$gen" --export || status=1
+done
+
+if [ "$cad" -eq 1 ]; then
+  for mech in hardware/*/mechanical.json; do
+    echo "==> enclosure for ${mech%/mechanical.json}"
+    uv run cad/enclosure.py "$mech" || status=1
+  done
+fi
+
+exit "$status"

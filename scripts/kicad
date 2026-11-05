@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Run a KiCad 10 tool (kicad-cli or KiCad's python3 with pcbnew).
+#
+#   scripts/kicad kicad-cli pcb drc ...
+#   scripts/kicad python3 hardware/pedal-hub/generate.py
+#
+# Native tools win when present (Linux nix shell, or KiCad.app on macOS).
+# Otherwise the official kicad/kicad image runs them, because nixpkgs marks
+# KiCad broken on Darwin and the generators need KiCad's own pcbnew module.
+# The repository root is mounted at the same path inside the container so that
+# paths printed by KiCad match the host.
+set -euo pipefail
+
+KICAD_IMAGE="${KICAD_IMAGE:-kicad/kicad:10.0}"
+# From the script's location rather than git: jj workspaces have no .git of
+# their own and git would resolve to the main checkout.
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [ $# -eq 0 ]; then
+  echo "usage: scripts/kicad <kicad-cli|python3> [args...]" >&2
+  exit 2
+fi
+
+tool="$1"
+shift
+
+native_python() {
+  # KiCad.app ships its own interpreter with pcbnew on the path.
+  local app_py="/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3"
+  if [ -x "$app_py" ]; then
+    echo "$app_py"
+  elif python3 -c "import pcbnew" >/dev/null 2>&1; then
+    command -v python3
+  fi
+}
+
+case "$tool" in
+  kicad-cli)
+    if command -v kicad-cli >/dev/null 2>&1; then
+      exec kicad-cli "$@"
+    elif [ -x /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli ]; then
+      exec /Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli "$@"
+    fi
+    ;;
+  python3)
+    py="$(native_python)"
+    if [ -n "$py" ]; then
+      exec "$py" "$@"
+    fi
+    ;;
+  *)
+    echo "error: unsupported tool '$tool' (expected kicad-cli or python3)" >&2
+    exit 2
+    ;;
+esac
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "error: no native KiCad 10 found and docker is unavailable" >&2
+  exit 1
+fi
+
+tty_flag=()
+[ -t 1 ] && tty_flag=(-t)
+
+# A fresh container has no global symbol/footprint library tables, which makes
+# ERC report every stock library as missing. Seed a config dir once from the
+# templates shipped in the image (gitignored, under .validation/).
+config="$root/.validation/kicad-config"
+run() {
+  docker run --rm "${tty_flag[@]}" \
+    --user "$(id -u):$(id -g)" \
+    -e HOME=/tmp \
+    -e KICAD_CONFIG_HOME="$config" \
+    -v "$root:$root" \
+    -w "$PWD" \
+    "$KICAD_IMAGE" "$@"
+}
+if [ ! -f "$config/10.0/fp-lib-table" ]; then
+  mkdir -p "$config/10.0"
+  run python3 -c 'import shutil, sys
+for t in ("fp-lib-table", "sym-lib-table"):
+    for d in sys.argv[1:]:
+        shutil.copy("/usr/share/kicad/template/" + t, d + "/" + t)' "$config" "$config/10.0"
+fi
+
+run "$tool" "$@"
