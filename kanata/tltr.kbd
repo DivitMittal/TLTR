@@ -236,49 +236,37 @@
   ss $slow_scroll_move
   ps $precise_scroll_move
 )
-(environment (KANATA_RSCROLL "")
-  (defalias
-    ;; precise scroll
-    sup (🖱☸↑ $rd $ps)
-    sdp (🖱☸↓ $rd $ps)
-    srp (🖱☸→ $rd $ps)
-    slp (🖱☸← $rd $ps)
-    ;; slow scroll
-    sus (🖱☸↑ $rd $ss)
-    sds (🖱☸↓ $rd $ss)
-    srs (🖱☸→ $rd $ss)
-    sls (🖱☸← $rd $ss)
-    ;; scroll
-    su (🖱☸↑ $rd $so)
-    sd (🖱☸↓ $rd $so)
-    sr (🖱☸→ $rd $so)
-    sl (🖱☸← $rd $so)
-    ;; zoom (Ctrl+wheel), same direction as the QMK firmware
-    zmi (multi ‹⌃ (🖱☸↓ $rd $so))
-    zmo (multi ‹⌃ (🖱☸↑ $rd $so))
+;; scroll direction toggle, like KC_SCRL_REV on the QMK firmware: while the
+;; rscroll virtual key is active every wheel direction is flipped, zoom included
+(defvirtualkeys
+  rscroll XX
+)
+(deftemplate wheel (fwd rev dist)
+  (switch
+    ((input virtual rscroll)) ($rev $rd $dist) break
+    () ($fwd $rd $dist) break
   )
 )
-(environment (KANATA_RSCROLL "1")
-  (defalias
-    ;; precise scroll
-    sup (🖱☸↓ $rd $ps)
-    sdp (🖱☸↑ $rd $ps)
-    srp (🖱☸← $rd $ps)
-    slp (🖱☸→ $rd $ps)
-    ;; slow scroll
-    sus (🖱☸↓ $rd $ss)
-    sds (🖱☸↑ $rd $ss)
-    srs (🖱☸← $rd $ss)
-    sls (🖱☸→ $rd $ss)
-    ;; scroll
-    su (🖱☸↓ $rd $so)
-    sd (🖱☸↑ $rd $so)
-    sr (🖱☸← $rd $so)
-    sl (🖱☸→ $rd $so)
-    ;; zoom
-    zmi (multi ‹⌃ (🖱☸↑ $rd $so))
-    zmo (multi ‹⌃ (🖱☸↓ $rd $so))
-  )
+(defalias
+  rsc (on-press toggle-vkey rscroll)
+  ;; precise scroll
+  sup (t! wheel 🖱☸↑ 🖱☸↓ $ps)
+  sdp (t! wheel 🖱☸↓ 🖱☸↑ $ps)
+  srp (t! wheel 🖱☸→ 🖱☸← $ps)
+  slp (t! wheel 🖱☸← 🖱☸→ $ps)
+  ;; slow scroll
+  sus (t! wheel 🖱☸↑ 🖱☸↓ $ss)
+  sds (t! wheel 🖱☸↓ 🖱☸↑ $ss)
+  srs (t! wheel 🖱☸→ 🖱☸← $ss)
+  sls (t! wheel 🖱☸← 🖱☸→ $ss)
+  ;; scroll
+  su (t! wheel 🖱☸↑ 🖱☸↓ $so)
+  sd (t! wheel 🖱☸↓ 🖱☸↑ $so)
+  sr (t! wheel 🖱☸→ 🖱☸← $so)
+  sl (t! wheel 🖱☸← 🖱☸→ $so)
+  ;; zoom (Ctrl+wheel), same direction as the QMK firmware
+  zmi (multi ‹⌃ (t! wheel 🖱☸↓ 🖱☸↑ $so))
+  zmo (multi ‹⌃ (t! wheel 🖱☸↑ 🖱☸↓ $so))
 )
 (defalias
   ;; precise mouse
@@ -342,6 +330,6 @@
 (deflayer TLTR
   XX @scre 🔆  @med  🔊  🖰3       @zmi XX  @m△ XX  XX  XX
   XX  @pre @slw @scr  🖰1 🖰2       @zmo @m◅ @m▽ @m▻ XX   XX
-     🖰5   🔅   @ba   🔉  🖰4         XX XX  XX  XX  XX
+     🖰5   🔅   @ba   🔉  🖰4         XX XX  XX  XX  @rsc
                 XX _                    _ XX
 )
