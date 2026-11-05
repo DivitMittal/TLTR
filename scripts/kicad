@@ -12,7 +12,9 @@
 set -euo pipefail
 
 KICAD_IMAGE="${KICAD_IMAGE:-kicad/kicad:10.0}"
-root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+# From the script's location rather than git: jj workspaces have no .git of
+# their own and git would resolve to the main checkout.
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ $# -eq 0 ]; then
   echo "usage: scripts/kicad <kicad-cli|python3> [args...]" >&2
