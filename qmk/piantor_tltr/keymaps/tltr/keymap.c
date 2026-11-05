@@ -1,5 +1,4 @@
 #include QMK_KEYBOARD_H
-#include "hardware/watchdog.h"
 #include "usb_util.h"
 
 // Speed level definitions
@@ -50,7 +49,6 @@ static bool zoom_out_pressed = false;
 
 static uint8_t mouse_buttons = 0;
 static uint16_t mouse_timer = 0;
-static uint16_t boot_hold_timer = 0;
 
 static uint8_t mbtn1_oneshot_mods = 0;
 static uint8_t mbtn2_oneshot_mods = 0;
@@ -230,8 +228,6 @@ enum custom_keycodes {
   KC_SCRE, // Screen control (tap=lock screen, hold=display off)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
 
-  // Boot/Reboot control
-  KC_BOOT_HOLD, // Boot control (tap=reboot, hold=bootloader)
 
   // Scroll direction toggle
   KC_SCRL_REV, // Toggle scroll direction (for natural scrolling compatibility)
@@ -285,7 +281,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_NO,        KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
         KC_TRNS,      KC_MOD_ALT,  KC_MOD_CTRL,  KC_MOD_SHIFT, KC_MOD_META, KC_OS_FN,    KC_PGDN,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
                       TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        KC_OS_HYP,   KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
                                                  KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
@@ -980,19 +976,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else {
           tap_code(KC_MNXT);
         }
-      }
-    }
-    return false;
-
-  case KC_BOOT_HOLD:
-    if (record->event.pressed) {
-      boot_hold_timer = timer_read();
-    } else {
-      uint16_t elapsed = timer_elapsed(boot_hold_timer);
-      if (elapsed < TAPHOLD_TIMEOUT) {
-        watchdog_reboot(0, 0, 0);
-      } else {
-        reset_keyboard();
       }
     }
     return false;

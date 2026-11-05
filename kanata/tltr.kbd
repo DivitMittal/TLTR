@@ -101,7 +101,7 @@
 ;; TL (Thumb Left) layer
 ;; for modifiers & navigation
 (deflayer TL
-  lrld   ⎋     f16   f17   f18   XX       @pguf   @btb   ▲   ↹   XX  XX
+  XX     ⎋     f16   f17   f18   XX       @pguf   @btb   ▲   ↹   XX  XX
   _    @sAlt @sCtl @sSft @sMet @sFn     @pgdf    ◀     ▼   ▶   XX   _
       @lf19   XX    XX   @sHyp XX        XX      ⌫     ⌦   XX  _
                    XX  _                       _ @trtltr

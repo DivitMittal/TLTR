@@ -58,7 +58,7 @@ layers:
 
   TL:
     - [
-        { tap: "🔃", hold: "⬇️" },
+        null,
         { tap: "⎋" },
         { tap: "🪟", hold: "F16" },
         { tap: "🖱️", hold: "F17" },
