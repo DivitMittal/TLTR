@@ -102,6 +102,12 @@ Hands-free control via USB or serial foot pedals. Includes both Arduino Uno (ser
 
 See [pedals/README.md](./pedals/) for setup, keymap, and configuration.
 
+The RP2040 pedal sketch has a matching carrier PCB and 3D-printable enclosure. Both are generated: the board as a KiCad 10 project, the enclosure with build123d. See [hardware/README.md](./hardware/).
+
+<p align="center">
+    <img title="Pedal hub enclosure" src="./cad/out/pedal-hub/pedal-hub-preview.svg" alt="Pedal hub enclosure preview" width="420"/>
+</p>
+
 ---
 
 **Inspired by:** [Seniply](https://github.com/stevep99/seniply)
