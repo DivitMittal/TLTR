@@ -1,0 +1,9 @@
+{
+  "outer_size_mm": [
+    87.6,
+    51.4,
+    25.1
+  ],
+  "pcb_underside_z": 6.5,
+  "screw": "4x M3 x 20 (cap head) + 4x M3 heat-set insert"
+}
