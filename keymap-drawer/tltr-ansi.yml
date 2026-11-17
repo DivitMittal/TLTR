@@ -196,7 +196,7 @@ layers:
         { tap: "⌫" },
         { tap: "⌦" },
         null,
-        null,
+        { tap: "/", shifted: "\\" },
         null,
       ]
 
@@ -267,7 +267,7 @@ layers:
         { tap: "⑧", left: "F8" },
         { tap: "⑨", left: "F9" },
         { tap: "+" },
-        { tap: "=" },
+        { tap: "=", shifted: "—" },
         null,
       ]
 
@@ -284,7 +284,7 @@ layers:
         { tap: "④", left: "F4" },
         { tap: "⑤", left: "F5" },
         { tap: "⑥", left: "F6" },
-        { tap: "-" },
+        { tap: "-", shifted: "–" },
         { tap: "⏎" },
       ]
 
@@ -365,7 +365,7 @@ layers:
         { tap: "🔆" },
         { tap: "⏯️", hold: "⏭️" },
         { tap: "🔊" },
-        null,
+        { tap: "🖱3" },
         null,
         { tap: "🔍+" },
         null,
@@ -379,9 +379,9 @@ layers:
     # Home row (13 keys) - Mouse control
     - [
         null,
-        { tap: "🖱️🎯", type: "sticky" },
-        { tap: "🖱️🐌", type: "sticky" },
-        { tap: "🖱️🛞", type: "sticky" },
+        { tap: "🖱️🎯" },
+        { tap: "🖱️🐌" },
+        { tap: "🖱️🛞" },
         { tap: "🖱1" },
         { tap: "🖱2" },
         null,
@@ -395,11 +395,11 @@ layers:
 
     # Bottom row (13 keys) - Media control
     - [
-        null,
+        { tap: "🖱5" },
         { tap: "🔅" },
         { tap: "⏮️" },
         { tap: "🔉" },
-        null,
+        { tap: "🖱4" },
         null,
         null,
         null,

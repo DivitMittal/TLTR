@@ -91,14 +91,14 @@ layers:
         { tap: "F19", hold: "⌃F19" },
         null,
         null,
-        { tap: "✦" },
+        { tap: "✦", type: "sticky" },
         null,
 
         null,
         { tap: "⌫" },
         { tap: "⌦" },
         null,
-        null,
+        { tap: "/", shifted: "\\" },
       ]
     - [{ tap: "TL", type: "held" }, { tap: "⇧" }, { tap: "␣" }, { tap: "TR" }]
 
