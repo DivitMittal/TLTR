@@ -71,8 +71,7 @@ The compiled firmware will be at:
 Flash each half separately, with only that half connected over USB:
 
 1. Put the half into bootloader mode:
-   - Press the BOOT button while plugging in the USB cable, OR
-   - Use the `QK_BOOT` key on the TLTR layer (only reaches the half that is plugged in)
+   - Hold the BOOT button while plugging in the USB cable
 
 2. The half will appear as a USB mass storage device
 

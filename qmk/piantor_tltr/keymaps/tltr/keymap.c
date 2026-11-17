@@ -1,5 +1,4 @@
 #include QMK_KEYBOARD_H
-#include "hardware/watchdog.h"
 #include "usb_util.h"
 
 // Speed level definitions
@@ -50,7 +49,6 @@ static bool zoom_out_pressed = false;
 
 static uint8_t mouse_buttons = 0;
 static uint16_t mouse_timer = 0;
-static uint16_t boot_hold_timer = 0;
 
 static uint8_t mbtn1_oneshot_mods = 0;
 static uint8_t mbtn2_oneshot_mods = 0;
@@ -61,6 +59,7 @@ static inline int8_t get_zoom_wheel_speed(void);
 static inline uint16_t get_mouse_interval(void);
 static inline uint16_t get_zoom_interval(void);
 static inline void update_zoom_ctrl(void);
+static void fire_due_holds(void);
 
 // Hardcoded split roles: the left half is always master, the right half always
 // slave. SPLIT_USB_DETECT only waited 2s for enumeration at boot, which lost the
@@ -114,6 +113,8 @@ void suspend_wakeup_init_user(void) {
 }
 
 void housekeeping_task_user(void) {
+  fire_due_holds();
+
   if (!mouse_up_pressed && !mouse_down_pressed && !mouse_left_pressed &&
       !mouse_right_pressed && !zoom_in_pressed && !zoom_out_pressed) {
     return;
@@ -132,6 +133,10 @@ void housekeeping_task_user(void) {
   int8_t wheel_dir = scroll_direction_reversed ? -1 : 1;
 
   if (zoom_in_pressed || zoom_out_pressed) {
+    // Any key press clears weak mods; restore Ctrl before scrolling.
+    if (!(get_weak_mods() & MOD_BIT(KC_LCTL))) {
+      update_zoom_ctrl();
+    }
     int8_t wheel_speed = wheel_dir * get_zoom_wheel_speed();
     if (zoom_in_pressed) {
       mouse_report.v = -wheel_speed;
@@ -223,8 +228,6 @@ enum custom_keycodes {
   KC_SCRE, // Screen control (tap=lock screen, hold=display off)
   KC_MEDC, // Media control (tap=play/pause, hold=next track)
 
-  // Boot/Reboot control
-  KC_BOOT_HOLD, // Boot control (tap=reboot, hold=bootloader)
 
   // Scroll direction toggle
   KC_SCRL_REV, // Toggle scroll direction (for natural scrolling compatibility)
@@ -278,7 +281,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     // TL Layer - Modifiers & Navigation
     [_TL] = LAYOUT_split_2x6_1x5_2(
-        KC_BOOT_HOLD, KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
+        KC_NO,        KC_ESC,      KC_F16,       KC_F17,       KC_F18,       KC_NO,       KC_PGUP,   S(KC_TAB), KC_UP,   KC_TAB,  KC_NO,   KC_NO,
         KC_TRNS,      OS_LALT,     OS_LCTL,      OS_LSFT,      OS_LGUI,     KC_OS_FN,    KC_PGDN,   KC_LEFT,   KC_DOWN, KC_RGHT, KC_NO,   KC_TRNS,
                       TD(TD_LEFT_PEDAL), KC_NO,        KC_NO,        OS_HYPR,     KC_NO,       KC_NO,     KC_BSPC,   KC_DEL,  KC_NO,   KC_TRNS,
                                                  KC_TRNS,      KC_TRNS,                  KC_TRNS,   KC_TRTLTR_KEY
@@ -337,6 +340,7 @@ static bool tr_pressed = false;
 
 static bool fn_modifier_active = false;
 static bool fn_oneshot_active = false;
+static uint16_t fn_oneshot_timer = 0;
 
 
 static struct {
@@ -508,10 +512,22 @@ static void turn_display_off(void) {
   }
 }
 
+// Whether Fn applies to this key press. A tapped (one-shot) Fn is used up by
+// the press and, like kanata's, expires ONESHOT_TIMEOUT after the tap.
+static bool consume_fn(void) {
+  if (fn_oneshot_active) {
+    bool fresh = timer_elapsed(fn_oneshot_timer) < ONESHOT_TIMEOUT;
+    fn_modifier_active = false;
+    fn_oneshot_active = false;
+    return fresh;
+  }
+  return fn_modifier_active;
+}
+
 static bool handle_fn_fork(keyrecord_t *record, uint16_t number_key,
                            uint16_t function_key) {
   if (record->event.pressed) {
-    if (fn_modifier_active) {
+    if (consume_fn()) {
       tap_code(function_key);
     } else {
       tap_code(number_key);
@@ -584,11 +600,30 @@ static inline uint16_t get_zoom_interval(void) {
   }
 }
 
+// Zoom's Ctrl is a weak mod, so ending a zoom never releases a Ctrl the user is
+// holding (and releasing that Ctrl mid-zoom doesn't end the zoom's).
 static inline void update_zoom_ctrl(void) {
   if (zoom_in_pressed || zoom_out_pressed) {
-    register_code(KC_LCTL);
+    add_weak_mods(MOD_BIT(KC_LCTL));
   } else {
-    unregister_code(KC_LCTL);
+    del_weak_mods(MOD_BIT(KC_LCTL));
+  }
+  send_keyboard_report();
+}
+
+// Fire the screen/media hold actions once TAPHOLD_TIMEOUT passes, like kanata's
+// tap-hold, instead of waiting for the release. Marking the key used stops the
+// release from firing anything else.
+static void fire_due_holds(void) {
+  if (screen_hold_state.held && !screen_hold_state.used &&
+      timer_elapsed(screen_hold_state.timer) >= TAPHOLD_TIMEOUT) {
+    screen_hold_state.used = true;
+    turn_display_off();
+  }
+  if (media_hold_state.held && !media_hold_state.used &&
+      timer_elapsed(media_hold_state.timer) >= TAPHOLD_TIMEOUT) {
+    media_hold_state.used = true;
+    tap_code(KC_MNXT);
   }
 }
 
@@ -682,6 +717,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (!modifier_hold_state.os_fn_used &&
           timer_elapsed(modifier_hold_state.os_fn_timer) < TAPHOLD_TIMEOUT) {
         fn_oneshot_active = true;
+        fn_oneshot_timer = timer_read();
       } else {
         fn_modifier_active = false;
         fn_oneshot_active = false;
@@ -801,7 +837,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_ASTF:
     if (record->event.pressed) {
-      if (fn_modifier_active) {
+      if (consume_fn()) {
         tap_code(KC_F11);
       } else {
         tap_code16(KC_ASTR);
@@ -811,7 +847,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   case KC_PERF:
     if (record->event.pressed) {
-      if (fn_modifier_active) {
+      if (consume_fn()) {
         tap_code(KC_F12);
       } else {
         tap_code16(KC_PERC);
@@ -853,19 +889,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         } else {
           tap_code(KC_MNXT);
         }
-      }
-    }
-    return false;
-
-  case KC_BOOT_HOLD:
-    if (record->event.pressed) {
-      boot_hold_timer = timer_read();
-    } else {
-      uint16_t elapsed = timer_elapsed(boot_hold_timer);
-      if (elapsed < TAPHOLD_TIMEOUT) {
-        watchdog_reboot(0, 0, 0);
-      } else {
-        reset_keyboard();
       }
     }
     return false;
