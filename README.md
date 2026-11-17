@@ -75,6 +75,19 @@ A bespoke cross-platform multi-layer 38-key keyboard layout for programmers, i.e
       - Dependencies:
         1. `xset` (X11) for the display-off key
 
+#### Nix (Home Manager)
+
+The flake ships a Home Manager module that runs the layout through [kanata-tray](https://github.com/rszyma/kanata-tray) (macOS also gets `kanata-tray-start`/`kanata-tray-stop` scripts for the Karabiner daemon):
+
+```nix
+{
+  inputs.TLTR.url = "github:DivitMittal/TLTR";
+  # in your Home Manager configuration:
+  imports = [inputs.TLTR.homeManagerModules.default];
+  programs.tltr.enable = true;
+}
+```
+
 ### Hardware-based (firmware flashed to keyboard):
 
 2. [QMK Firmware](https://qmk.fm/) - For programmable keyboards

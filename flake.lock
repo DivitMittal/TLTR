@@ -117,6 +117,22 @@
         "type": "github"
       }
     },
+    "kanata-tray": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790084958,
+        "narHash": "sha256-kB1XsxPETckXomIrBRqi+on8xUQuktaoJoBL1T0Q84E=",
+        "owner": "rszyma",
+        "repo": "kanata-tray",
+        "rev": "138545c67bf66a7cf6507e85ea62fc3234cbf0e2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rszyma",
+        "repo": "kanata-tray",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793645915,
@@ -171,6 +187,7 @@
         "devshell": "devshell",
         "flake-parts": "flake-parts",
         "git-hooks": "git-hooks",
+        "kanata-tray": "kanata-tray",
         "nixpkgs": "nixpkgs",
         "nixpkgs-x86_64-darwin": "nixpkgs-x86_64-darwin",
         "systems": "systems",
