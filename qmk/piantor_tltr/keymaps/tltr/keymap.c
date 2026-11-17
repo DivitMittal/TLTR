@@ -427,8 +427,8 @@ static bool is_modifier_like_key(uint16_t keycode) {
   }
 }
 
-// Mouse, zoom, and the tap-hold screen/media keys: also don't mark a held
-// modifier as used.
+// Mouse, zoom, and the tap-hold screen/media keys: don't cancel a held
+// screen/media key.
 static bool is_pointer_or_hold_key(uint16_t keycode) {
   switch (keycode) {
   case KC_SCRE:
@@ -664,32 +664,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
   }
 
-  if (record->event.pressed) {
-    if (modifier_hold_state.os_hyp_held || modifier_hold_state.os_fn_held ||
-        modifier_hold_state.mod_alt_held || modifier_hold_state.mod_ctrl_held ||
-        modifier_hold_state.mod_shift_held ||
-        modifier_hold_state.mod_meta_held || screen_hold_state.held ||
-        media_hold_state.held) {
+  if (record->event.pressed && !is_modifier_like_key(keycode)) {
+    // Any other press, mouse and zoom included, uses up a held modifier, so
+    // Ctrl+click doesn't leave a stray one-shot Ctrl behind. The modifiers stay
+    // registered from their own press, so a layer change can't remap them.
+    if (modifier_hold_state.os_hyp_held)
+      modifier_hold_state.os_hyp_used = true;
+    if (modifier_hold_state.os_fn_held)
+      modifier_hold_state.os_fn_used = true;
+    if (modifier_hold_state.mod_alt_held)
+      modifier_hold_state.mod_alt_used = true;
+    if (modifier_hold_state.mod_ctrl_held)
+      modifier_hold_state.mod_ctrl_used = true;
+    if (modifier_hold_state.mod_shift_held)
+      modifier_hold_state.mod_shift_used = true;
+    if (modifier_hold_state.mod_meta_held)
+      modifier_hold_state.mod_meta_used = true;
 
-      if (!is_modifier_like_key(keycode) && !is_pointer_or_hold_key(keycode)) {
-
-        if (modifier_hold_state.os_hyp_held)
-          modifier_hold_state.os_hyp_used = true;
-        if (modifier_hold_state.os_fn_held)
-          modifier_hold_state.os_fn_used = true;
-        if (modifier_hold_state.mod_alt_held)
-          modifier_hold_state.mod_alt_used = true;
-        if (modifier_hold_state.mod_ctrl_held)
-          modifier_hold_state.mod_ctrl_used = true;
-        if (modifier_hold_state.mod_shift_held)
-          modifier_hold_state.mod_shift_used = true;
-        if (modifier_hold_state.mod_meta_held)
-          modifier_hold_state.mod_meta_used = true;
-        if (screen_hold_state.held)
-          screen_hold_state.used = true;
-        if (media_hold_state.held)
-          media_hold_state.used = true;
-      }
+    // Mouse and zoom keys don't cancel the screen/media tap-hold keys.
+    if (!is_pointer_or_hold_key(keycode)) {
+      if (screen_hold_state.held)
+        screen_hold_state.used = true;
+      if (media_hold_state.held)
+        media_hold_state.used = true;
     }
   }
 
