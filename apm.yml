@@ -2,7 +2,7 @@ name: tltr
 version: 1.0.0
 description: Bespoke cross-platform 38-key keyboard layout (Colemak Mod-DH Wide Angle) with Kanata and QMK implementations
 author: DivitMittal
-license: MIT
+license: LicenseRef-HONCL-1.0
 target:
   - claude
   - codex
