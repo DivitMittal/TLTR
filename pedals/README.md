@@ -30,6 +30,8 @@ Both support compile-time tuning and validation, and both now include per-pedal 
 └──────────────────┴──────────────────┘
 ```
 
+Want a box instead of loose wiring? `hardware/pedal-hub/` is a carrier PCB for the RP2040 Zero with two 6.35 mm jacks on GP14/GP15, and `cad/` has its enclosure. See [../hardware/README.md](../hardware/).
+
 ## Choose a sketch
 
 ### Arduino Uno dual pedal

@@ -34,3 +34,12 @@ apm_modules/
 
 ## git worktrees
 .worktrees/
+
+## KiCad / CAD local state (see hardware/README.md)
+.validation/
+*.kicad_prl
+*.lck
+*-backups/
+fp-info-cache
+_autosave-*
+__pycache__/

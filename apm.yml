@@ -24,3 +24,11 @@ dependencies:
         - claude-code
         - --project
         - ~/Projects/hid/TLTR
+    # Konnect (KiCad 10 MCP) for hardware/: schematic, PCB, ERC/DRC tools.
+    # Not in the MCP registry yet; `konnect` must be on PATH (install through
+    # KiCad's Plugin and Content Manager). See hardware/README.md.
+    - name: konnect
+      registry: false
+      transport: stdio
+      command: konnect
+      args: []

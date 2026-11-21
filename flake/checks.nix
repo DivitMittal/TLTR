@@ -15,7 +15,11 @@
         hooks = {
           ## Formatting
           treefmt.enable = false;
-          trim-trailing-whitespace.enable = true;
+          trim-trailing-whitespace = {
+            enable = true;
+            # KiCad/build123d exports are regenerated verbatim; rewriting them only adds churn.
+            excludes = ["\\.svg$" "\\.step$" "\\.stl$" "\\.kicad_.*$"];
+          };
           mixed-line-endings.enable = false;
 
           check-added-large-files = {
@@ -27,6 +31,10 @@
               "\\.jpeg"
               "\\.svg"
               "\\.gif"
+              ## Generated CAD/EDA exports (hardware/, cad/out/)
+              "\\.step"
+              "\\.stl"
+              "\\.pdf"
             ];
           };
           check-case-conflicts.enable = true;
